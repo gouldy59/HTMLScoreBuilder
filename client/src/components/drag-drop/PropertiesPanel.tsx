@@ -184,6 +184,31 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
           </div>
         );
 
+      case 'container':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="containerTitle">Container Title (Optional)</Label>
+              <Input
+                id="containerTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter container title..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="containerDescription">Description (Optional)</Label>
+              <Textarea
+                id="containerDescription"
+                value={selectedComponent.content.description || ''}
+                onChange={(e) => updateContent('description', e.target.value)}
+                placeholder="Container description..."
+                className="min-h-16"
+              />
+            </div>
+          </div>
+        );
+
       default:
         return (
           <p className="text-sm text-gray-500">

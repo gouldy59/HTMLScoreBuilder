@@ -155,14 +155,6 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
           </div>
         </div>`;
 
-    case 'container':
-      return `
-        <div class="mb-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F9FAFB'}; padding: ${style.padding || '16px'}; border-radius: ${style.borderRadius || '8px'};">
-          <div class="min-h-16 flex items-center justify-center text-gray-400">
-            <p>Container - Drop components here</p>
-          </div>
-        </div>`;
-
     case 'divider':
       return `
         <div class="mb-6" style="height: ${style.height || '1px'}; background-color: ${style.backgroundColor || '#E5E7EB'}; margin: ${style.margin || '16px 0'};"></div>`;
@@ -171,14 +163,31 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       return `
         <div style="height: ${style.height || '32px'};"></div>`;
 
-    case 'group':
-      let groupHTML = `<div class="mb-6 p-4 rounded-lg" style="background-color: ${style.backgroundColor || '#F9FAFB'}; border: ${style.border || '2px dashed #D1D5DB'};">`;
-      const children = content.children || [];
-      children.forEach((child: any) => {
-        groupHTML += generateComponentHTML(child, variables);
-      });
-      groupHTML += '</div>';
-      return groupHTML;
+    case 'container':
+      const containerStyle = `
+        background-color: ${style.backgroundColor || '#F9FAFB'};
+        padding: ${style.padding || '16px'};
+        border-radius: ${style.borderRadius || '8px'};
+        color: ${style.textColor || '#374151'};
+        margin-bottom: 24px;
+        border: 1px solid #E5E7EB;
+      `;
+      
+      let containerHTML = `<div style="${containerStyle}">`;
+      
+      if (content.title) {
+        containerHTML += `<h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: ${style.textColor || '#374151'};">${content.title}</h3>`;
+      }
+      
+      if (content.description) {
+        containerHTML += `<p style="font-size: 14px; opacity: 0.75; margin-bottom: 16px; color: ${style.textColor || '#374151'};">${content.description}</p>`;
+      }
+      
+      containerHTML += `<div style="min-height: 96px; display: flex; align-items: center; justify-content: center; border: 2px dashed #D1D5DB; border-radius: 4px; color: #9CA3AF;">`;
+      containerHTML += `<p style="text-align: center; font-size: 14px;">Container Content Area</p>`;
+      containerHTML += `</div></div>`;
+      
+      return containerHTML;
 
     default:
       return `

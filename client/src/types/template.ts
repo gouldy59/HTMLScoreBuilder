@@ -7,6 +7,7 @@ export interface TemplateComponent {
     x: number;
     y: number;
   };
+  children?: TemplateComponent[];
 }
 
 export interface TemplateVariable {

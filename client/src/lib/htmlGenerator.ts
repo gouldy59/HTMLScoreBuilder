@@ -183,10 +183,20 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         containerHTML += `<p style="font-size: 14px; opacity: 0.75; margin-bottom: 16px; color: ${style.textColor || '#374151'};">${content.description}</p>`;
       }
       
-      containerHTML += `<div style="min-height: 96px; display: flex; align-items: center; justify-content: center; border: 2px dashed #D1D5DB; border-radius: 4px; color: #9CA3AF;">`;
-      containerHTML += `<p style="text-align: center; font-size: 14px;">Container Content Area</p>`;
-      containerHTML += `</div></div>`;
+      // Render child components if they exist
+      if (component.children && component.children.length > 0) {
+        containerHTML += `<div style="display: flex; flex-direction: column; gap: 16px;">`;
+        component.children.forEach((child: any) => {
+          containerHTML += generateComponentHTML(child, variables);
+        });
+        containerHTML += `</div>`;
+      } else {
+        containerHTML += `<div style="min-height: 96px; display: flex; align-items: center; justify-content: center; border: 2px dashed #D1D5DB; border-radius: 4px; color: #9CA3AF;">`;
+        containerHTML += `<p style="text-align: center; font-size: 14px;">Container Content Area</p>`;
+        containerHTML += `</div>`;
+      }
       
+      containerHTML += `</div>`;
       return containerHTML;
 
     default:

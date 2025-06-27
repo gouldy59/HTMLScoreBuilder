@@ -4,9 +4,10 @@ interface ToolbarProps {
   templateName: string;
   onPreview: () => void;
   onExportHTML: () => void;
+  onImportData: () => void;
 }
 
-export function Toolbar({ templateName, onPreview, onExportHTML }: ToolbarProps) {
+export function Toolbar({ templateName, onPreview, onExportHTML, onImportData }: ToolbarProps) {
   return (
     <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
@@ -33,6 +34,9 @@ export function Toolbar({ templateName, onPreview, onExportHTML }: ToolbarProps)
         </div>
 
         {/* Action Buttons */}
+        <Button onClick={onImportData} variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+          <i className="fas fa-file-import mr-2"></i>Import Data
+        </Button>
         <Button onClick={onPreview} variant="outline">
           <i className="fas fa-eye mr-2"></i>Preview
         </Button>

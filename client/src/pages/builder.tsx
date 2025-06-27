@@ -6,6 +6,7 @@ import { CanvasArea } from '@/components/drag-drop/CanvasArea';
 import { PropertiesPanel } from '@/components/drag-drop/PropertiesPanel';
 import { Toolbar } from '@/components/Toolbar';
 import { TemplateManager } from '@/components/TemplateManager';
+import { JSONDataDialog } from '@/components/JSONDataDialog';
 import { TemplateComponent, ComponentType, COMPONENT_TYPES } from '@/types/template';
 import { generateHTML, downloadHTML } from '@/lib/htmlGenerator';
 import { apiRequest } from '@/lib/queryClient';
@@ -19,6 +20,8 @@ export default function Builder() {
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isJSONDialogOpen, setIsJSONDialogOpen] = useState(false);
+  const [templateData, setTemplateData] = useState<any>({});
   const { toast } = useToast();
 
   const saveTemplateMutation = useMutation({
@@ -103,7 +106,7 @@ export default function Builder() {
   };
 
   const handlePreview = () => {
-    const html = generateHTML(components, {
+    const defaultData = {
       studentName: 'John Doe',
       studentId: 'STU001',
       className: '10th Grade',
@@ -119,7 +122,12 @@ export default function Builder() {
       overallGrade: 'B+',
       gpa: 3.5,
       rank: 15,
-    }, templateName);
+    };
+
+    // Use imported data if available, otherwise use defaults
+    const previewData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+    
+    const html = generateHTML(components, previewData, templateName);
 
     const previewWindow = window.open('', '_blank');
     if (previewWindow) {
@@ -128,10 +136,48 @@ export default function Builder() {
     }
   };
 
+  const handleImportData = () => {
+    setIsJSONDialogOpen(true);
+  };
+
+  const handleApplyJSONData = (data: any) => {
+    setTemplateData(data);
+    toast({ 
+      title: 'Data Imported', 
+      description: 'JSON data has been applied to your template. Use Preview to see the results.' 
+    });
+  };
+
   const handleExportHTML = () => {
-    const html = generateHTML(components, {}, templateName);
+    const defaultData = {
+      studentName: 'John Doe',
+      studentId: 'STU001',
+      className: '10th Grade',
+      teacherName: 'Ms. Smith',
+      academicYear: '2024-2025',
+      grade: '10',
+      mathScore: 85,
+      mathGrade: 'B+',
+      scienceScore: 92,
+      scienceGrade: 'A-',
+      englishScore: 78,
+      englishGrade: 'B',
+      overallGrade: 'B+',
+      gpa: 3.5,
+      rank: 15,
+    };
+
+    // Use imported data if available, otherwise use defaults
+    const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+    
+    const html = generateHTML(components, exportData, templateName);
     downloadHTML(html, `${templateName.replace(/\s+/g, '-').toLowerCase()}.html`);
-    toast({ title: 'HTML exported successfully' });
+    
+    const dataSource = Object.keys(templateData).length > 0 ? 'with imported JSON data' : 'with sample data';
+    toast({ 
+      title: 'HTML exported successfully', 
+      description: `Template exported ${dataSource}` 
+    });
   };
 
   return (
@@ -147,6 +193,7 @@ export default function Builder() {
             templateName={templateName}
             onPreview={handlePreview}
             onExportHTML={handleExportHTML}
+            onImportData={handleImportData}
           />
 
           <div className="flex-1 flex">
@@ -174,6 +221,14 @@ export default function Builder() {
           isOpen={isTemplateManagerOpen}
           onClose={() => setIsTemplateManagerOpen(false)}
           onLoadTemplate={handleLoadTemplate}
+        />
+
+        <JSONDataDialog
+          isOpen={isJSONDialogOpen}
+          onClose={() => setIsJSONDialogOpen(false)}
+          onApplyData={handleApplyJSONData}
+          title="Import Template Data"
+          description="Import and validate JSON data to populate your template with real values"
         />
       </div>
     </DragDropProvider>

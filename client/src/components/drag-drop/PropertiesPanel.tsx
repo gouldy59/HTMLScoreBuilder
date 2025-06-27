@@ -5,6 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { validateJSON, validateChartData, getExampleJSON } from '@/lib/jsonValidator';
+import { useToast } from '@/hooks/use-toast';
 
 interface PropertiesPanelProps {
   selectedComponent: TemplateComponent | null;
@@ -12,6 +15,10 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedComponent, onUpdateComponent }: PropertiesPanelProps) {
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonError, setJsonError] = useState('');
+  const { toast } = useToast();
+
   if (!selectedComponent) {
     return (
       <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
@@ -130,12 +137,72 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
             </div>
             <div>
               <Label htmlFor="chartData">Data Source</Label>
-              <Input
-                id="chartData"
-                value={selectedComponent.content.data || ''}
-                onChange={(e) => updateContent('data', e.target.value)}
-                placeholder="{{chartData}} or JSON data"
-              />
+              <div className="space-y-2">
+                <Textarea
+                  id="chartData"
+                  value={selectedComponent.content.data || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    updateContent('data', value);
+                    
+                    // Validate JSON if it's not a template variable
+                    if (value && !value.startsWith('{{')) {
+                      const jsonValidation = validateJSON(value);
+                      if (jsonValidation.isValid && jsonValidation.data) {
+                        const chartValidation = validateChartData(jsonValidation.data);
+                        if (!chartValidation.isValid) {
+                          setJsonError(`Chart data: ${chartValidation.error}`);
+                        } else {
+                          setJsonError('');
+                        }
+                      } else {
+                        setJsonError(`JSON: ${jsonValidation.error}`);
+                      }
+                    } else {
+                      setJsonError('');
+                    }
+                  }}
+                  placeholder="{{chartData}} or valid JSON chart data"
+                  className="min-h-20 font-mono text-sm"
+                />
+                {jsonError && (
+                  <p className="text-sm text-red-600">{jsonError}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const example = getExampleJSON('chart');
+                      updateContent('data', example);
+                      setJsonError('');
+                    }}
+                  >
+                    <i className="fas fa-lightbulb mr-1 text-xs"></i>
+                    Example
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const value = selectedComponent.content.data;
+                      if (value && !value.startsWith('{{')) {
+                        const validation = validateJSON(value);
+                        if (validation.isValid) {
+                          toast({ title: 'Valid JSON format', description: 'Chart data is properly formatted' });
+                        } else {
+                          toast({ title: 'Invalid JSON', description: validation.error, variant: 'destructive' });
+                        }
+                      }
+                    }}
+                  >
+                    <i className="fas fa-check mr-1 text-xs"></i>
+                    Validate
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         );

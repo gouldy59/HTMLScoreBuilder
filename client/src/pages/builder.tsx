@@ -76,7 +76,12 @@ export default function Builder() {
     setComponents(prev =>
       prev.map(component =>
         component.id === componentId
-          ? { ...component, ...updates }
+          ? { 
+              ...component, 
+              ...updates,
+              // Preserve children if not being updated, or use the new children array if provided
+              children: updates.children !== undefined ? updates.children : component.children
+            }
           : component
       )
     );

@@ -1,6 +1,14 @@
 import { useDrop } from 'react-dnd';
 import { TemplateComponent, ComponentType } from '@/types/template';
 import { Button } from '@/components/ui/button';
+import { HeaderComponent } from './HeaderComponent';
+import { StudentInfoComponent } from './StudentInfoComponent';
+import { ScoreTableComponent } from './ScoreTableComponent';
+import { ChartComponent } from './ChartComponent';
+import { TextBlockComponent } from './TextBlockComponent';
+import { GradeSummaryComponent } from './GradeSummaryComponent';
+import { DividerComponent } from './DividerComponent';
+import { SpacerComponent } from './SpacerComponent';
 
 interface ContainerComponentProps {
   component: TemplateComponent;
@@ -11,23 +19,66 @@ interface ContainerComponentProps {
   onAddComponent?: (componentType: ComponentType, position: { x: number; y: number }) => void;
 }
 
-export function ContainerComponent({ component, isSelected, onSelect, onDelete, onAddComponent }: ContainerComponentProps) {
+export function ContainerComponent({ component, isSelected, onSelect, onUpdate, onDelete, onAddComponent }: ContainerComponentProps) {
   const { style, content } = component;
+
+  const renderChildComponent = (child: TemplateComponent) => {
+    const commonProps = {
+      component: child,
+      isSelected: false,
+      onSelect: () => {},
+      onUpdate: (updates: Partial<TemplateComponent>) => {
+        const updatedChildren = component.children?.map(c => 
+          c.id === child.id ? { ...c, ...updates } : c
+        ) || [];
+        onUpdate({ children: updatedChildren });
+      },
+      onDelete: () => {
+        const updatedChildren = component.children?.filter(c => c.id !== child.id) || [];
+        onUpdate({ children: updatedChildren });
+      },
+    };
+
+    switch (child.type) {
+      case 'header':
+        return <HeaderComponent {...commonProps} />;
+      case 'student-info':
+        return <StudentInfoComponent {...commonProps} />;
+      case 'score-table':
+        return <ScoreTableComponent {...commonProps} />;
+      case 'chart':
+        return <ChartComponent {...commonProps} />;
+      case 'text-block':
+        return <TextBlockComponent {...commonProps} />;
+      case 'grade-summary':
+        return <GradeSummaryComponent {...commonProps} />;
+      case 'divider':
+        return <DividerComponent {...commonProps} />;
+      case 'spacer':
+        return <SpacerComponent {...commonProps} />;
+      default:
+        return <div className="p-2 bg-gray-100 rounded text-gray-500">Unknown component: {child.type}</div>;
+    }
+  };
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
     drop: (item: { componentType: ComponentType }, monitor) => {
       if (monitor.didDrop()) return; // Prevent duplicate drops
       
-      const offset = monitor.getClientOffset();
-      if (offset && onAddComponent) {
-        // Position relative to the container
-        const containerRect = monitor.getDropResult();
-        onAddComponent(item.componentType, {
-          x: offset.x - 100, // Adjust for better positioning within container
-          y: offset.y + 50,
-        });
-      }
+      // Add the component as a child of this container
+      const newChild: TemplateComponent = {
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: item.componentType.id,
+        content: { ...item.componentType.defaultContent },
+        style: { ...item.componentType.defaultStyle },
+        position: { x: 0, y: 0 }, // Position within container
+      };
+      
+      const updatedChildren = [...(component.children || []), newChild];
+      onUpdate({ children: updatedChildren });
+      
+      return { containerId: component.id }; // Return container info
     },
     collect: (monitor) => ({
       isOver: monitor.isOver({ shallow: true }),
@@ -92,19 +143,29 @@ export function ContainerComponent({ component, isSelected, onSelect, onDelete, 
         </div>
       )}
 
-      {/* Drop zone */}
-      <div className={`min-h-24 flex items-center justify-center border-2 border-dashed rounded transition-all ${
-        isOver ? 'border-green-400 bg-green-50 text-green-600' : 'border-gray-300'
-      }`}>
-        <div className="text-center">
-          <i className={`fas fa-inbox text-2xl mb-2 ${isOver ? 'text-green-500' : 'text-gray-400'}`}></i>
-          <p className="text-sm font-medium">
-            {isOver ? 'Drop component here' : (content.title ? 'Container Content' : 'Container')}
-          </p>
-          <p className="text-xs opacity-75">
-            {isOver ? 'Release to add component' : 'Drag components here to organize your layout'}
-          </p>
-        </div>
+      {/* Container children */}
+      <div className="space-y-4">
+        {component.children && component.children.length > 0 ? (
+          component.children.map((child) => (
+            <div key={child.id} className="relative">
+              {renderChildComponent(child)}
+            </div>
+          ))
+        ) : (
+          <div className={`min-h-24 flex items-center justify-center border-2 border-dashed rounded transition-all ${
+            isOver ? 'border-green-400 bg-green-50 text-green-600' : 'border-gray-300'
+          }`}>
+            <div className="text-center">
+              <i className={`fas fa-inbox text-2xl mb-2 ${isOver ? 'text-green-500' : 'text-gray-400'}`}></i>
+              <p className="text-sm font-medium">
+                {isOver ? 'Drop component here' : (content.title ? 'Container Content' : 'Container')}
+              </p>
+              <p className="text-xs opacity-75">
+                {isOver ? 'Release to add component' : 'Drag components here to organize your layout'}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

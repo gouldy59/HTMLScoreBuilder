@@ -185,7 +185,26 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       
       // Render child components if they exist
       if (component.children && component.children.length > 0) {
-        containerHTML += `<div style="display: flex; flex-direction: column; gap: 16px;">`;
+        const layoutDirection = content.layoutDirection || 'vertical';
+        const spacing = content.itemSpacing || 'medium';
+        
+        const spacingMap = { small: '8px', medium: '16px', large: '24px' };
+        const gap = spacingMap[spacing as keyof typeof spacingMap] || '16px';
+        
+        let layoutStyle = '';
+        switch (layoutDirection) {
+          case 'horizontal':
+            layoutStyle = `display: flex; flex-direction: row; flex-wrap: wrap; gap: ${gap}; align-items: flex-start;`;
+            break;
+          case 'grid':
+            layoutStyle = `display: grid; grid-template-columns: 1fr 1fr; gap: ${gap};`;
+            break;
+          case 'vertical':
+          default:
+            layoutStyle = `display: flex; flex-direction: column; gap: ${gap};`;
+        }
+        
+        containerHTML += `<div style="${layoutStyle}">`;
         component.children.forEach((child: any) => {
           containerHTML += generateComponentHTML(child, variables);
         });

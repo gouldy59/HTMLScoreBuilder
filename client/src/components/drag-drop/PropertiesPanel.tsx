@@ -273,6 +273,38 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
                 className="min-h-16"
               />
             </div>
+            <div>
+              <Label htmlFor="layoutDirection">Layout Direction</Label>
+              <Select
+                value={selectedComponent.content.layoutDirection || 'vertical'}
+                onValueChange={(value) => updateContent('layoutDirection', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select layout direction" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vertical">Vertical (Stack Down)</SelectItem>
+                  <SelectItem value="horizontal">Horizontal (Side by Side)</SelectItem>
+                  <SelectItem value="grid">Grid (2 Columns)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="itemSpacing">Item Spacing</Label>
+              <Select
+                value={selectedComponent.content.itemSpacing || 'medium'}
+                onValueChange={(value) => updateContent('itemSpacing', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select spacing" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small (8px)</SelectItem>
+                  <SelectItem value="medium">Medium (16px)</SelectItem>
+                  <SelectItem value="large">Large (24px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         );
 

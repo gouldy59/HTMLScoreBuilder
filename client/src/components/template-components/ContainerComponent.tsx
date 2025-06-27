@@ -61,6 +61,29 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
     }
   };
 
+  const getLayoutClassName = () => {
+    const layoutDirection = content.layoutDirection || 'vertical';
+    const spacing = content.itemSpacing || 'medium';
+    
+    const spacingClasses = {
+      small: 'gap-2',
+      medium: 'gap-4', 
+      large: 'gap-6'
+    };
+    
+    const spacingClass = spacingClasses[spacing as keyof typeof spacingClasses] || 'gap-4';
+    
+    switch (layoutDirection) {
+      case 'horizontal':
+        return `flex flex-row flex-wrap items-start ${spacingClass}`;
+      case 'grid':
+        return `grid grid-cols-2 ${spacingClass}`;
+      case 'vertical':
+      default:
+        return `flex flex-col ${spacingClass}`;
+    }
+  };
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
     drop: (item: { componentType: ComponentType }, monitor) => {
@@ -75,8 +98,15 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         position: { x: 0, y: 0 }, // Position within container
       };
       
-      const updatedChildren = [...(component.children || []), newChild];
-      onUpdate({ children: updatedChildren });
+      // Ensure we're properly spreading the existing children
+      const currentChildren = component.children || [];
+      const updatedChildren = [...currentChildren, newChild];
+      
+      console.log('Container drop - Current children:', currentChildren.length, 'New children:', updatedChildren.length);
+      
+      onUpdate({ 
+        children: updatedChildren
+      });
       
       return { containerId: component.id }; // Return container info
     },
@@ -144,13 +174,15 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
       )}
 
       {/* Container children */}
-      <div className="space-y-4">
+      <div>
         {component.children && component.children.length > 0 ? (
-          component.children.map((child) => (
-            <div key={child.id} className="relative">
-              {renderChildComponent(child)}
-            </div>
-          ))
+          <div className={getLayoutClassName()}>
+            {component.children.map((child) => (
+              <div key={child.id} className="relative">
+                {renderChildComponent(child)}
+              </div>
+            ))}
+          </div>
         ) : (
           <div className={`min-h-24 flex items-center justify-center border-2 border-dashed rounded transition-all ${
             isOver ? 'border-green-400 bg-green-50 text-green-600' : 'border-gray-300'

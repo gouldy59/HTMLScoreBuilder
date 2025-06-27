@@ -69,7 +69,7 @@ export function CanvasArea({
       case 'grade-summary':
         return <GradeSummaryComponent key={component.id} {...commonProps} />;
       case 'container':
-        return <ContainerComponent key={component.id} {...commonProps} />;
+        return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
       case 'divider':
         return <DividerComponent key={component.id} {...commonProps} />;
       case 'spacer':

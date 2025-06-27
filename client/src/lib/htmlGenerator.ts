@@ -13,6 +13,7 @@ export function generateHTML(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${templateName}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .print-only { display: none; }
@@ -86,12 +87,44 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       return tableHTML;
 
     case 'chart':
+      const chartId = `chart-${Math.random().toString(36).substr(2, 9)}`;
+      const chartType = content.chartType || 'bar';
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'}; height: ${style.height || '300px'};">
-          <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Chart', variables)}</h3>
-          <div class="flex items-center justify-center h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300">
-            <p class="text-gray-500">Chart visualization would appear here<br><small>Data: ${replaceVariables(content.data || 'No data', variables)}</small></p>
+        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
+          <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Performance Chart', variables)}</h3>
+          <div style="height: 300px;">
+            <canvas id="${chartId}" width="400" height="200"></canvas>
           </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const ctx = document.getElementById('${chartId}').getContext('2d');
+              const sampleData = {
+                labels: ['Math', 'Science', 'English', 'History', 'Art'],
+                datasets: [{
+                  label: 'Scores',
+                  data: [85, 92, 78, 88, 95],
+                  backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+                  borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+                  borderWidth: 1
+                }]
+              };
+              
+              new Chart(ctx, {
+                type: '${chartType}',
+                data: sampleData,
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: ${chartType !== 'pie' ? `{
+                    y: {
+                      beginAtZero: true,
+                      max: 100
+                    }
+                  }` : '{}'}
+                }
+              });
+            });
+          </script>
         </div>`;
 
     case 'text-block':

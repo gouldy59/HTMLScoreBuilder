@@ -1,4 +1,5 @@
-import { TemplateComponent } from '@/types/template';
+import { useDrop } from 'react-dnd';
+import { TemplateComponent, ComponentType } from '@/types/template';
 import { Button } from '@/components/ui/button';
 
 interface ContainerComponentProps {
@@ -7,13 +8,33 @@ interface ContainerComponentProps {
   onSelect: () => void;
   onUpdate: (updates: Partial<TemplateComponent>) => void;
   onDelete: () => void;
+  onAddComponent?: (componentType: ComponentType, position: { x: number; y: number }) => void;
 }
 
-export function ContainerComponent({ component, isSelected, onSelect, onDelete }: ContainerComponentProps) {
+export function ContainerComponent({ component, isSelected, onSelect, onDelete, onAddComponent }: ContainerComponentProps) {
   const { style } = component;
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'component',
+    drop: (item: { componentType: ComponentType }, monitor) => {
+      if (monitor.didDrop()) return; // Prevent duplicate drops
+      
+      const offset = monitor.getClientOffset();
+      if (offset && onAddComponent) {
+        onAddComponent(item.componentType, {
+          x: offset.x,
+          y: offset.y,
+        });
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver({ shallow: true }),
+    }),
+  }));
 
   return (
     <div
+      ref={drop}
       className={`relative rounded-lg cursor-pointer transition-all group ${
         isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
       }`}
@@ -52,8 +73,10 @@ export function ContainerComponent({ component, isSelected, onSelect, onDelete }
         </div>
       </div>
 
-      <div className="min-h-16 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-300 rounded">
-        <p>Container - Drop components here</p>
+      <div className={`min-h-16 flex items-center justify-center text-gray-400 border-2 border-dashed rounded transition-colors ${
+        isOver ? 'border-blue-400 bg-blue-50 text-blue-600' : 'border-gray-300'
+      }`}>
+        <p>{isOver ? 'Drop component here' : 'Container - Drop components here'}</p>
       </div>
     </div>
   );

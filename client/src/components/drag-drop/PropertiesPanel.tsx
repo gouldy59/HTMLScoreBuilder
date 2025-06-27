@@ -100,6 +100,46 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
           </div>
         );
 
+      case 'chart':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Input
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter chart title..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartType">Chart Type</Label>
+              <Select
+                value={selectedComponent.content.chartType || 'bar'}
+                onValueChange={(value) => updateContent('chartType', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select chart type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bar">Bar Chart</SelectItem>
+                  <SelectItem value="line">Line Chart</SelectItem>
+                  <SelectItem value="pie">Pie Chart</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="chartData">Data Source</Label>
+              <Input
+                id="chartData"
+                value={selectedComponent.content.data || ''}
+                onChange={(e) => updateContent('data', e.target.value)}
+                placeholder="{{chartData}} or JSON data"
+              />
+            </div>
+          </div>
+        );
+
       case 'student-info':
         return (
           <div className="space-y-3">

@@ -58,8 +58,12 @@ export class MemStorage implements IStorage {
     const id = this.currentTemplateId++;
     const now = new Date();
     const template: Template = {
-      ...insertTemplate,
       id,
+      name: insertTemplate.name,
+      description: insertTemplate.description || null,
+      components: insertTemplate.components || [],
+      variables: insertTemplate.variables || {},
+      styles: insertTemplate.styles || {},
       createdAt: now,
       updatedAt: now,
     };

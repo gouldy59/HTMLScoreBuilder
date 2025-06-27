@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function Builder() {
   const [components, setComponents] = useState<TemplateComponent[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>([]);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [templateName, setTemplateName] = useState('Untitled Template');
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
@@ -68,8 +70,20 @@ export default function Builder() {
     toast({ title: `${componentType.name} component added` });
   };
 
-  const handleSelectComponent = (componentId: string) => {
-    setSelectedComponentId(componentId);
+  const handleSelectComponent = (componentId: string, isCtrlClick = false) => {
+    if (isMultiSelectMode || isCtrlClick) {
+      setSelectedComponentIds(prev => {
+        if (prev.includes(componentId)) {
+          return prev.filter(id => id !== componentId);
+        } else {
+          return [...prev, componentId];
+        }
+      });
+      setSelectedComponentId(null);
+    } else {
+      setSelectedComponentId(componentId);
+      setSelectedComponentIds([]);
+    }
   };
 
   const handleUpdateComponent = (componentId: string, updates: Partial<TemplateComponent>) => {
@@ -87,7 +101,71 @@ export default function Builder() {
     if (selectedComponentId === componentId) {
       setSelectedComponentId(null);
     }
+    setSelectedComponentIds(prev => prev.filter(id => id !== componentId));
     toast({ title: 'Component deleted' });
+  };
+
+  const handleGroupComponents = () => {
+    if (selectedComponentIds.length < 2) {
+      toast({ title: 'Select at least 2 components to group', variant: 'destructive' });
+      return;
+    }
+
+    const selectedComponents = components.filter(c => selectedComponentIds.includes(c.id));
+    const groupId = generateComponentId();
+    
+    // Calculate group position based on topmost component
+    const minY = Math.min(...selectedComponents.map(c => c.position.y));
+    const minX = Math.min(...selectedComponents.map(c => c.position.x));
+
+    const groupComponent: TemplateComponent = {
+      id: groupId,
+      type: 'group',
+      content: {
+        children: selectedComponents.map(c => ({ ...c, position: { x: c.position.x - minX, y: c.position.y - minY } }))
+      },
+      style: {
+        backgroundColor: '#F9FAFB',
+        padding: '16px',
+        borderRadius: '8px',
+        border: '2px dashed #D1D5DB'
+      },
+      position: { x: minX, y: minY }
+    };
+
+    // Remove grouped components and add group
+    setComponents(prev => [
+      ...prev.filter(c => !selectedComponentIds.includes(c.id)),
+      groupComponent
+    ]);
+    
+    setSelectedComponentIds([]);
+    setSelectedComponentId(groupId);
+    setIsMultiSelectMode(false);
+    toast({ title: `Grouped ${selectedComponents.length} components` });
+  };
+
+  const handleUngroupComponent = (groupId: string) => {
+    const groupComponent = components.find(c => c.id === groupId && c.type === 'group');
+    if (!groupComponent) return;
+
+    const children = groupComponent.content.children || [];
+    const ungroupedComponents = children.map((child: any) => ({
+      ...child,
+      id: generateComponentId(),
+      position: {
+        x: child.position.x + groupComponent.position.x,
+        y: child.position.y + groupComponent.position.y
+      }
+    }));
+
+    setComponents(prev => [
+      ...prev.filter(c => c.id !== groupId),
+      ...ungroupedComponents
+    ]);
+
+    setSelectedComponentId(null);
+    toast({ title: 'Components ungrouped' });
   };
 
   const handleLoadTemplate = (template: Template) => {
@@ -140,18 +218,24 @@ export default function Builder() {
         <div className="flex-1 flex flex-col">
           <Toolbar
             templateName={templateName}
+            selectedComponentIds={selectedComponentIds}
+            isMultiSelectMode={isMultiSelectMode}
             onPreview={handlePreview}
             onExportHTML={handleExportHTML}
+            onToggleMultiSelect={() => setIsMultiSelectMode(!isMultiSelectMode)}
+            onGroupComponents={handleGroupComponents}
           />
 
           <div className="flex-1 flex">
             <CanvasArea
               components={components}
               selectedComponent={selectedComponentId}
+              selectedComponentIds={selectedComponentIds}
               onAddComponent={handleAddComponent}
               onSelectComponent={handleSelectComponent}
               onUpdateComponent={handleUpdateComponent}
               onDeleteComponent={handleDeleteComponent}
+              onUngroupComponent={handleUngroupComponent}
             />
 
             <PropertiesPanel

@@ -171,6 +171,15 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       return `
         <div style="height: ${style.height || '32px'};"></div>`;
 
+    case 'group':
+      let groupHTML = `<div class="mb-6 p-4 rounded-lg" style="background-color: ${style.backgroundColor || '#F9FAFB'}; border: ${style.border || '2px dashed #D1D5DB'};">`;
+      const children = content.children || [];
+      children.forEach((child: any) => {
+        groupHTML += generateComponentHTML(child, variables);
+      });
+      groupHTML += '</div>';
+      return groupHTML;
+
     default:
       return `
         <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">

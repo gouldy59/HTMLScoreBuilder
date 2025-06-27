@@ -9,23 +9,28 @@ import { GradeSummaryComponent } from '../template-components/GradeSummaryCompon
 import { ContainerComponent } from '../template-components/ContainerComponent';
 import { DividerComponent } from '../template-components/DividerComponent';
 import { SpacerComponent } from '../template-components/SpacerComponent';
+import { GroupComponent } from '../template-components/GroupComponent';
 
 interface CanvasAreaProps {
   components: TemplateComponent[];
   selectedComponent: string | null;
+  selectedComponentIds: string[];
   onAddComponent: (componentType: ComponentType, position: { x: number; y: number }) => void;
-  onSelectComponent: (componentId: string) => void;
+  onSelectComponent: (componentId: string, isCtrlClick?: boolean) => void;
   onUpdateComponent: (componentId: string, updates: Partial<TemplateComponent>) => void;
   onDeleteComponent: (componentId: string) => void;
+  onUngroupComponent: (groupId: string) => void;
 }
 
 export function CanvasArea({
   components,
   selectedComponent,
+  selectedComponentIds,
   onAddComponent,
   onSelectComponent,
   onUpdateComponent,
   onDeleteComponent,
+  onUngroupComponent,
 }: CanvasAreaProps) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -47,10 +52,11 @@ export function CanvasArea({
 
   const renderComponent = (component: TemplateComponent) => {
     const isSelected = selectedComponent === component.id;
+    const isMultiSelected = selectedComponentIds.includes(component.id);
     const commonProps = {
       component,
-      isSelected,
-      onSelect: () => onSelectComponent(component.id),
+      isSelected: isSelected || isMultiSelected,
+      onSelect: (e?: React.MouseEvent) => onSelectComponent(component.id, e?.ctrlKey || e?.metaKey),
       onUpdate: (updates: Partial<TemplateComponent>) => onUpdateComponent(component.id, updates),
       onDelete: () => onDeleteComponent(component.id),
     };
@@ -74,6 +80,8 @@ export function CanvasArea({
         return <DividerComponent key={component.id} {...commonProps} />;
       case 'spacer':
         return <SpacerComponent key={component.id} {...commonProps} />;
+      case 'group':
+        return <GroupComponent key={component.id} {...commonProps} onUngroup={() => onUngroupComponent(component.id)} />;
       default:
         return null;
     }

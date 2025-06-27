@@ -12,7 +12,7 @@ interface ContainerComponentProps {
 }
 
 export function ContainerComponent({ component, isSelected, onSelect, onDelete, onAddComponent }: ContainerComponentProps) {
-  const { style } = component;
+  const { style, content } = component;
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -21,9 +21,11 @@ export function ContainerComponent({ component, isSelected, onSelect, onDelete, 
       
       const offset = monitor.getClientOffset();
       if (offset && onAddComponent) {
+        // Position relative to the container
+        const containerRect = monitor.getDropResult();
         onAddComponent(item.componentType, {
-          x: offset.x,
-          y: offset.y,
+          x: offset.x - 100, // Adjust for better positioning within container
+          y: offset.y + 50,
         });
       }
     },
@@ -35,13 +37,16 @@ export function ContainerComponent({ component, isSelected, onSelect, onDelete, 
   return (
     <div
       ref={drop}
-      className={`relative rounded-lg cursor-pointer transition-all group ${
+      className={`relative rounded-lg cursor-pointer transition-all group min-h-32 ${
         isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
+      } ${
+        isOver ? 'ring-2 ring-green-400' : ''
       }`}
       style={{
         backgroundColor: style.backgroundColor || '#F9FAFB',
         padding: style.padding || '16px',
         borderRadius: style.borderRadius || '8px',
+        color: style.textColor || '#374151',
       }}
       onClick={onSelect}
     >
@@ -73,10 +78,33 @@ export function ContainerComponent({ component, isSelected, onSelect, onDelete, 
         </div>
       </div>
 
-      <div className={`min-h-16 flex items-center justify-center text-gray-400 border-2 border-dashed rounded transition-colors ${
-        isOver ? 'border-blue-400 bg-blue-50 text-blue-600' : 'border-gray-300'
+      {/* Container header */}
+      {content.title && (
+        <div className="mb-4">
+          <h3 className="font-semibold text-lg" style={{ color: style.textColor || '#374151' }}>
+            {content.title}
+          </h3>
+          {content.description && (
+            <p className="text-sm opacity-75 mt-1" style={{ color: style.textColor || '#374151' }}>
+              {content.description}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Drop zone */}
+      <div className={`min-h-24 flex items-center justify-center border-2 border-dashed rounded transition-all ${
+        isOver ? 'border-green-400 bg-green-50 text-green-600' : 'border-gray-300'
       }`}>
-        <p>{isOver ? 'Drop component here' : 'Container - Drop components here'}</p>
+        <div className="text-center">
+          <i className={`fas fa-inbox text-2xl mb-2 ${isOver ? 'text-green-500' : 'text-gray-400'}`}></i>
+          <p className="text-sm font-medium">
+            {isOver ? 'Drop component here' : (content.title ? 'Container Content' : 'Container')}
+          </p>
+          <p className="text-xs opacity-75">
+            {isOver ? 'Release to add component' : 'Drag components here to organize your layout'}
+          </p>
+        </div>
       </div>
     </div>
   );

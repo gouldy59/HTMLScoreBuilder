@@ -101,13 +101,23 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
           <p className="text-sm opacity-80">{subtitle}</p>
         </div>
 
-        {/* Percentage Scale */}
-        <div className="relative text-xs opacity-70 mb-2" style={{ marginLeft: '80px', marginRight: '48px' }}>
-          <span className="absolute" style={{ left: '0%' }}>0%</span>
-          <span className="absolute" style={{ left: '25%', transform: 'translateX(-50%)' }}>25%</span>
-          <span className="absolute" style={{ left: '50%', transform: 'translateX(-50%)' }}>50%</span>
-          <span className="absolute" style={{ left: '75%', transform: 'translateX(-50%)' }}>75%</span>
-          <span className="absolute" style={{ left: '100%', transform: 'translateX(-100%)' }}>100%</span>
+        {/* Percentage Scale - Dynamically positioned */}
+        <div className="flex items-center mb-2">
+          <div style={{ minWidth: 'fit-content', maxWidth: '200px', paddingRight: '12px' }}>
+            {/* Invisible spacer to match label width */}
+            <span className="text-xs font-medium opacity-0">
+              {chartData.length > 0 ? chartData.reduce((longest: string, item: any) => 
+                (item.label || `Category ${chartData.indexOf(item) + 1}`).length > longest.length ? 
+                (item.label || `Category ${chartData.indexOf(item) + 1}`) : longest, '') : 'Category 1'}
+            </span>
+          </div>
+          <div className="flex-1 relative text-xs opacity-70" style={{ marginRight: '48px' }}>
+            <span className="absolute" style={{ left: '0%' }}>0%</span>
+            <span className="absolute" style={{ left: '25%', transform: 'translateX(-50%)' }}>25%</span>
+            <span className="absolute" style={{ left: '50%', transform: 'translateX(-50%)' }}>50%</span>
+            <span className="absolute" style={{ left: '75%', transform: 'translateX(-50%)' }}>75%</span>
+            <span className="absolute" style={{ left: '100%', transform: 'translateX(-100%)' }}>100%</span>
+          </div>
         </div>
 
         {/* Chart Bars */}
@@ -122,7 +132,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
             chartData.map((item: any, index: number) => (
               <div key={index} className="flex items-center">
                 {/* Label */}
-                <div className="w-20 text-xs pr-2 flex-shrink-0 font-medium truncate" title={item.label}>
+                <div className="text-xs pr-3 font-medium" style={{ minWidth: 'fit-content', maxWidth: '200px' }}>
                   {item.label || `Category ${index + 1}`}
                 </div>
                 

@@ -100,12 +100,20 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
             <p class="text-sm text-gray-600">${subtitle}</p>
           </div>
           
-          <div class="relative text-xs text-gray-500 mb-2" style="margin-left: 96px; margin-right: 48px;">
-            <span style="position: absolute; left: 0%;">0%</span>
-            <span style="position: absolute; left: 25%; transform: translateX(-50%);">25%</span>
-            <span style="position: absolute; left: 50%; transform: translateX(-50%);">50%</span>
-            <span style="position: absolute; left: 75%; transform: translateX(-50%);">75%</span>
-            <span style="position: absolute; left: 100%; transform: translateX(-100%);">100%</span>
+          <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <div style="min-width: fit-content; max-width: 200px; padding-right: 12px;">
+              <span style="font-size: 12px; font-weight: 500; opacity: 0;">
+                ${horizontalChartData.length > 0 ? horizontalChartData.reduce((longest, item) => 
+                  (item.label || 'Category').length > longest.length ? (item.label || 'Category') : longest, '') : 'Category 1'}
+              </span>
+            </div>
+            <div style="flex: 1; position: relative; font-size: 12px; color: #6b7280; margin-right: 48px;">
+              <span style="position: absolute; left: 0%;">0%</span>
+              <span style="position: absolute; left: 25%; transform: translateX(-50%);">25%</span>
+              <span style="position: absolute; left: 50%; transform: translateX(-50%);">50%</span>
+              <span style="position: absolute; left: 75%; transform: translateX(-50%);">75%</span>
+              <span style="position: absolute; left: 100%; transform: translateX(-100%);">100%</span>
+            </div>
           </div>
           
           <div class="space-y-3 mb-6">
@@ -114,9 +122,9 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
                 <p class="text-sm">No chart data available</p>
               </div>
             ` : horizontalChartData.map((item: any) => `
-              <div class="flex items-center">
-                <div class="w-24 text-sm text-gray-700 pr-3 font-medium">${item.label || 'Category'}</div>
-                <div class="flex-1 relative">
+              <div style="display: flex; align-items: center;">
+                <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; min-width: fit-content; max-width: 200px;">${item.label || 'Category'}</div>
+                <div style="flex: 1; position: relative; min-width: 0;">
                   <div class="flex h-6 bg-gray-100 rounded overflow-hidden relative">
                     ${(item.segments || []).map((segment: any, segIndex: number) => `
                       <div class="flex items-center justify-center text-xs font-medium" 

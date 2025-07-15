@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTemplateSchema } from "@shared/schema";
+import { insertTemplateSchema, createVersionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -91,6 +91,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Template deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete template" });
+    }
+  });
+
+  // Template versioning routes
+  app.post("/api/templates/:id/versions", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const validation = createVersionSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid version data",
+          errors: validation.error.errors
+        });
+      }
+
+      const newVersion = await storage.createTemplateVersion(id, validation.data);
+      res.status(201).json(newVersion);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create template version" });
+    }
+  });
+
+  app.get("/api/templates/:id/versions", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const versions = await storage.getTemplateVersions(id);
+      res.json(versions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch template versions" });
+    }
+  });
+
+  app.get("/api/templates/:id/history", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const history = await storage.getTemplateHistory(id);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch template history" });
+    }
+  });
+
+  app.post("/api/templates/:id/revert/:versionId", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const versionId = parseInt(req.params.versionId);
+      
+      if (isNaN(id) || isNaN(versionId)) {
+        return res.status(400).json({ message: "Invalid template or version ID" });
+      }
+
+      const revertedTemplate = await storage.revertToVersion(id, versionId);
+      if (!revertedTemplate) {
+        return res.status(404).json({ message: "Template or version not found" });
+      }
+
+      res.json(revertedTemplate);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to revert template" });
+    }
+  });
+
+  app.get("/api/templates/:id/latest", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const latestVersion = await storage.getLatestVersion(id);
+      if (!latestVersion) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      res.json(latestVersion);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch latest version" });
     }
   });
 

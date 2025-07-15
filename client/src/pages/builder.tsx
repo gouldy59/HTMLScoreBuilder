@@ -7,6 +7,7 @@ import { PropertiesPanel } from '@/components/drag-drop/PropertiesPanel';
 import { Toolbar } from '@/components/Toolbar';
 import { TemplateManager } from '@/components/TemplateManager';
 import { JSONDataDialog } from '@/components/JSONDataDialog';
+import { VersionHistoryDialog } from '@/components/VersionHistoryDialog';
 import { TemplateComponent, ComponentType, COMPONENT_TYPES } from '@/types/template';
 import { generateHTML, downloadHTML } from '@/lib/htmlGenerator';
 import { apiRequest } from '@/lib/queryClient';
@@ -21,6 +22,7 @@ export default function Builder() {
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isJSONDialogOpen, setIsJSONDialogOpen] = useState(false);
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
   const [templateData, setTemplateData] = useState<any>({});
   const [reportBackground, setReportBackground] = useState<string>('#ffffff');
   const { toast } = useToast();
@@ -33,14 +35,23 @@ export default function Builder() {
         components: components,
         variables: {},
         styles: { reportBackground },
+        changeDescription: 'Auto-save changes',
       };
 
       if (currentTemplateId) {
-        const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
-        return response.json();
+        // Create a new version for existing templates
+        const response = await apiRequest(`/api/templates/${currentTemplateId}/versions`, {
+          method: 'POST',
+          body: JSON.stringify(templateData),
+        });
+        return response;
       } else {
-        const response = await apiRequest('POST', '/api/templates', templateData);
-        return response.json();
+        // Create new template for first save
+        const response = await apiRequest('/api/templates', {
+          method: 'POST',
+          body: JSON.stringify(templateData),
+        });
+        return response;
       }
     },
     onSuccess: (savedTemplate) => {
@@ -109,6 +120,15 @@ export default function Builder() {
     setCurrentTemplateId(template.id);
     setReportBackground(template.styles?.reportBackground || '#ffffff');
     setSelectedComponentId(null);
+  };
+
+  const handleVersionRevert = (template: Template) => {
+    setComponents(Array.isArray(template.components) ? template.components : []);
+    setTemplateName(template.name);
+    setCurrentTemplateId(template.id);
+    setReportBackground(template.styles?.reportBackground || '#ffffff');
+    setSelectedComponentId(null);
+    setIsVersionHistoryOpen(false);
   };
 
   const handlePreview = () => {
@@ -200,6 +220,7 @@ export default function Builder() {
             onPreview={handlePreview}
             onExportHTML={handleExportHTML}
             onImportData={handleImportData}
+            onVersionHistory={() => setIsVersionHistoryOpen(true)}
           />
 
           <div className="flex-1 flex">
@@ -238,6 +259,13 @@ export default function Builder() {
           onApplyData={handleApplyJSONData}
           title="Import Template Data"
           description="Import and validate JSON data to populate your template with real values"
+        />
+
+        <VersionHistoryDialog
+          isOpen={isVersionHistoryOpen}
+          onClose={() => setIsVersionHistoryOpen(false)}
+          templateId={currentTemplateId}
+          onVersionRevert={handleVersionRevert}
         />
       </div>
     </DragDropProvider>

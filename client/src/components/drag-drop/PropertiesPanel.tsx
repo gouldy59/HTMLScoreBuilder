@@ -311,6 +311,17 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
               />
             </div>
             
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="showPercentages"
+                checked={selectedComponent.content.showPercentages !== false}
+                onChange={(e) => updateContent('showPercentages', e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars</Label>
+            </div>
+            
             <div>
               <div className="flex items-center justify-between mb-3">
                 <Label>Chart Categories ({chartData.length}/20)</Label>

@@ -91,6 +91,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       const horizontalChartData = component.content.chartData || [];
       const title = replaceVariables(component.content.title || '主要领域', variables);
       const subtitle = replaceVariables(component.content.subtitle || '您在各个主要领域的表现', variables);
+      const showPercentages = component.content.showPercentages !== false;
       
       return `
         <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
@@ -117,7 +118,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
                       <div class="flex items-center justify-center text-xs font-medium" 
                            style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
                            title="${segment.label}: ${segment.value || 0}%">
-                        ${(segment.value || 0) > 10 ? (segment.value || 0) + '%' : ''}
+                        ${showPercentages && (segment.value || 0) > 10 ? (segment.value || 0) + '%' : ''}
                       </div>
                     `).join('') || ''}
                     

@@ -87,6 +87,61 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       tableHTML += '</tbody></table></div></div>';
       return tableHTML;
 
+    case 'horizontal-bar-chart':
+      const horizontalChartData = component.content.chartData || [];
+      const title = replaceVariables(component.content.title || '主要领域', variables);
+      const subtitle = replaceVariables(component.content.subtitle || '您在各个主要领域的表现', variables);
+      
+      return `
+        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
+            <p class="text-sm text-gray-600">${subtitle}</p>
+          </div>
+          
+          <div class="flex justify-between text-xs text-gray-500 mb-2" style="padding: 0 128px;">
+            <span>0%</span><span>25%</span><span>26%</span><span>50%</span><span>51%</span><span>75%</span><span>76%</span><span>100%</span>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            ${horizontalChartData.map((item: any) => `
+              <div class="flex items-center">
+                <div class="w-32 text-sm text-gray-700 pr-4">${item.label}</div>
+                <div class="flex-1 relative">
+                  <div class="flex h-8 bg-gray-100 rounded overflow-hidden">
+                    ${item.segments?.map((segment: any, segIndex: number) => `
+                      <div class="flex items-center justify-center text-xs font-medium transition-all hover:opacity-80" 
+                           style="width: ${segment.value}%; background-color: ${segment.color}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}">
+                        ${segment.value > 15 ? segment.value + '%' : ''}
+                      </div>
+                    `).join('') || ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="flex justify-center space-x-6">
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 rounded" style="background-color: #FDE2E7;"></div>
+              <span class="text-xs text-gray-600">0%-25%</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 rounded" style="background-color: #FB923C;"></div>
+              <span class="text-xs text-gray-600">26%-50%</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 rounded" style="background-color: #86EFAC;"></div>
+              <span class="text-xs text-gray-600">51%-75%</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 rounded" style="background-color: #D1FAE5;"></div>
+              <span class="text-xs text-gray-600">76%-100%</span>
+            </div>
+          </div>
+        </div>
+      `;
+
     case 'chart':
       const chartId = `chart-${Math.random().toString(36).substr(2, 9)}`;
       const chartType = content.chartType || 'bar';

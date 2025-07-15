@@ -45,6 +45,51 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
+    id: 'horizontal-bar-chart',
+    name: 'Horizontal Bar Chart',
+    icon: 'fas fa-chart-bar',
+    category: 'report',
+    description: 'Segmented horizontal bar chart with multiple data series',
+    defaultContent: {
+      title: '主要领域',
+      subtitle: '您在各个主要领域的表现',
+      chartData: [
+        {
+          label: "ESG投资/ESG市场",
+          segments: [
+            { value: 25, color: "#FDE2E7", label: "0%-25%" },
+            { value: 25, color: "#FB923C", label: "26%-50%" },
+            { value: 25, color: "#FEF3C7", label: "51%-75%" },
+            { value: 25, color: "#D1FAE5", label: "76%-100%" }
+          ]
+        },
+        {
+          label: "环境因素",
+          segments: [
+            { value: 30, color: "#FDE2E7", label: "0%-25%" },
+            { value: 20, color: "#FB923C", label: "26%-50%" },
+            { value: 25, color: "#FEF3C7", label: "51%-75%" },
+            { value: 25, color: "#D1FAE5", label: "76%-100%" }
+          ]
+        },
+        {
+          label: "社会因素",
+          segments: [
+            { value: 20, color: "#FDE2E7", label: "0%-25%" },
+            { value: 15, color: "#FB923C", label: "26%-50%" },
+            { value: 35, color: "#86EFAC", label: "51%-75%" },
+            { value: 30, color: "#D1FAE5", label: "76%-100%" }
+          ]
+        }
+      ]
+    },
+    defaultStyle: {
+      backgroundColor: '#ffffff',
+      padding: '24px',
+      borderRadius: '8px'
+    }
+  },
+  {
     id: 'student-info',
     name: 'Student Info',
     icon: 'fas fa-user',

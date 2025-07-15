@@ -103,15 +103,10 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         position: { x: 0, y: 0 }, // Position within container
       };
       
-      console.log('Container drop - Component ID:', component.id, 'Layout:', content.layoutDirection, 'Attempting to add component:', newId);
-      
       // Use function-based update to get the most current component state
       onUpdate((currentComponent) => {
         const currentChildren = currentComponent.children || [];
         const updatedChildren = [...currentChildren, newChild];
-        
-        console.log('Function-based update - Current children:', currentChildren.length, 'New children:', updatedChildren.length);
-        console.log('Existing children IDs:', currentChildren.map(c => c.id));
         
         return { 
           children: updatedChildren

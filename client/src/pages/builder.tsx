@@ -77,28 +77,21 @@ export default function Builder() {
   };
 
   const handleUpdateComponent = (componentId: string, updates: Partial<TemplateComponent> | ((component: TemplateComponent) => Partial<TemplateComponent>)) => {
-    console.log('handleUpdateComponent called for:', componentId, 'with updates:', updates);
-    
     setComponents(prev => {
-      const updated = prev.map(component => {
+      return prev.map(component => {
         if (component.id === componentId) {
           // Support both object updates and function-based updates
           const resolvedUpdates = typeof updates === 'function' ? updates(component) : updates;
           
-          const updatedComponent = { 
+          return { 
             ...component, 
             ...resolvedUpdates,
             // Ensure children are properly updated if provided
             children: resolvedUpdates.children !== undefined ? resolvedUpdates.children : component.children
           };
-          console.log('Updated component:', updatedComponent);
-          return updatedComponent;
         }
         return component;
       });
-      
-      console.log('Full components array after update:', updated);
-      return updated;
     });
   };
 

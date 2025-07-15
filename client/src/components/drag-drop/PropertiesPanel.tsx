@@ -254,8 +254,43 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
         );
 
       case 'horizontal-bar-chart':
+        const chartData = selectedComponent.content.chartData || [];
+        
+        const addCategory = () => {
+          if (chartData.length >= 20) return; // Limit to 20 bars
+          const newCategory = {
+            label: `Category ${chartData.length + 1}`,
+            segments: [
+              { value: 25, color: "#FDE2E7", label: "0%-25%" },
+              { value: 25, color: "#FB923C", label: "26%-50%" },
+              { value: 25, color: "#FEF3C7", label: "51%-75%" },
+              { value: 25, color: "#D1FAE5", label: "76%-100%" }
+            ]
+          };
+          updateContent('chartData', [...chartData, newCategory]);
+        };
+        
+        const removeCategory = (index: number) => {
+          const newData = chartData.filter((_: any, i: number) => i !== index);
+          updateContent('chartData', newData);
+        };
+        
+        const updateCategory = (index: number, field: string, value: any) => {
+          const newData = [...chartData];
+          newData[index] = { ...newData[index], [field]: value };
+          updateContent('chartData', newData);
+        };
+        
+        const updateSegment = (categoryIndex: number, segmentIndex: number, field: string, value: any) => {
+          const newData = [...chartData];
+          const newSegments = [...newData[categoryIndex].segments];
+          newSegments[segmentIndex] = { ...newSegments[segmentIndex], [field]: value };
+          newData[categoryIndex] = { ...newData[categoryIndex], segments: newSegments };
+          updateContent('chartData', newData);
+        };
+
         return (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="chartTitle">Chart Title</Label>
               <Input
@@ -274,23 +309,100 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
                 placeholder="Chart subtitle"
               />
             </div>
+            
             <div>
-              <Label htmlFor="chartData">Chart Data (JSON)</Label>
-              <Textarea
-                id="chartData"
-                value={JSON.stringify(selectedComponent.content.chartData || [], null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsedData = JSON.parse(e.target.value);
-                    updateContent('chartData', parsedData);
-                  } catch (error) {
-                    // Invalid JSON, don't update yet
-                  }
-                }}
-                rows={8}
-                className="font-mono text-sm"
-                placeholder="Chart data in JSON format"
-              />
+              <div className="flex items-center justify-between mb-3">
+                <Label>Chart Categories ({chartData.length}/20)</Label>
+                <Button
+                  onClick={addCategory}
+                  disabled={chartData.length >= 20}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-plus mr-1 text-xs"></i>Add Category
+                </Button>
+              </div>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {chartData.map((category: any, categoryIndex: number) => (
+                  <div key={categoryIndex} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Input
+                        value={category.label || ''}
+                        onChange={(e) => updateCategory(categoryIndex, 'label', e.target.value)}
+                        placeholder="Category name"
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={() => removeCategory(categoryIndex)}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <i className="fas fa-trash text-xs"></i>
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      {category.segments?.map((segment: any, segmentIndex: number) => (
+                        <div key={segmentIndex} className="flex items-center gap-1">
+                          <input
+                            type="color"
+                            value={segment.color || '#FDE2E7'}
+                            onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'color', e.target.value)}
+                            className="w-6 h-6 rounded border cursor-pointer"
+                          />
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={segment.value || 0}
+                            onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'value', parseInt(e.target.value) || 0)}
+                            className="w-16 text-xs"
+                          />
+                          <span className="text-xs text-gray-500">{segment.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t">
+              <Label>Quick Actions</Label>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  onClick={() => {
+                    const jsonData = JSON.stringify(selectedComponent.content.chartData || [], null, 2);
+                    navigator.clipboard.writeText(jsonData);
+                    toast({ title: 'Chart data copied to clipboard' });
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-copy mr-1 text-xs"></i>Copy JSON
+                </Button>
+                <Button
+                  onClick={() => {
+                    updateContent('chartData', [
+                      {
+                        label: "Sample Category",
+                        segments: [
+                          { value: 25, color: "#FDE2E7", label: "0%-25%" },
+                          { value: 25, color: "#FB923C", label: "26%-50%" },
+                          { value: 25, color: "#FEF3C7", label: "51%-75%" },
+                          { value: 25, color: "#D1FAE5", label: "76%-100%" }
+                        ]
+                      }
+                    ]);
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-refresh mr-1 text-xs"></i>Reset
+                </Button>
+              </div>
             </div>
           </div>
         );

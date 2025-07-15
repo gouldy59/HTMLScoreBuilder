@@ -49,6 +49,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
   const chartData = content.chartData || defaultData;
   const title = content.title || "Chart Title";
   const subtitle = content.subtitle || "Add your chart description here";
+  const showPercentages = content.showPercentages !== false; // Default to true
 
   return (
     <div
@@ -144,7 +145,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                           }}
                           title={`${segment.label}: ${segmentValue}%`}
                         >
-                          {segmentValue > 10 && (
+                          {showPercentages && segmentValue > 10 && (
                             <span className="text-gray-800 text-xs font-medium">
                               {segmentValue}%
                             </span>

@@ -122,7 +122,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
                       <div class="flex items-center justify-center text-xs font-medium" 
                            style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
                            title="${segment.label}: ${segment.value || 0}%">
-                        ${showPercentages && (segment.value || 0) > 10 ? (segment.value || 0) + '%' : ''}
+
                       </div>
                     `).join('') || ''}
                     

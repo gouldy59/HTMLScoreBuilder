@@ -103,16 +103,21 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
             <span>0%</span><span>25%</span><span>26%</span><span>50%</span><span>51%</span><span>75%</span><span>76%</span><span>100%</span>
           </div>
           
-          <div class="space-y-4 mb-6">
-            ${horizontalChartData.map((item: any) => `
+          <div class="space-y-3 mb-6">
+            ${horizontalChartData.length === 0 ? `
+              <div class="text-center py-8 text-gray-500">
+                <p class="text-sm">No chart data available</p>
+              </div>
+            ` : horizontalChartData.map((item: any) => `
               <div class="flex items-center">
-                <div class="w-32 text-sm text-gray-700 pr-4">${item.label}</div>
+                <div class="w-24 text-sm text-gray-700 pr-3 font-medium">${item.label || 'Category'}</div>
                 <div class="flex-1 relative">
-                  <div class="flex h-8 bg-gray-100 rounded overflow-hidden">
-                    ${item.segments?.map((segment: any, segIndex: number) => `
-                      <div class="flex items-center justify-center text-xs font-medium transition-all hover:opacity-80" 
-                           style="width: ${segment.value}%; background-color: ${segment.color}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}">
-                        ${segment.value > 15 ? segment.value + '%' : ''}
+                  <div class="flex h-6 bg-gray-100 rounded overflow-hidden">
+                    ${(item.segments || []).map((segment: any, segIndex: number) => `
+                      <div class="flex items-center justify-center text-xs font-medium" 
+                           style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
+                           title="${segment.label}: ${segment.value || 0}%">
+                        ${(segment.value || 0) > 10 ? (segment.value || 0) + '%' : ''}
                       </div>
                     `).join('') || ''}
                   </div>

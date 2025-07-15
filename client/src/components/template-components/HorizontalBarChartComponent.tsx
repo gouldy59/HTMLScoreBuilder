@@ -12,40 +12,40 @@ interface HorizontalBarChartComponentProps {
 export function HorizontalBarChartComponent({ component, isSelected, onSelect, onDelete }: HorizontalBarChartComponentProps) {
   const { content, style } = component;
   
-  // Default data structure matching the image
+  // Default placeholder data
   const defaultData = [
     {
-      label: "ESG投资/ESG市场",
-      segments: [
-        { value: 25, color: "#FDE2E7", label: "0%-25%" },
-        { value: 25, color: "#FB923C", label: "26%-50%" },
-        { value: 25, color: "#FEF3C7", label: "51%-75%" },
-        { value: 25, color: "#D1FAE5", label: "76%-100%" }
-      ]
-    },
-    {
-      label: "环境因素",
-      segments: [
-        { value: 30, color: "#FDE2E7", label: "0%-25%" },
-        { value: 20, color: "#FB923C", label: "26%-50%" },
-        { value: 25, color: "#FEF3C7", label: "51%-75%" },
-        { value: 25, color: "#D1FAE5", label: "76%-100%" }
-      ]
-    },
-    {
-      label: "社会因素",
+      label: "Category A",
       segments: [
         { value: 20, color: "#FDE2E7", label: "0%-25%" },
-        { value: 15, color: "#FB923C", label: "26%-50%" },
-        { value: 35, color: "#86EFAC", label: "51%-75%" },
+        { value: 30, color: "#FB923C", label: "26%-50%" },
+        { value: 25, color: "#FEF3C7", label: "51%-75%" },
+        { value: 25, color: "#D1FAE5", label: "76%-100%" }
+      ]
+    },
+    {
+      label: "Category B",
+      segments: [
+        { value: 15, color: "#FDE2E7", label: "0%-25%" },
+        { value: 25, color: "#FB923C", label: "26%-50%" },
+        { value: 30, color: "#FEF3C7", label: "51%-75%" },
         { value: 30, color: "#D1FAE5", label: "76%-100%" }
+      ]
+    },
+    {
+      label: "Category C",
+      segments: [
+        { value: 10, color: "#FDE2E7", label: "0%-25%" },
+        { value: 20, color: "#FB923C", label: "26%-50%" },
+        { value: 35, color: "#86EFAC", label: "51%-75%" },
+        { value: 35, color: "#D1FAE5", label: "76%-100%" }
       ]
     }
   ];
 
   const chartData = content.chartData || defaultData;
-  const title = content.title || "主要领域";
-  const subtitle = content.subtitle || "您在各个主要领域的表现";
+  const title = content.title || "Chart Title";
+  const subtitle = content.subtitle || "Add your chart description here";
 
   return (
     <div
@@ -110,38 +110,50 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
         </div>
 
         {/* Chart Bars */}
-        <div className="space-y-3">
-          {chartData.map((item: any, index: number) => (
-            <div key={index} className="flex items-center">
-              {/* Label */}
-              <div className="w-16 text-xs pr-2 flex-shrink-0 font-medium">
-                {item.label}
-              </div>
-              
-              {/* Bar Container */}
-              <div className="flex-1 relative min-w-0">
-                <div className="flex h-6 bg-gray-100 rounded overflow-hidden">
-                  {item.segments.map((segment: any, segIndex: number) => (
-                    <div
-                      key={segIndex}
-                      className="flex items-center justify-center text-xs font-medium transition-all hover:opacity-80"
-                      style={{
-                        width: `${segment.value}%`,
-                        backgroundColor: segment.color,
-                        ...(segIndex > 0 && { borderLeft: '1px solid #fff' })
-                      }}
-                    >
-                      {segment.value > 12 && (
-                        <span className="text-gray-800 text-xs font-medium">
-                          {segment.value}%
-                        </span>
-                      )}
-                    </div>
-                  ))}
+        <div className="space-y-2">
+          {chartData.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <i className="fas fa-chart-bar text-2xl mb-2 block"></i>
+              <p className="text-sm">No chart data available</p>
+              <p className="text-xs">Select this component and add categories in the properties panel</p>
+            </div>
+          ) : (
+            chartData.map((item: any, index: number) => (
+              <div key={index} className="flex items-center">
+                {/* Label */}
+                <div className="w-20 text-xs pr-2 flex-shrink-0 font-medium truncate" title={item.label}>
+                  {item.label || `Category ${index + 1}`}
+                </div>
+                
+                {/* Bar Container */}
+                <div className="flex-1 relative min-w-0">
+                  <div className="flex h-5 bg-gray-100 rounded overflow-hidden">
+                    {(item.segments || []).map((segment: any, segIndex: number) => {
+                      const segmentValue = segment.value || 0;
+                      return (
+                        <div
+                          key={segIndex}
+                          className="flex items-center justify-center text-xs font-medium transition-all hover:opacity-80"
+                          style={{
+                            width: `${segmentValue}%`,
+                            backgroundColor: segment.color || '#E5E7EB',
+                            ...(segIndex > 0 && { borderLeft: '1px solid #fff' })
+                          }}
+                          title={`${segment.label}: ${segmentValue}%`}
+                        >
+                          {segmentValue > 10 && (
+                            <span className="text-gray-800 text-xs font-medium">
+                              {segmentValue}%
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Legend */}

@@ -9,6 +9,7 @@ import { GradeSummaryComponent } from '../template-components/GradeSummaryCompon
 import { ContainerComponent } from '../template-components/ContainerComponent';
 import { DividerComponent } from '../template-components/DividerComponent';
 import { SpacerComponent } from '../template-components/SpacerComponent';
+import { HorizontalBarChartComponent } from '../template-components/HorizontalBarChartComponent';
 
 
 interface CanvasAreaProps {
@@ -73,6 +74,8 @@ export function CanvasArea({
         return <GradeSummaryComponent key={component.id} {...commonProps} />;
       case 'container':
         return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
+      case 'horizontal-bar-chart':
+        return <HorizontalBarChartComponent key={component.id} {...commonProps} />;
       case 'divider':
         return <DividerComponent key={component.id} {...commonProps} />;
       case 'spacer':

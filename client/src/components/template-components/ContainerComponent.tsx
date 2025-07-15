@@ -9,6 +9,7 @@ import { TextBlockComponent } from './TextBlockComponent';
 import { GradeSummaryComponent } from './GradeSummaryComponent';
 import { DividerComponent } from './DividerComponent';
 import { SpacerComponent } from './SpacerComponent';
+import { HorizontalBarChartComponent } from './HorizontalBarChartComponent';
 
 interface ContainerComponentProps {
   component: TemplateComponent;
@@ -52,6 +53,8 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         return <TextBlockComponent {...commonProps} />;
       case 'grade-summary':
         return <GradeSummaryComponent {...commonProps} />;
+      case 'horizontal-bar-chart':
+        return <HorizontalBarChartComponent {...commonProps} />;
       case 'divider':
         return <DividerComponent {...commonProps} />;
       case 'spacer':

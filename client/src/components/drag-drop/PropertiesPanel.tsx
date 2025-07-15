@@ -253,6 +253,48 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
+      case 'horizontal-bar-chart':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Input
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Chart title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartSubtitle">Subtitle</Label>
+              <Input
+                id="chartSubtitle"
+                value={selectedComponent.content.subtitle || ''}
+                onChange={(e) => updateContent('subtitle', e.target.value)}
+                placeholder="Chart subtitle"
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartData">Chart Data (JSON)</Label>
+              <Textarea
+                id="chartData"
+                value={JSON.stringify(selectedComponent.content.chartData || [], null, 2)}
+                onChange={(e) => {
+                  try {
+                    const parsedData = JSON.parse(e.target.value);
+                    updateContent('chartData', parsedData);
+                  } catch (error) {
+                    // Invalid JSON, don't update yet
+                  }
+                }}
+                rows={8}
+                className="font-mono text-sm"
+                placeholder="Chart data in JSON format"
+              />
+            </div>
+          </div>
+        );
+
       case 'container':
         return (
           <div className="space-y-3">

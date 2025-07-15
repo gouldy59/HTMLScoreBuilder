@@ -1,4 +1,4 @@
-import { templates, users, type Template, type InsertTemplate, type User, type InsertUser } from "@shared/schema";
+import { templates, users, type Template, type InsertTemplate, type User, type InsertUser, type CreateVersion } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -11,6 +11,13 @@ export interface IStorage {
   createTemplate(template: InsertTemplate): Promise<Template>;
   updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined>;
   deleteTemplate(id: number): Promise<boolean>;
+  
+  // Template versioning operations
+  createTemplateVersion(templateId: number, version: CreateVersion): Promise<Template>;
+  getTemplateVersions(templateId: number): Promise<Template[]>;
+  getTemplateHistory(templateId: number): Promise<Template[]>;
+  revertToVersion(templateId: number, targetVersionId: number): Promise<Template | undefined>;
+  getLatestVersion(templateId: number): Promise<Template | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -18,10 +25,13 @@ export class MemStorage implements IStorage {
   private templates: Map<number, Template>;
   private currentUserId: number;
   private currentTemplateId: number;
+  // Map to track template families: parentId -> Set of version IDs
+  private templateFamilies: Map<number, Set<number>>;
 
   constructor() {
     this.users = new Map();
     this.templates = new Map();
+    this.templateFamilies = new Map();
     this.currentUserId = 1;
     this.currentTemplateId = 1;
   }
@@ -64,10 +74,18 @@ export class MemStorage implements IStorage {
       components: insertTemplate.components || [],
       variables: insertTemplate.variables || {},
       styles: insertTemplate.styles || {},
+      version: 1,
+      isLatest: true,
+      parentId: null,
+      changeDescription: null,
       createdAt: now,
       updatedAt: now,
     };
     this.templates.set(id, template);
+    
+    // Initialize template family
+    this.templateFamilies.set(id, new Set([id]));
+    
     return template;
   }
 
@@ -85,7 +103,127 @@ export class MemStorage implements IStorage {
   }
 
   async deleteTemplate(id: number): Promise<boolean> {
-    return this.templates.delete(id);
+    const template = this.templates.get(id);
+    if (!template) return false;
+    
+    // Get the parent ID (either this template's parentId or its own id if it's the original)
+    const familyId = template.parentId || id;
+    
+    // Delete all versions of this template family
+    const family = this.templateFamilies.get(familyId);
+    if (family) {
+      family.forEach(versionId => this.templates.delete(versionId));
+      this.templateFamilies.delete(familyId);
+    }
+    
+    return true;
+  }
+
+  // Template versioning operations
+  async createTemplateVersion(templateId: number, version: CreateVersion): Promise<Template> {
+    const originalTemplate = this.templates.get(templateId);
+    if (!originalTemplate) {
+      throw new Error('Template not found');
+    }
+
+    // Get the family ID (either parentId or the template's own ID)
+    const familyId = originalTemplate.parentId || templateId;
+    
+    // Get current versions in this family
+    const family = this.templateFamilies.get(familyId) || new Set();
+    const versions = Array.from(family).map(id => this.templates.get(id)).filter(Boolean) as Template[];
+    const nextVersion = Math.max(...versions.map(v => v.version)) + 1;
+
+    // Mark previous latest as not latest
+    versions.forEach(v => {
+      if (v.isLatest) {
+        this.templates.set(v.id, { ...v, isLatest: false });
+      }
+    });
+
+    // Create new version
+    const newVersionId = this.currentTemplateId++;
+    const now = new Date();
+    const newVersion: Template = {
+      id: newVersionId,
+      name: version.name,
+      description: version.description || null,
+      components: version.components || [],
+      variables: version.variables || {},
+      styles: version.styles || {},
+      version: nextVersion,
+      isLatest: true,
+      parentId: familyId,
+      changeDescription: version.changeDescription || null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.templates.set(newVersionId, newVersion);
+    
+    // Add to family
+    family.add(newVersionId);
+    this.templateFamilies.set(familyId, family);
+
+    return newVersion;
+  }
+
+  async getTemplateVersions(templateId: number): Promise<Template[]> {
+    const template = this.templates.get(templateId);
+    if (!template) return [];
+
+    const familyId = template.parentId || templateId;
+    const family = this.templateFamilies.get(familyId) || new Set();
+    
+    return Array.from(family)
+      .map(id => this.templates.get(id))
+      .filter(Boolean)
+      .sort((a, b) => b!.version - a!.version) as Template[];
+  }
+
+  async getTemplateHistory(templateId: number): Promise<Template[]> {
+    return this.getTemplateVersions(templateId);
+  }
+
+  async revertToVersion(templateId: number, targetVersionId: number): Promise<Template | undefined> {
+    const targetVersion = this.templates.get(targetVersionId);
+    if (!targetVersion) return undefined;
+
+    const currentTemplate = this.templates.get(templateId);
+    if (!currentTemplate) return undefined;
+
+    // Get family ID
+    const familyId = currentTemplate.parentId || templateId;
+    
+    // Make sure target version belongs to the same family
+    const family = this.templateFamilies.get(familyId);
+    if (!family || !family.has(targetVersionId)) return undefined;
+
+    // Create new version based on target version
+    const revertedVersion = await this.createTemplateVersion(templateId, {
+      name: targetVersion.name,
+      description: targetVersion.description,
+      components: targetVersion.components,
+      variables: targetVersion.variables,
+      styles: targetVersion.styles,
+      changeDescription: `Reverted to version ${targetVersion.version}`,
+    });
+
+    return revertedVersion;
+  }
+
+  async getLatestVersion(templateId: number): Promise<Template | undefined> {
+    const template = this.templates.get(templateId);
+    if (!template) return undefined;
+
+    const familyId = template.parentId || templateId;
+    const family = this.templateFamilies.get(familyId) || new Set();
+    
+    const versions = Array.from(family)
+      .map(id => this.templates.get(id))
+      .filter(Boolean) as Template[];
+    
+    return versions.find(v => v.isLatest);
   }
 }
 

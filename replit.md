@@ -108,6 +108,13 @@ users {
 Changelog:
 - June 27, 2025: Initial setup
 - July 15, 2025: Fixed grid container functionality - implemented function-based state updates to resolve component stacking issues. Container components now properly accumulate multiple child components instead of replacing them.
+- July 15, 2025: Enhanced horizontal bar chart component with comprehensive features:
+  * Added dynamic score pointers (single circle dots) for precise value indication
+  * Implemented customizable up to 20 categories with add/remove functionality
+  * Added toggle to hide/show percentage values inside bars for cleaner appearance
+  * Set all default segments to balanced 25% values for consistent visual layout
+  * Improved positioning to work properly within container components
+  * Added placeholder text for better user guidance
 ```
 
 # User Preferences

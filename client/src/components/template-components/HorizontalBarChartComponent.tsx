@@ -105,11 +105,8 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
         <div className="flex justify-between text-xs opacity-70 mb-2" style={{ marginLeft: '80px', marginRight: '48px' }}>
           <span>0%</span>
           <span>25%</span>
-          <span>26%</span>
           <span>50%</span>
-          <span>51%</span>
           <span>75%</span>
-          <span>76%</span>
           <span>100%</span>
         </div>
 

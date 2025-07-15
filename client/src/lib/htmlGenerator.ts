@@ -101,7 +101,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
           </div>
           
           <div class="flex justify-between text-xs text-gray-500 mb-2" style="margin-left: 96px; margin-right: 48px;">
-            <span>0%</span><span>25%</span><span>26%</span><span>50%</span><span>51%</span><span>75%</span><span>76%</span><span>100%</span>
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
           </div>
           
           <div class="space-y-3 mb-6">

@@ -14,7 +14,7 @@ interface ContainerComponentProps {
   component: TemplateComponent;
   isSelected: boolean;
   onSelect: () => void;
-  onUpdate: (updates: Partial<TemplateComponent>) => void;
+  onUpdate: (updates: Partial<TemplateComponent> | ((component: TemplateComponent) => Partial<TemplateComponent>)) => void;
   onDelete: () => void;
   onAddComponent?: (componentType: ComponentType, position: { x: number; y: number }) => void;
 }
@@ -103,16 +103,19 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         position: { x: 0, y: 0 }, // Position within container
       };
       
-      // Get the most current children array from the component
-      const currentChildren = component.children || [];
-      const updatedChildren = [...currentChildren, newChild];
+      console.log('Container drop - Component ID:', component.id, 'Layout:', content.layoutDirection, 'Attempting to add component:', newId);
       
-      console.log('Container drop - Component ID:', component.id, 'Layout:', content.layoutDirection, 'Current children:', currentChildren.length, 'New children:', updatedChildren.length, 'New ID:', newId);
-      console.log('Existing children IDs:', currentChildren.map(c => c.id));
-      console.log('Full component:', component);
-      
-      onUpdate({ 
-        children: updatedChildren
+      // Use function-based update to get the most current component state
+      onUpdate((currentComponent) => {
+        const currentChildren = currentComponent.children || [];
+        const updatedChildren = [...currentChildren, newChild];
+        
+        console.log('Function-based update - Current children:', currentChildren.length, 'New children:', updatedChildren.length);
+        console.log('Existing children IDs:', currentChildren.map(c => c.id));
+        
+        return { 
+          children: updatedChildren
+        };
       });
       
       return { containerId: component.id }; // Return container info
@@ -120,7 +123,7 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
     collect: (monitor) => ({
       isOver: monitor.isOver({ shallow: true }),
     }),
-  }));
+  }), [component.id, content.layoutDirection]); // Add dependencies to refresh the drop handler
 
   return (
     <div

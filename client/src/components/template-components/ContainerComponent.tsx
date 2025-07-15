@@ -77,7 +77,7 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
       case 'horizontal':
         return `flex flex-row flex-wrap items-start ${spacingClass}`;
       case 'grid':
-        return `grid grid-cols-2 ${spacingClass}`;
+        return `grid grid-cols-2 ${spacingClass} auto-rows-auto`;
       case 'vertical':
       default:
         return `flex flex-col ${spacingClass}`;
@@ -89,20 +89,26 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
     drop: (item: { componentType: ComponentType }, monitor) => {
       if (monitor.didDrop()) return; // Prevent duplicate drops
       
+      const currentChildren = component.children || [];
+      
+      // Create unique ID with timestamp to avoid collisions
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substr(2, 9);
+      const newId = `${timestamp}-${randomSuffix}`;
+      
       // Add the component as a child of this container
       const newChild: TemplateComponent = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: newId,
         type: item.componentType.id,
         content: { ...item.componentType.defaultContent },
         style: { ...item.componentType.defaultStyle },
-        position: { x: 0, y: 0 }, // Position within container
+        position: { x: currentChildren.length, y: 0 }, // Use index for grid positioning
       };
       
-      // Ensure we're properly spreading the existing children
-      const currentChildren = component.children || [];
+      // Always append to existing children array
       const updatedChildren = [...currentChildren, newChild];
       
-      console.log('Container drop - Current children:', currentChildren.length, 'New children:', updatedChildren.length);
+      console.log('Container drop - Layout:', content.layoutDirection, 'Current children:', currentChildren.length, 'New children:', updatedChildren.length, 'New ID:', newId);
       
       onUpdate({ 
         children: updatedChildren
@@ -177,8 +183,8 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
       <div>
         {component.children && component.children.length > 0 ? (
           <div className={getLayoutClassName()}>
-            {component.children.map((child) => (
-              <div key={child.id} className="relative">
+            {component.children.map((child, index) => (
+              <div key={`${child.id}-${index}`} className="relative min-h-fit">
                 {renderChildComponent(child)}
               </div>
             ))}

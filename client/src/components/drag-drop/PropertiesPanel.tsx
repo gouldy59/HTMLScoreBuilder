@@ -322,6 +322,17 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
               <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars</Label>
             </div>
             
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="wrapLabels"
+                checked={selectedComponent.content.wrapLabels === true}
+                onChange={(e) => updateContent('wrapLabels', e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="wrapLabels" className="text-sm">Wrap long category labels to new line</Label>
+            </div>
+            
             <div>
               <div className="flex items-center justify-between mb-3">
                 <Label>Chart Categories ({chartData.length}/20)</Label>

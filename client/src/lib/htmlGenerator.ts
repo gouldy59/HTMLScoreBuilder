@@ -92,6 +92,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       const title = replaceVariables(component.content.title || '主要领域', variables);
       const subtitle = replaceVariables(component.content.subtitle || '您在各个主要领域的表现', variables);
       const showPercentages = component.content.showPercentages !== false;
+      const wrapLabels = component.content.wrapLabels === true;
       
       return `
         <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
@@ -109,20 +110,23 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
               </div>
             ` : horizontalChartData.map((item: any) => `
               <div style="display: flex; align-items: center;">
-                <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; width: ${
-                  horizontalChartData.length > 0 ? 
-                    Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
-                      const labelLength = (item.label || 'Category').length * 7;
-                      return labelLength > longest ? labelLength : longest;
-                    }, 80))) + 'px' : '80px'
-                };">${item.label || 'Category'}</div>
-                <div style="position: relative; width: calc(100% - ${
-                  horizontalChartData.length > 0 ? 
-                    Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
-                      const labelLength = (item.label || 'Category').length * 7;
-                      return labelLength > longest ? labelLength : longest;
-                    }, 80))) + 12 : 92
-                }px - 48px);">
+                <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; ${
+                  wrapLabels ? 
+                    'width: 120px; word-wrap: break-word; white-space: normal; line-height: 1.2;' :
+                    `width: ${horizontalChartData.length > 0 ? 
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
+                        const labelLength = (item.label || 'Category').length * 7;
+                        return labelLength > longest ? labelLength : longest;
+                      }, 80))) + 'px' : '80px'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
+                }">${item.label || 'Category'}</div>
+                <div style="position: relative; width: ${
+                  wrapLabels ? 'calc(100% - 132px - 48px)' :
+                    `calc(100% - ${horizontalChartData.length > 0 ? 
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
+                        const labelLength = (item.label || 'Category').length * 7;
+                        return labelLength > longest ? labelLength : longest;
+                      }, 80))) + 12 : 92}px - 48px)`
+                };">
                   <div class="flex h-6 bg-gray-100 rounded overflow-hidden relative">
                     ${(item.segments || []).map((segment: any, segIndex: number) => `
                       <div class="flex items-center justify-center text-xs font-medium" 

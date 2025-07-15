@@ -50,6 +50,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
   const title = content.title || "Chart Title";
   const subtitle = content.subtitle || "Add your chart description here";
   const showPercentages = content.showPercentages !== false; // Default to true
+  const wrapLabels = content.wrapLabels === true; // Default to false
 
   return (
     <div
@@ -115,23 +116,27 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
             chartData.map((item: any, index: number) => (
               <div key={index} className="flex items-center">
                 {/* Label - Fixed width based on longest label */}
-                <div className="text-xs pr-3 font-medium" style={{ 
-                  width: chartData.length > 0 ? 
+                <div className={`text-xs pr-3 font-medium ${wrapLabels ? 'leading-tight' : ''}`} style={{ 
+                  width: wrapLabels ? '120px' : (chartData.length > 0 ? 
                     Math.min(200, Math.max(80, chartData.reduce((longest: number, item: any) => {
                       const labelLength = (item.label || `Category ${chartData.indexOf(item) + 1}`).length * 7;
                       return labelLength > longest ? labelLength : longest;
-                    }, 80))) + 'px' : '80px'
+                    }, 80))) + 'px' : '80px'),
+                  wordWrap: wrapLabels ? 'break-word' : 'normal',
+                  whiteSpace: wrapLabels ? 'normal' : 'nowrap',
+                  overflow: wrapLabels ? 'visible' : 'hidden',
+                  textOverflow: wrapLabels ? 'clip' : 'ellipsis'
                 }}>
                   {item.label || `Category ${index + 1}`}
                 </div>
                 
                 {/* Bar Container - Fixed width */}
                 <div className="relative" style={{ 
-                  width: chartData.length > 0 ? 
+                  width: wrapLabels ? 'calc(100% - 132px - 48px)' : (chartData.length > 0 ? 
                     `calc(100% - ${Math.min(200, Math.max(80, chartData.reduce((longest: number, item: any) => {
                       const labelLength = (item.label || `Category ${chartData.indexOf(item) + 1}`).length * 7;
                       return labelLength > longest ? labelLength : longest;
-                    }, 80))) + 12}px - 48px)` : 'calc(100% - 140px)'
+                    }, 80))) + 12}px - 48px)` : 'calc(100% - 140px)')
                 }}>
                   <div className="flex h-5 bg-gray-100 rounded overflow-hidden relative">
                     {(item.segments || []).map((segment: any, segIndex: number) => {

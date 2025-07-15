@@ -12,9 +12,11 @@ import { useToast } from '@/hooks/use-toast';
 interface PropertiesPanelProps {
   selectedComponent: TemplateComponent | null;
   onUpdateComponent: (updates: Partial<TemplateComponent>) => void;
+  reportBackground?: string;
+  onUpdateReportBackground?: (color: string) => void;
 }
 
-export function PropertiesPanel({ selectedComponent, onUpdateComponent }: PropertiesPanelProps) {
+export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBackground, onUpdateReportBackground }: PropertiesPanelProps) {
   const [jsonInput, setJsonInput] = useState('');
   const [jsonError, setJsonError] = useState('');
   const { toast } = useToast();
@@ -319,14 +321,40 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-900">Properties</h3>
-        <p className="text-sm text-gray-500 mt-1">
-          Editing: {selectedComponent.type.charAt(0).toUpperCase() + selectedComponent.type.slice(1)}
-        </p>
+      {/* Global Report Settings */}
+      <div className="p-4 border-b border-gray-200 bg-blue-50">
+        <h4 className="font-medium text-gray-900 mb-3">Report Settings</h4>
+        <div>
+          <Label htmlFor="reportBackground">Report Background</Label>
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              id="reportBackground"
+              type="color"
+              value={reportBackground || '#ffffff'}
+              onChange={(e) => onUpdateReportBackground?.(e.target.value)}
+              className="w-8 h-8 rounded border border-gray-300"
+            />
+            <Input
+              type="text"
+              value={reportBackground || '#ffffff'}
+              onChange={(e) => onUpdateReportBackground?.(e.target.value)}
+              className="flex-1"
+              placeholder="#ffffff"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      {selectedComponent ? (
+        <>
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900">Properties</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Editing: {selectedComponent.type.charAt(0).toUpperCase() + selectedComponent.type.slice(1)}
+            </p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Content Section */}
         <Card>
           <CardHeader className="pb-3">
@@ -400,25 +428,34 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent }: Proper
         </Card>
       </div>
 
-      {/* Template Variables Panel */}
-      <div className="border-t border-gray-200 p-4">
-        <h4 className="font-medium text-gray-900 mb-3">Available Variables</h4>
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {DEFAULT_VARIABLES.slice(0, 8).map((variable) => (
-            <div key={variable.name} className="text-xs">
-              <code
-                className="bg-gray-100 px-2 py-1 rounded text-blue-600 cursor-pointer hover:bg-gray-200"
-                onClick={() => {
-                  navigator.clipboard.writeText(`{{${variable.name}}}`);
-                }}
-                title={variable.description}
-              >
-                {`{{${variable.name}}}`}
-              </code>
+          {/* Template Variables Panel */}
+          <div className="border-t border-gray-200 p-4">
+            <h4 className="font-medium text-gray-900 mb-3">Available Variables</h4>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {DEFAULT_VARIABLES.slice(0, 8).map((variable) => (
+                <div key={variable.name} className="text-xs">
+                  <code
+                    className="bg-gray-100 px-2 py-1 rounded text-blue-600 cursor-pointer hover:bg-gray-200"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`{{${variable.name}}}`);
+                    }}
+                    title={variable.description}
+                  >
+                    {`{{${variable.name}}}`}
+                  </code>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+        </>
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-center text-gray-500">
+          <div>
+            <i className="fas fa-cursor-pointer text-3xl mb-4 text-gray-400"></i>
+            <p>Select a component to edit its properties</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

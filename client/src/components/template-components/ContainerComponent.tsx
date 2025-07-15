@@ -89,8 +89,6 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
     drop: (item: { componentType: ComponentType }, monitor) => {
       if (monitor.didDrop()) return; // Prevent duplicate drops
       
-      const currentChildren = component.children || [];
-      
       // Create unique ID with timestamp to avoid collisions
       const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substr(2, 9);
@@ -102,13 +100,16 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         type: item.componentType.id,
         content: { ...item.componentType.defaultContent },
         style: { ...item.componentType.defaultStyle },
-        position: { x: currentChildren.length, y: 0 }, // Use index for grid positioning
+        position: { x: 0, y: 0 }, // Position within container
       };
       
-      // Always append to existing children array
+      // Get the most current children array from the component
+      const currentChildren = component.children || [];
       const updatedChildren = [...currentChildren, newChild];
       
-      console.log('Container drop - Layout:', content.layoutDirection, 'Current children:', currentChildren.length, 'New children:', updatedChildren.length, 'New ID:', newId);
+      console.log('Container drop - Component ID:', component.id, 'Layout:', content.layoutDirection, 'Current children:', currentChildren.length, 'New children:', updatedChildren.length, 'New ID:', newId);
+      console.log('Existing children IDs:', currentChildren.map(c => c.id));
+      console.log('Full component:', component);
       
       onUpdate({ 
         children: updatedChildren

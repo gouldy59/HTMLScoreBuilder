@@ -122,10 +122,8 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
                     `).join('') || ''}
                     
                     ${item.scoreValue !== undefined && item.scoreValue !== null ? `
-                      <div style="position: absolute; top: 0; bottom: 0; width: 2px; background-color: #dc2626; left: ${Math.min(Math.max(item.scoreValue || 0, 0), 100)}%; z-index: 10;"
+                      <div style="position: absolute; top: 50%; left: calc(${Math.min(Math.max(item.scoreValue || 0, 0), 100)}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"
                            title="Score: ${item.scoreValue}%">
-                        <div style="position: absolute; top: -8px; left: -8px; width: 16px; height: 16px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
-                        <div style="position: absolute; bottom: -8px; left: -8px; width: 16px; height: 16px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
                       </div>
                     ` : ''}
                   </div>

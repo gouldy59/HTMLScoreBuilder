@@ -18,8 +18,8 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
       label: "Category A",
       scoreValue: 65,
       segments: [
-        { value: 20, color: "#FDE2E7", label: "0%-25%" },
-        { value: 30, color: "#FB923C", label: "26%-50%" },
+        { value: 25, color: "#FDE2E7", label: "0%-25%" },
+        { value: 25, color: "#FB923C", label: "26%-50%" },
         { value: 25, color: "#FEF3C7", label: "51%-75%" },
         { value: 25, color: "#D1FAE5", label: "76%-100%" }
       ]
@@ -28,20 +28,20 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
       label: "Category B",
       scoreValue: 78,
       segments: [
-        { value: 15, color: "#FDE2E7", label: "0%-25%" },
+        { value: 25, color: "#FDE2E7", label: "0%-25%" },
         { value: 25, color: "#FB923C", label: "26%-50%" },
-        { value: 30, color: "#FEF3C7", label: "51%-75%" },
-        { value: 30, color: "#D1FAE5", label: "76%-100%" }
+        { value: 25, color: "#FEF3C7", label: "51%-75%" },
+        { value: 25, color: "#D1FAE5", label: "76%-100%" }
       ]
     },
     {
       label: "Category C",
       scoreValue: 42,
       segments: [
-        { value: 10, color: "#FDE2E7", label: "0%-25%" },
-        { value: 20, color: "#FB923C", label: "26%-50%" },
-        { value: 35, color: "#86EFAC", label: "51%-75%" },
-        { value: 35, color: "#D1FAE5", label: "76%-100%" }
+        { value: 25, color: "#FDE2E7", label: "0%-25%" },
+        { value: 25, color: "#FB923C", label: "26%-50%" },
+        { value: 25, color: "#86EFAC", label: "51%-75%" },
+        { value: 25, color: "#D1FAE5", label: "76%-100%" }
       ]
     }
   ];

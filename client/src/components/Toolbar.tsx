@@ -7,9 +7,11 @@ interface ToolbarProps {
   onExportHTML: () => void;
   onImportData: () => void;
   onVersionHistory: () => void;
+  onGeneratePDF: () => void;
+  onGenerateImage: () => void;
 }
 
-export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, onVersionHistory }: ToolbarProps) {
+export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, onVersionHistory, onGeneratePDF, onGenerateImage }: ToolbarProps) {
   return (
     <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
@@ -45,6 +47,12 @@ export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, o
         </Button>
         <Button onClick={onPreview} variant="outline">
           <i className="fas fa-eye mr-2"></i>Preview
+        </Button>
+        <Button onClick={onGeneratePDF} variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
+          <i className="fas fa-file-pdf mr-2"></i>Generate PDF
+        </Button>
+        <Button onClick={onGenerateImage} variant="outline" className="border-purple-300 text-purple-600 hover:bg-purple-50">
+          <i className="fas fa-image mr-2"></i>Generate Image
         </Button>
         <Button onClick={onExportHTML} className="bg-green-600 hover:bg-green-700">
           <i className="fas fa-download mr-2"></i>Export HTML

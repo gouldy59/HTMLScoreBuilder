@@ -115,6 +115,13 @@ Changelog:
   * Set all default segments to balanced 25% values for consistent visual layout
   * Improved positioning to work properly within container components
   * Added placeholder text for better user guidance
+- July 15, 2025: Added PDF and image generation capabilities:
+  * Implemented server-side PDF generation using html-pdf-node
+  * Added image generation using Puppeteer for high-quality PNG exports
+  * Created new API endpoints for /generate-pdf and /generate-image
+  * Added Generate PDF and Generate Image buttons to the toolbar
+  * Enhanced HTML rendering for proper PDF/image output with full chart support
+  * Both exports use the same data as HTML export (imported JSON or sample data)
 ```
 
 # User Preferences

@@ -206,6 +206,114 @@ export default function Builder() {
     });
   };
 
+  const handleGeneratePDF = async () => {
+    if (!currentTemplate?.id) {
+      toast({ title: 'Error', description: 'Please save the template first', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const defaultData = {
+        studentName: 'John Doe',
+        studentId: 'STU001',
+        className: '10th Grade',
+        teacherName: 'Ms. Smith',
+        academicYear: '2024-2025',
+        grade: '10',
+        mathScore: 85,
+        mathGrade: 'B+',
+        scienceScore: 92,
+        scienceGrade: 'A-',
+        englishScore: 78,
+        englishGrade: 'B',
+        overallGrade: 'B+',
+        gpa: 3.5,
+        rank: 15,
+      };
+
+      const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+
+      const response = await fetch(`/api/templates/${currentTemplate.id}/generate-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: exportData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentTemplate.name || 'report'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({ title: 'Success', description: 'PDF generated successfully' });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({ title: 'Error', description: 'Failed to generate PDF', variant: 'destructive' });
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!currentTemplate?.id) {
+      toast({ title: 'Error', description: 'Please save the template first', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const defaultData = {
+        studentName: 'John Doe',
+        studentId: 'STU001',
+        className: '10th Grade',
+        teacherName: 'Ms. Smith',
+        academicYear: '2024-2025',
+        grade: '10',
+        mathScore: 85,
+        mathGrade: 'B+',
+        scienceScore: 92,
+        scienceGrade: 'A-',
+        englishScore: 78,
+        englishGrade: 'B',
+        overallGrade: 'B+',
+        gpa: 3.5,
+        rank: 15,
+      };
+
+      const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+
+      const response = await fetch(`/api/templates/${currentTemplate.id}/generate-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: exportData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentTemplate.name || 'report'}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({ title: 'Success', description: 'Image generated successfully' });
+    } catch (error) {
+      console.error('Image generation error:', error);
+      toast({ title: 'Error', description: 'Failed to generate image', variant: 'destructive' });
+    }
+  };
+
   return (
     <DragDropProvider>
       <div className="flex h-screen">
@@ -221,6 +329,8 @@ export default function Builder() {
             onExportHTML={handleExportHTML}
             onImportData={handleImportData}
             onVersionHistory={() => setIsVersionHistoryOpen(true)}
+            onGeneratePDF={handleGeneratePDF}
+            onGenerateImage={handleGenerateImage}
           />
 
           <div className="flex-1 flex">

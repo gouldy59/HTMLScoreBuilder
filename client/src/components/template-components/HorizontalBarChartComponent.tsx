@@ -156,13 +156,10 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                     {/* Score Pointer */}
                     {item.scoreValue !== undefined && item.scoreValue !== null && (
                       <div 
-                        className="absolute top-0 bottom-0 w-0.5 bg-red-600 z-10"
-                        style={{ left: `${Math.min(Math.max(item.scoreValue || 0, 0), 100)}%` }}
+                        className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full border-2 border-white shadow-md z-10"
+                        style={{ left: `calc(${Math.min(Math.max(item.scoreValue || 0, 0), 100)}% - 6px)` }}
                         title={`Score: ${item.scoreValue}%`}
-                      >
-                        <div className="absolute -top-2 -left-2 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md"></div>
-                        <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md"></div>
-                      </div>
+                      ></div>
                     )}
                   </div>
                   

@@ -142,11 +142,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                           }}
                           title={`${segment.label}: ${segmentValue}%`}
                         >
-                          {showPercentages && segmentValue > 10 && (
-                            <span className="text-gray-800 text-xs font-medium">
-                              {segmentValue}%
-                            </span>
-                          )}
+
                         </div>
                       );
                     })}

@@ -100,8 +100,12 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
             <p class="text-sm text-gray-600">${subtitle}</p>
           </div>
           
-          <div class="flex justify-between text-xs text-gray-500 mb-2" style="margin-left: 96px; margin-right: 48px;">
-            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+          <div class="relative text-xs text-gray-500 mb-2" style="margin-left: 96px; margin-right: 48px;">
+            <span style="position: absolute; left: 0%;">0%</span>
+            <span style="position: absolute; left: 25%; transform: translateX(-50%);">25%</span>
+            <span style="position: absolute; left: 50%; transform: translateX(-50%);">50%</span>
+            <span style="position: absolute; left: 75%; transform: translateX(-50%);">75%</span>
+            <span style="position: absolute; left: 100%; transform: translateX(-100%);">100%</span>
           </div>
           
           <div class="space-y-3 mb-6">

@@ -49,40 +49,56 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
 
   return (
     <div
-      className={`relative p-6 bg-white border-2 rounded-lg transition-all cursor-pointer ${
-        isSelected ? 'border-blue-500 shadow-lg' : 'border-gray-200 hover:border-gray-300'
+      className={`relative p-4 rounded-lg cursor-pointer transition-all group ${
+        isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
       }`}
       style={{
-        position: 'absolute',
-        left: component.position.x,
-        top: component.position.y,
         backgroundColor: style?.backgroundColor || '#ffffff',
-        ...style
+        color: style?.textColor || '#1F2937',
       }}
       onClick={onSelect}
     >
-      {isSelected && (
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
-          size="sm"
-        >
-          ×
-        </Button>
-      )}
+      {/* Action buttons */}
+      <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <div className="flex gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-6 h-6 p-0 bg-white border border-gray-300 hover:bg-gray-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
+            <i className="fas fa-cog text-xs"></i>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-6 h-6 p-0 bg-white border border-gray-300 hover:bg-gray-50 text-red-600 hover:text-red-700"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <i className="fas fa-trash text-xs"></i>
+          </Button>
+        </div>
+      </div>
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full">
         {/* Chart Header */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>
-          <p className="text-sm text-gray-600">{subtitle}</p>
+        <div className="mb-4">
+          <h3 className={`font-semibold mb-1 ${
+            style?.fontSize === 'small' ? 'text-sm' :
+            style?.fontSize === 'large' ? 'text-xl' :
+            style?.fontSize === 'xl' ? 'text-2xl' : 'text-lg'
+          }`}>{title}</h3>
+          <p className="text-sm opacity-80">{subtitle}</p>
         </div>
 
         {/* Percentage Scale */}
-        <div className="flex justify-between text-xs text-gray-500 mb-2 px-32">
+        <div className="flex justify-between text-xs opacity-70 mb-2 px-16">
           <span>0%</span>
           <span>25%</span>
           <span>26%</span>
@@ -94,17 +110,17 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
         </div>
 
         {/* Chart Bars */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {chartData.map((item: any, index: number) => (
             <div key={index} className="flex items-center">
               {/* Label */}
-              <div className="w-32 text-sm text-gray-700 pr-4">
+              <div className="w-16 text-xs pr-2 flex-shrink-0 font-medium">
                 {item.label}
               </div>
               
               {/* Bar Container */}
-              <div className="flex-1 relative">
-                <div className="flex h-8 bg-gray-100 rounded overflow-hidden">
+              <div className="flex-1 relative min-w-0">
+                <div className="flex h-6 bg-gray-100 rounded overflow-hidden">
                   {item.segments.map((segment: any, segIndex: number) => (
                     <div
                       key={segIndex}
@@ -112,12 +128,11 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                       style={{
                         width: `${segment.value}%`,
                         backgroundColor: segment.color,
-                        border: segIndex > 0 ? '1px solid #fff' : 'none',
-                        borderLeft: segIndex > 0 ? '1px solid #fff' : 'none'
+                        ...(segIndex > 0 && { borderLeft: '1px solid #fff' })
                       }}
                     >
-                      {segment.value > 15 && (
-                        <span className="text-gray-700">
+                      {segment.value > 12 && (
+                        <span className="text-gray-800 text-xs font-medium">
                           {segment.value}%
                         </span>
                       )}
@@ -130,22 +145,22 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
         </div>
 
         {/* Legend */}
-        <div className="flex justify-center mt-6 space-x-6">
+        <div className="flex justify-center mt-4 space-x-4 flex-wrap">
           <div className="flex items-center space-x-1">
-            <div className="w-4 h-4 bg-pink-100 rounded"></div>
-            <span className="text-xs text-gray-600">0%-25%</span>
+            <div className="w-3 h-3 bg-pink-100 rounded"></div>
+            <span className="text-xs opacity-80">0%-25%</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-4 h-4 bg-orange-400 rounded"></div>
-            <span className="text-xs text-gray-600">26%-50%</span>
+            <div className="w-3 h-3 bg-orange-400 rounded"></div>
+            <span className="text-xs opacity-80">26%-50%</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-4 h-4 bg-green-300 rounded"></div>
-            <span className="text-xs text-gray-600">51%-75%</span>
+            <div className="w-3 h-3 bg-green-300 rounded"></div>
+            <span className="text-xs opacity-80">51%-75%</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-4 h-4 bg-green-200 rounded"></div>
-            <span className="text-xs text-gray-600">76%-100%</span>
+            <div className="w-3 h-3 bg-green-200 rounded"></div>
+            <span className="text-xs opacity-80">76%-100%</span>
           </div>
         </div>
       </div>

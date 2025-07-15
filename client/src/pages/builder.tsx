@@ -77,18 +77,26 @@ export default function Builder() {
   };
 
   const handleUpdateComponent = (componentId: string, updates: Partial<TemplateComponent>) => {
-    setComponents(prev =>
-      prev.map(component =>
-        component.id === componentId
-          ? { 
-              ...component, 
-              ...updates,
-              // Preserve children if not being updated, or use the new children array if provided
-              children: updates.children !== undefined ? updates.children : component.children
-            }
-          : component
-      )
-    );
+    console.log('handleUpdateComponent called for:', componentId, 'with updates:', updates);
+    
+    setComponents(prev => {
+      const updated = prev.map(component => {
+        if (component.id === componentId) {
+          const updatedComponent = { 
+            ...component, 
+            ...updates,
+            // Ensure children are properly updated if provided
+            children: updates.children !== undefined ? updates.children : component.children
+          };
+          console.log('Updated component:', updatedComponent);
+          return updatedComponent;
+        }
+        return component;
+      });
+      
+      console.log('Full components array after update:', updated);
+      return updated;
+    });
   };
 
   const handleDeleteComponent = (componentId: string) => {

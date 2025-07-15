@@ -260,6 +260,7 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           if (chartData.length >= 20) return; // Limit to 20 bars
           const newCategory = {
             label: `Category ${chartData.length + 1}`,
+            scoreValue: 50,
             segments: [
               { value: 25, color: "#FDE2E7", label: "0%-25%" },
               { value: 25, color: "#FB923C", label: "26%-50%" },
@@ -343,6 +344,29 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
                       </Button>
                     </div>
                     
+                    {/* Score Pointer Control */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label className="text-xs font-medium">Score Pointer:</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={category.scoreValue || ''}
+                        onChange={(e) => updateCategory(categoryIndex, 'scoreValue', parseInt(e.target.value) || 0)}
+                        placeholder="Score %"
+                        className="w-20 text-xs"
+                      />
+                      <span className="text-xs text-gray-500">% (0-100)</span>
+                      <Button
+                        onClick={() => updateCategory(categoryIndex, 'scoreValue', null)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Hide
+                      </Button>
+                    </div>
+                    
                     <div className="grid grid-cols-2 gap-2">
                       {category.segments?.map((segment: any, segmentIndex: number) => (
                         <div key={segmentIndex} className="flex items-center gap-1">
@@ -388,6 +412,7 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
                     updateContent('chartData', [
                       {
                         label: "Sample Category",
+                        scoreValue: 65,
                         segments: [
                           { value: 25, color: "#FDE2E7", label: "0%-25%" },
                           { value: 25, color: "#FB923C", label: "26%-50%" },

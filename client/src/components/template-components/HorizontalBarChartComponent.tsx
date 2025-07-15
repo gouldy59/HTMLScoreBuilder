@@ -16,6 +16,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
   const defaultData = [
     {
       label: "Category A",
+      scoreValue: 65,
       segments: [
         { value: 20, color: "#FDE2E7", label: "0%-25%" },
         { value: 30, color: "#FB923C", label: "26%-50%" },
@@ -25,6 +26,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
     },
     {
       label: "Category B",
+      scoreValue: 78,
       segments: [
         { value: 15, color: "#FDE2E7", label: "0%-25%" },
         { value: 25, color: "#FB923C", label: "26%-50%" },
@@ -34,6 +36,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
     },
     {
       label: "Category C",
+      scoreValue: 42,
       segments: [
         { value: 10, color: "#FDE2E7", label: "0%-25%" },
         { value: 20, color: "#FB923C", label: "26%-50%" },
@@ -127,7 +130,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                 
                 {/* Bar Container */}
                 <div className="flex-1 relative min-w-0">
-                  <div className="flex h-5 bg-gray-100 rounded overflow-hidden">
+                  <div className="flex h-5 bg-gray-100 rounded overflow-hidden relative">
                     {(item.segments || []).map((segment: any, segIndex: number) => {
                       const segmentValue = segment.value || 0;
                       return (
@@ -149,7 +152,28 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
                         </div>
                       );
                     })}
+                    
+                    {/* Score Pointer */}
+                    {item.scoreValue !== undefined && item.scoreValue !== null && (
+                      <div 
+                        className="absolute top-0 bottom-0 w-0.5 bg-red-600 z-10"
+                        style={{ left: `${Math.min(Math.max(item.scoreValue || 0, 0), 100)}%` }}
+                        title={`Score: ${item.scoreValue}%`}
+                      >
+                        <div className="absolute -top-2 -left-2 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md"></div>
+                        <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md"></div>
+                      </div>
+                    )}
                   </div>
+                  
+                  {/* Score Value Display */}
+                  {item.scoreValue !== undefined && item.scoreValue !== null && (
+                    <div className="absolute -right-12 top-0 bottom-0 flex items-center">
+                      <span className="text-xs font-bold text-red-600 bg-white px-1 py-0.5 rounded shadow-sm border">
+                        {item.scoreValue}%
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))

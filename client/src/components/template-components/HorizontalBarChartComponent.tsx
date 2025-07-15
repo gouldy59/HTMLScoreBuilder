@@ -101,24 +101,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
           <p className="text-sm opacity-80">{subtitle}</p>
         </div>
 
-        {/* Percentage Scale - Dynamically positioned */}
-        <div className="flex items-center mb-2">
-          <div style={{ minWidth: 'fit-content', maxWidth: '200px', paddingRight: '12px' }}>
-            {/* Invisible spacer to match label width */}
-            <span className="text-xs font-medium opacity-0">
-              {chartData.length > 0 ? chartData.reduce((longest: string, item: any) => 
-                (item.label || `Category ${chartData.indexOf(item) + 1}`).length > longest.length ? 
-                (item.label || `Category ${chartData.indexOf(item) + 1}`) : longest, '') : 'Category 1'}
-            </span>
-          </div>
-          <div className="flex-1 relative text-xs opacity-70" style={{ marginRight: '48px' }}>
-            <span className="absolute" style={{ left: '0%' }}>0%</span>
-            <span className="absolute" style={{ left: '25%', transform: 'translateX(-50%)' }}>25%</span>
-            <span className="absolute" style={{ left: '50%', transform: 'translateX(-50%)' }}>50%</span>
-            <span className="absolute" style={{ left: '75%', transform: 'translateX(-50%)' }}>75%</span>
-            <span className="absolute" style={{ left: '100%', transform: 'translateX(-100%)' }}>100%</span>
-          </div>
-        </div>
+
 
         {/* Chart Bars */}
         <div className="space-y-2">
@@ -131,13 +114,25 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
           ) : (
             chartData.map((item: any, index: number) => (
               <div key={index} className="flex items-center">
-                {/* Label */}
-                <div className="text-xs pr-3 font-medium" style={{ minWidth: 'fit-content', maxWidth: '200px' }}>
+                {/* Label - Fixed width based on longest label */}
+                <div className="text-xs pr-3 font-medium" style={{ 
+                  width: chartData.length > 0 ? 
+                    Math.min(200, Math.max(80, chartData.reduce((longest: number, item: any) => {
+                      const labelLength = (item.label || `Category ${chartData.indexOf(item) + 1}`).length * 7;
+                      return labelLength > longest ? labelLength : longest;
+                    }, 80))) + 'px' : '80px'
+                }}>
                   {item.label || `Category ${index + 1}`}
                 </div>
                 
-                {/* Bar Container */}
-                <div className="flex-1 relative min-w-0">
+                {/* Bar Container - Fixed width */}
+                <div className="relative" style={{ 
+                  width: chartData.length > 0 ? 
+                    `calc(100% - ${Math.min(200, Math.max(80, chartData.reduce((longest: number, item: any) => {
+                      const labelLength = (item.label || `Category ${chartData.indexOf(item) + 1}`).length * 7;
+                      return labelLength > longest ? labelLength : longest;
+                    }, 80))) + 12}px - 48px)` : 'calc(100% - 140px)'
+                }}>
                   <div className="flex h-5 bg-gray-100 rounded overflow-hidden relative">
                     {(item.segments || []).map((segment: any, segIndex: number) => {
                       const segmentValue = segment.value || 0;

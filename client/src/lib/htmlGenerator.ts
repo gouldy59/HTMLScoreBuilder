@@ -112,7 +112,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
               <div class="flex items-center">
                 <div class="w-24 text-sm text-gray-700 pr-3 font-medium">${item.label || 'Category'}</div>
                 <div class="flex-1 relative">
-                  <div class="flex h-6 bg-gray-100 rounded overflow-hidden">
+                  <div class="flex h-6 bg-gray-100 rounded overflow-hidden relative">
                     ${(item.segments || []).map((segment: any, segIndex: number) => `
                       <div class="flex items-center justify-center text-xs font-medium" 
                            style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
@@ -120,7 +120,23 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
                         ${(segment.value || 0) > 10 ? (segment.value || 0) + '%' : ''}
                       </div>
                     `).join('') || ''}
+                    
+                    ${item.scoreValue !== undefined && item.scoreValue !== null ? `
+                      <div style="position: absolute; top: 0; bottom: 0; width: 2px; background-color: #dc2626; left: ${Math.min(Math.max(item.scoreValue || 0, 0), 100)}%; z-index: 10;"
+                           title="Score: ${item.scoreValue}%">
+                        <div style="position: absolute; top: -8px; left: -8px; width: 16px; height: 16px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+                        <div style="position: absolute; bottom: -8px; left: -8px; width: 16px; height: 16px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+                      </div>
+                    ` : ''}
                   </div>
+                  
+                  ${item.scoreValue !== undefined && item.scoreValue !== null ? `
+                    <div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
+                      <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
+                        ${item.scoreValue}%
+                      </span>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             `).join('')}

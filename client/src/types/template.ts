@@ -56,6 +56,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
       chartData: [
         {
           label: "Category A",
+          scoreValue: 65,
           segments: [
             { value: 20, color: "#FDE2E7", label: "0%-25%" },
             { value: 30, color: "#FB923C", label: "26%-50%" },
@@ -65,6 +66,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
         },
         {
           label: "Category B",
+          scoreValue: 78,
           segments: [
             { value: 15, color: "#FDE2E7", label: "0%-25%" },
             { value: 25, color: "#FB923C", label: "26%-50%" },
@@ -74,6 +76,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
         },
         {
           label: "Category C",
+          scoreValue: 42,
           segments: [
             { value: 10, color: "#FDE2E7", label: "0%-25%" },
             { value: 20, color: "#FB923C", label: "26%-50%" },

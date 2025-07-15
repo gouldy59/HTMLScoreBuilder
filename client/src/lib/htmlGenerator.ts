@@ -4,7 +4,8 @@ import { replaceVariables } from './templateEngine';
 export function generateHTML(
   components: TemplateComponent[],
   variables: Record<string, any> = {},
-  templateName: string = 'Generated Report'
+  templateName: string = 'Generated Report',
+  reportBackground: string = '#ffffff'
 ): string {
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -23,7 +24,7 @@ export function generateHTML(
         }
     </style>
 </head>
-<body class="bg-white p-8 max-w-4xl mx-auto">`;
+<body class="p-8 max-w-4xl mx-auto" style="background-color: ${reportBackground};">`;
 
   // Sort components by position
   const sortedComponents = [...components].sort((a, b) => a.position.y - b.position.y);

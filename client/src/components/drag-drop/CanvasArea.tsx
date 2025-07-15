@@ -18,6 +18,7 @@ interface CanvasAreaProps {
   onSelectComponent: (componentId: string) => void;
   onUpdateComponent: (componentId: string, updates: Partial<TemplateComponent>) => void;
   onDeleteComponent: (componentId: string) => void;
+  reportBackground?: string;
 }
 
 export function CanvasArea({
@@ -27,6 +28,7 @@ export function CanvasArea({
   onSelectComponent,
   onUpdateComponent,
   onDeleteComponent,
+  reportBackground = '#ffffff',
 }: CanvasAreaProps) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -86,10 +88,11 @@ export function CanvasArea({
       <div className="max-w-4xl mx-auto">
         <div
           ref={drop}
-          className={`bg-white rounded-lg shadow-sm border border-gray-200 min-h-[800px] relative ${
+          className={`rounded-lg shadow-sm border border-gray-200 min-h-[800px] relative ${
             isOver ? 'border-blue-400 bg-blue-50' : ''
           }`}
           style={{
+            backgroundColor: reportBackground,
             backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
             backgroundSize: '20px 20px'
           }}

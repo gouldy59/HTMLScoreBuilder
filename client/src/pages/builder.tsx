@@ -22,6 +22,7 @@ export default function Builder() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isJSONDialogOpen, setIsJSONDialogOpen] = useState(false);
   const [templateData, setTemplateData] = useState<any>({});
+  const [reportBackground, setReportBackground] = useState<string>('#ffffff');
   const { toast } = useToast();
 
   const saveTemplateMutation = useMutation({
@@ -31,7 +32,7 @@ export default function Builder() {
         description: `Template with ${components.length} components`,
         components: components,
         variables: {},
-        styles: {},
+        styles: { reportBackground },
       };
 
       if (currentTemplateId) {
@@ -102,6 +103,7 @@ export default function Builder() {
     setComponents(Array.isArray(template.components) ? template.components : []);
     setTemplateName(template.name);
     setCurrentTemplateId(template.id);
+    setReportBackground(template.styles?.reportBackground || '#ffffff');
     setSelectedComponentId(null);
   };
 
@@ -127,7 +129,7 @@ export default function Builder() {
     // Use imported data if available, otherwise use defaults
     const previewData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
     
-    const html = generateHTML(components, previewData, templateName);
+    const html = generateHTML(components, previewData, templateName, reportBackground);
 
     const previewWindow = window.open('', '_blank');
     if (previewWindow) {
@@ -170,7 +172,7 @@ export default function Builder() {
     // Use imported data if available, otherwise use defaults
     const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
     
-    const html = generateHTML(components, exportData, templateName);
+    const html = generateHTML(components, exportData, templateName, reportBackground);
     downloadHTML(html, `${templateName.replace(/\s+/g, '-').toLowerCase()}.html`);
     
     const dataSource = Object.keys(templateData).length > 0 ? 'with imported JSON data' : 'with sample data';
@@ -204,6 +206,7 @@ export default function Builder() {
               onSelectComponent={handleSelectComponent}
               onUpdateComponent={handleUpdateComponent}
               onDeleteComponent={handleDeleteComponent}
+              reportBackground={reportBackground}
             />
 
             <PropertiesPanel
@@ -213,6 +216,8 @@ export default function Builder() {
                   handleUpdateComponent(selectedComponent.id, updates);
                 }
               }}
+              reportBackground={reportBackground}
+              onUpdateReportBackground={setReportBackground}
             />
           </div>
         </div>

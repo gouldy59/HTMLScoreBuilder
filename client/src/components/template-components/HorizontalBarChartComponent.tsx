@@ -102,7 +102,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
         </div>
 
         {/* Percentage Scale */}
-        <div className="flex justify-between text-xs opacity-70 mb-2 px-16">
+        <div className="flex justify-between text-xs opacity-70 mb-2" style={{ marginLeft: '80px', marginRight: '48px' }}>
           <span>0%</span>
           <span>25%</span>
           <span>26%</span>

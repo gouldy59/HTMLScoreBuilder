@@ -159,66 +159,69 @@ export function TemplateManager({ isOpen, onClose, onLoadTemplate }: TemplateMan
               </div>
             ) : (
               <div className="space-y-3">
-                {templates?.map((template) => (
-                  <div
-                    key={template.id}
-                    className={`p-4 border border-gray-200 rounded-lg cursor-pointer group transition-colors ${
-                      selectedTemplate?.id === template.id ? 'border-blue-400 bg-blue-50' : 'hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTemplate(template)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{template.name}</h4>
-                        {template.description && (
-                          <p className="text-sm text-gray-500 mt-1">{template.description}</p>
-                        )}
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                          <span>
-                            Modified {template.updatedAt ? new Date(template.updatedAt).toLocaleDateString() : 'Unknown'}
-                          </span>
-                          <span>
-                            {Array.isArray(template.components) ? template.components.length : 0} components
-                          </span>
-                        </div>
-                      </div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex gap-1">
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLoadTemplate(template);
-                            }}
-                            size="sm"
-                            variant="outline"
-                            title="Load Template"
-                          >
-                            <i className="fas fa-folder-open"></i>
-                          </Button>
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTemplate(template.id);
-                            }}
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
-                            title="Delete Template"
-                            disabled={deleteTemplateMutation.isPending}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </Button>
-                        </div>
-                      </div>
+                {templates && templates.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="mb-4">
+                      <i className="fas fa-folder-open text-4xl text-gray-300"></i>
                     </div>
-                  </div>
-                ))}
-                {templates?.length === 0 && (
-                  <div className="text-center py-8 text-gray-400">
-                    <i className="fas fa-folder-open text-3xl mb-2"></i>
                     <p>No templates found</p>
                     <p className="text-sm">Create your first template to get started</p>
                   </div>
+                ) : (
+                  templates?.map((template) => (
+                    <div
+                      key={template.id}
+                      className={`p-4 border border-gray-200 rounded-lg cursor-pointer group transition-colors ${
+                        selectedTemplate?.id === template.id ? 'border-blue-400 bg-blue-50' : 'hover:border-gray-300'
+                      }`}
+                      onClick={() => setSelectedTemplate(template)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">{template.name}</h4>
+                          {template.description && (
+                            <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                            <span>
+                              Modified {template.updatedAt ? new Date(template.updatedAt).toLocaleDateString() : 'Unknown'}
+                            </span>
+                            <span>
+                              {Array.isArray(template.components) ? template.components.length : 0} components
+                            </span>
+                          </div>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex gap-1">
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleLoadTemplate(template);
+                              }}
+                              size="sm"
+                              variant="outline"
+                              title="Load Template"
+                            >
+                              <i className="fas fa-folder-open"></i>
+                            </Button>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteTemplate(template.id);
+                              }}
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Template"
+                              disabled={deleteTemplateMutation.isPending}
+                            >
+                              <i className="fas fa-trash"></i>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             )}

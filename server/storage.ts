@@ -58,10 +58,13 @@ export class MemStorage implements IStorage {
   }
 
   async getAllTemplates(): Promise<Template[]> {
-    return Array.from(this.templates.values()).sort((a, b) => 
-      new Date(b.updatedAt || b.createdAt || 0).getTime() - 
-      new Date(a.updatedAt || a.createdAt || 0).getTime()
-    );
+    // Only return main templates (not versions) or latest versions
+    return Array.from(this.templates.values())
+      .filter(template => template.parentId === null || template.isLatest)
+      .sort((a, b) => 
+        new Date(b.updatedAt || b.createdAt || 0).getTime() - 
+        new Date(a.updatedAt || a.createdAt || 0).getTime()
+      );
   }
 
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {

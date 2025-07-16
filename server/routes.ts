@@ -384,6 +384,8 @@ function replaceVariables(template: string, data: Record<string, any>): string {
 // Helper function to generate full HTML from template
 async function generateFullHTML(template: any, data: Record<string, any>): Promise<string> {
   const components = Array.isArray(template.components) ? template.components : [];
+  const reportBackground = template.styles?.reportBackground || '#ffffff';
+  
   let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -392,49 +394,73 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
     <title>${template.name}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+        background-color: ${reportBackground} !important;
+      }
       .chart-bar { transition: none; }
-      @media print { body { -webkit-print-color-adjust: exact; } }
+      @media print { 
+        body { 
+          -webkit-print-color-adjust: exact !important; 
+          color-adjust: exact !important;
+          background-color: ${reportBackground} !important;
+        } 
+      }
+      * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
     </style>
 </head>
-<body class="bg-white p-8">`;
+<body class="p-8 max-w-4xl mx-auto" style="background-color: ${reportBackground};">`;
 
   // Generate component HTML using existing logic
   components.forEach((component: any) => {
     const content = component.content || {};
     switch (component.type) {
       case 'header':
-        html += `<div class="mb-6"><h1 class="text-2xl font-bold">${replaceVariables(content.title || 'Header', data)}</h1>`;
+        const headerStyle = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${headerStyle.backgroundColor || '#DBEAFE'}; color: ${headerStyle.textColor || '#1F2937'};">`;
+        html += `<h1 class="text-3xl font-bold mb-2">${replaceVariables(content.title || 'Header', data)}</h1>`;
         if (content.subtitle) {
-          html += `<p class="text-gray-600">${replaceVariables(content.subtitle, data)}</p>`;
+          html += `<p class="text-lg opacity-80">${replaceVariables(content.subtitle, data)}</p>`;
         }
         html += '</div>';
         break;
       case 'student-info':
-        html += '<div class="mb-6 grid grid-cols-2 gap-4">';
+        const studentStyle = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg grid grid-cols-2 gap-4" style="background-color: ${studentStyle.backgroundColor || '#F0FDF4'}; color: ${studentStyle.textColor || '#1F2937'};">`;
         Object.entries(content.fields || {}).forEach(([key, value]) => {
-          html += `<div><label class="text-sm font-medium text-gray-700">${key}:</label><p class="text-gray-900">${replaceVariables(String(value), data)}</p></div>`;
+          html += `<div><label class="text-sm font-medium opacity-70">${key}:</label><p class="text-lg font-semibold">${replaceVariables(String(value), data)}</p></div>`;
         });
         html += '</div>';
         break;
       case 'score-table':
-        html += '<div class="mb-6"><table class="w-full border-collapse border border-gray-300">';
+        const tableStyle = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${tableStyle.backgroundColor || '#FFF7ED'};">`;
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden">';
+        
+        // Headers
         html += '<thead><tr class="bg-gray-50">';
         (content.headers || ['Subject', 'Score', 'Grade']).forEach((header: string) => {
-          html += `<th class="border border-gray-300 px-4 py-2 text-left">${header}</th>`;
+          html += `<th class="border border-gray-300 px-4 py-3 text-left font-semibold">${header}</th>`;
         });
-        html += '</tr></thead><tbody>';
+        html += '</tr></thead>';
+
+        // Rows
+        html += '<tbody>';
         (content.rows || []).forEach((row: any) => {
-          html += '<tr>';
+          html += '<tr class="hover:bg-gray-50">';
           Object.values(row).forEach((cell: any) => {
-            html += `<td class="border border-gray-300 px-4 py-2">${replaceVariables(String(cell), data)}</td>`;
+            html += `<td class="border border-gray-300 px-4 py-3">${replaceVariables(String(cell), data)}</td>`;
           });
           html += '</tr>';
         });
-        html += '</tbody></table></div>';
+        html += '</tbody></table></div></div>';
         break;
       case 'text-block':
-        html += `<div class="mb-6"><p>${replaceVariables(content.text || '', data)}</p></div>`;
+        const textStyle = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${textStyle.backgroundColor || '#ffffff'};">
+          <p style="color: ${textStyle.textColor || '#1F2937'};">${replaceVariables(content.text || '', data)}</p>
+        </div>`;
         break;
       case 'horizontal-bar-chart':
         // Add comprehensive chart rendering for PDF/Image
@@ -443,33 +469,86 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         const subtitle = replaceVariables(content.subtitle || '', data);
         const wrapLabels = content.wrapLabels === true;
         
-        html += `<div class="mb-6 p-6 rounded-lg bg-white">
-          <div class="mb-4">
+        const chartStyle = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+          <div class="mb-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
             <p class="text-sm text-gray-600">${subtitle}</p>
           </div>
-          <div class="space-y-3">`;
           
-        chartData.forEach((item: any) => {
-          const labelWidth = wrapLabels ? '120px' : 'auto';
-          html += `<div style="display: flex; align-items: center;">
-            <div style="width: ${labelWidth}; padding-right: 12px; font-size: 12px; font-weight: 500; ${wrapLabels ? 'word-wrap: break-word; white-space: normal; line-height: 1.2;' : 'white-space: nowrap;'}">${item.label || 'Category'}</div>
-            <div style="flex: 1; position: relative;">
-              <div style="display: flex; height: 24px; background-color: #f3f4f6; border-radius: 4px; overflow: hidden;">`;
-              
-          (item.segments || []).forEach((segment: any, segIndex: number) => {
-            html += `<div style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"></div>`;
+          <div class="space-y-3 mb-6">`;
+          
+        if (chartData.length === 0) {
+          html += `<div class="text-center py-8 text-gray-500">
+            <p class="text-sm">No chart data available</p>
+          </div>`;
+        } else {
+          chartData.forEach((item: any) => {
+            const labelWidth = wrapLabels ? '120px' : Math.min(200, Math.max(80, chartData.reduce((longest: number, item: any) => {
+              const labelLength = (item.label || 'Category').length * 7;
+              return labelLength > longest ? labelLength : longest;
+            }, 80))) + 'px';
+            
+            html += `<div style="display: flex; align-items: center;">
+              <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; ${
+                wrapLabels ? 
+                  'width: 120px; word-wrap: break-word; white-space: normal; line-height: 1.2;' :
+                  `width: ${labelWidth}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
+              }">${item.label || 'Category'}</div>
+              <div style="position: relative; width: ${
+                wrapLabels ? 'calc(100% - 132px - 48px)' : `calc(100% - ${labelWidth} - 12px - 48px)`
+              };">
+                <div style="display: flex; height: 24px; background-color: #f3f4f6; border-radius: 6px; overflow: hidden; position: relative;">`;
+                
+            (item.segments || []).forEach((segment: any, segIndex: number) => {
+              html += `<div style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''} display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;" title="${segment.label}: ${segment.value || 0}%">`;
+              if (content.showPercentages !== false && (segment.value || 0) > 8) {
+                html += `${segment.value || 0}%`;
+              }
+              html += `</div>`;
+            });
+            
+            if (item.scoreValue !== undefined && item.scoreValue !== null) {
+              const scorePosition = Math.min(Math.max(item.scoreValue || 0, 0), 100);
+              html += `<div style="position: absolute; top: 50%; left: calc(${scorePosition}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;" title="Score: ${item.scoreValue}%"></div>`;
+            }
+            
+            html += `</div>`;
+            
+            if (item.scoreValue !== undefined && item.scoreValue !== null) {
+              html += `<div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
+                <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
+                  ${item.scoreValue}%
+                </span>
+              </div>`;
+            }
+            
+            html += `</div>
+            </div>`;
           });
-          
-          if (item.scoreValue !== undefined && item.scoreValue !== null) {
-            const scorePosition = Math.min(Math.max(item.scoreValue || 0, 0), 100);
-            html += `<div style="position: absolute; top: 50%; left: calc(${scorePosition}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
-          }
-          
-          html += '</div></div></div>';
-        });
+        }
         
-        html += '</div></div>';
+        html += `</div>
+          
+          <div style="display: flex; justify-content: center; gap: 24px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: #FDE2E7;"></div>
+              <span style="font-size: 12px; color: #6b7280;">0%-25%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: #FB923C;"></div>
+              <span style="font-size: 12px; color: #6b7280;">26%-50%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: #FEF3C7;"></div>
+              <span style="font-size: 12px; color: #6b7280;">51%-75%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: #D1FAE5;"></div>
+              <span style="font-size: 12px; color: #6b7280;">76%-100%</span>
+            </div>
+          </div>
+        </div>`;
         break;
       default:
         html += `<div class="mb-6">${replaceVariables(content.html || '', data)}</div>`;

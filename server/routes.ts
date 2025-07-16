@@ -456,7 +456,10 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
     const content = component.content || {};
     switch (component.type) {
       case 'chart':
-        // Handle generic chart component - support multiple data formats
+      case 'vertical-bar-chart':
+      case 'line-chart':
+      case 'pie-chart':
+        // Handle all chart component types
         let chartData2 = content.chartData || [];
         
         // Check if data is a template variable
@@ -465,219 +468,94 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
           try {
             chartData2 = JSON.parse(variableData);
           } catch (e) {
-            // If template variable parsing fails, check if this should be a vertical chart
-            const chartType = content.chartType || 'horizontal-bar';
-            if (chartType === 'bar') {
-              // Skip to vertical bar chart auto-generation
-              chartData2 = [];
-            } else {
-              chartData2 = [];
-            }
-          }
-        } 
-        // Check if data is Chart.js format JSON
-        else if (typeof content.data === 'string' && content.data.includes('labels')) {
-          try {
-            const chartjsData = JSON.parse(content.data);
             chartData2 = [];
-            
-            // Handle different chart types based on chartType property
-            const chartType = content.chartType || 'bar';
-            
-            if (chartType === 'bar' && chartjsData.labels && chartjsData.datasets && chartjsData.datasets[0]) {
-              // Render as vertical bar chart
-              const labels = chartjsData.labels;
-              const values = chartjsData.datasets[0].data;
-              const backgroundColor = chartjsData.datasets[0].backgroundColor || '#3B82F6';
-              const chartStyle = component.style || {};
-              const title = content.title || 'Chart';
-              const subtitle = content.subtitle || '';
-              
-              html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
-                <div class="mb-6">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
-                  <p class="text-sm text-gray-600">${subtitle}</p>
-                </div>
-                
-                <div style="display: flex; align-items: end; justify-content: space-around; height: 200px; border-bottom: 2px solid #e5e7eb; padding: 20px; gap: 20px;">`;
-              
-              // Calculate max value for scaling
-              const maxValue = Math.max(...values);
-              
-              labels.forEach((label: string, index: number) => {
-                const value = values[index];
-                const height = (value / maxValue) * 150; // Scale to max 150px height
-                
-                html += `<div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 4px;">${value}%</span>
-                    <div style="width: 40px; height: ${height}px; background-color: ${backgroundColor}; border-radius: 4px 4px 0 0; position: relative;">
-                      <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #6b7280;">${value}</div>
-                    </div>
-                  </div>
-                  <span style="font-size: 12px; color: #6b7280; text-align: center; word-wrap: break-word; max-width: 60px;">${label}</span>
-                </div>`;
-              });
-              
-              html += `</div></div>`;
-              break; // Exit the chart case early since we've rendered the chart
-            } else {
-              // Fallback to horizontal bar chart format for other types
-              const labels = chartjsData.labels;
-              const values = chartjsData.datasets[0].data;
-              const colorScheme = [
-                { value: 25, color: '#FDE2E7', label: '0%-25%' },
-                { value: 25, color: '#FB923C', label: '26%-50%' },
-                { value: 25, color: '#FEF3C7', label: '51%-75%' },
-                { value: 25, color: '#D1FAE5', label: '76%-100%' }
-              ];
-              
-              labels.forEach((label: string, index: number) => {
-                if (values[index] !== undefined) {
-                  chartData2.push({
-                    label: label,
-                    scoreValue: values[index],
-                    segments: colorScheme
-                  });
-                }
-              });
-            }
+          }
+        } else if (typeof content.data === 'string' && content.data.trim()) {
+          try {
+            chartData2 = JSON.parse(content.data);
           } catch (e) {
+            console.error('Failed to parse chart data:', e);
             chartData2 = [];
           }
         }
         
-        // If still no data, auto-generate from available score data
-        if (chartData2.length === 0) {
-          const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
-          const chartType = content.chartType || 'horizontal-bar';
+        // Auto-generate chart data if needed
+        if (!chartData2 || chartData2.length === 0) {
+          if (data.mathScore || data.scienceScore || data.englishScore) {
+            chartData2 = {
+              labels: ['Math', 'Science', 'English', 'History'],
+              datasets: [{
+                label: 'Test Scores',
+                data: [
+                  data.mathScore || 75,
+                  data.scienceScore || 80,
+                  data.englishScore || 70,
+                  data.historyScore || 85
+                ]
+              }]
+            };
+          }
+        }
+        
+        // Check if chartData2 is in Chart.js format
+        if (chartData2.labels && chartData2.datasets && chartData2.datasets[0]) {
+          const labels = chartData2.labels;
+          const chartValues = chartData2.datasets[0].data;
           
-          // Check if this should be a vertical bar chart
-          if (chartType === 'bar') {
-            // Generate vertical bar chart from score data
-            const chartStyle = component.style || {};
-            const title = content.title || 'Chart';
-            const subtitle = content.subtitle || '';
-            const backgroundColor = '#3B82F6';
+          if (component.type === 'vertical-bar-chart' || component.type === 'chart') {
+            // Vertical bar chart
+            html += `<div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-center">${content.title || 'Performance Chart'}</h3>
+              <div class="flex items-end justify-center" style="height: 300px; padding: 20px;">`;
             
-            html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
-              <div class="mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
-                <p class="text-sm text-gray-600">${subtitle}</p>
-              </div>
-              
-              <div style="display: flex; align-items: end; justify-content: space-around; height: 200px; border-bottom: 2px solid #e5e7eb; padding: 20px; gap: 20px;">`;
-            
-            const scores = [];
-            scoreFields.forEach(field => {
-              if (data[field] && typeof data[field] === 'number') {
-                const label = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-                scores.push({ label, value: data[field] });
-              }
+            labels.forEach((label, index) => {
+              const value = chartValues[index] || 0;
+              const height = Math.max((value / 100) * 250, 1);
+              html += `<div class="flex flex-col items-center mx-2">
+                <div class="bg-blue-500 border border-blue-600 rounded-t" style="width: 60px; height: ${height}px; margin-bottom: 10px;"></div>
+                <div class="text-sm text-gray-700 text-center">${label}</div>
+                <div class="text-xs text-gray-500 text-center">${value}</div>
+              </div>`;
             });
             
-            if (scores.length > 0) {
-              const maxValue = Math.max(...scores.map(s => s.value));
-              
-              scores.forEach((score) => {
-                const height = (score.value / maxValue) * 150; // Scale to max 150px height
-                
-                html += `<div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 4px;">${score.value}%</span>
-                    <div style="width: 40px; height: ${height}px; background-color: ${backgroundColor}; border-radius: 4px 4px 0 0; position: relative;">
-                      <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #6b7280;">${score.value}</div>
-                    </div>
-                  </div>
-                  <span style="font-size: 12px; color: #6b7280; text-align: center; word-wrap: break-word; max-width: 60px;">${score.label}</span>
-                </div>`;
-              });
-            }
+            html += `</div></div>`;
+          } else if (component.type === 'line-chart') {
+            // Line chart as table for PDF
+            html += `<div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-center">${content.title || 'Line Chart'}</h3>
+              <table class="w-full border-collapse border border-gray-300">
+                <thead><tr class="bg-gray-50">
+                  <th class="border border-gray-300 px-4 py-2">Subject</th>
+                  <th class="border border-gray-300 px-4 py-2">Score</th>
+                </tr></thead>
+                <tbody>`;
+            
+            labels.forEach((label, index) => {
+              const value = chartValues[index] || 0;
+              html += `<tr>
+                <td class="border border-gray-300 px-4 py-2">${label}</td>
+                <td class="border border-gray-300 px-4 py-2">${value}</td>
+              </tr>`;
+            });
+            
+            html += `</tbody></table></div>`;
+          } else if (component.type === 'pie-chart') {
+            // Pie chart as list for PDF
+            html += `<div class="mb-6">
+              <h3 class="text-lg font-semibold mb-4 text-center">${content.title || 'Pie Chart'}</h3>
+              <div class="space-y-2">`;
+            
+            labels.forEach((label, index) => {
+              const value = chartValues[index] || 0;
+              html += `<div class="flex items-center">
+                <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                <span class="text-sm">${label}: ${value}</span>
+              </div>`;
+            });
             
             html += `</div></div>`;
-            break; // Exit the chart case early since we've rendered the chart
           }
-          
-          // Fallback to horizontal bar chart for other types
-          const colorScheme = [
-            { value: 25, color: '#FDE2E7', label: '0%-25%' },
-            { value: 25, color: '#FB923C', label: '26%-50%' },
-            { value: 25, color: '#FEF3C7', label: '51%-75%' },
-            { value: 25, color: '#D1FAE5', label: '76%-100%' }
-          ];
-          
-          scoreFields.forEach(field => {
-            if (data[field] && typeof data[field] === 'number') {
-              const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-              chartData2.push({
-                label: subjectName,
-                scoreValue: data[field],
-                segments: colorScheme
-              });
-            }
-          });
         }
-        
-        const title2 = replaceVariables(content.title || 'Chart Title', data);
-        const subtitle2 = replaceVariables(content.subtitle || '', data);
-        
-        const chartStyle2 = component.style || {};
-        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle2.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-1">${title2}</h3>
-            <p class="text-sm text-gray-600">${subtitle2}</p>
-          </div>
-          
-          <div class="space-y-3 mb-6">`;
-          
-        if (chartData2.length === 0) {
-          html += `<div class="text-center py-8 text-gray-500">
-            <p class="text-sm">No chart data available</p>
-          </div>`;
-        } else {
-          chartData2.forEach((item: any) => {
-            html += `<div style="display: flex; align-items: center;">
-              <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label || 'Category'}</div>
-              <div style="position: relative; width: calc(100% - 80px - 12px - 48px);">
-                <div style="display: flex; height: 24px; background-color: #f3f4f6; border-radius: 6px; overflow: hidden; position: relative;">`;
-            
-            // Add segments
-            if (item.segments && Array.isArray(item.segments)) {
-              item.segments.forEach((segment: any, index: number) => {
-                const borderLeft = index > 0 ? 'border-left: 1px solid #fff;' : '';
-                html += `<div style="width: ${segment.value}%; background-color: ${segment.color}; ${borderLeft} display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;" title="${segment.label}: ${segment.value}%">${content.showPercentages !== false ? segment.value + '%' : ''}</div>`;
-              });
-            }
-            
-            // Add score pointer if scoreValue exists
-            if (typeof item.scoreValue === 'number') {
-              html += `<div style="position: absolute; top: 50%; left: calc(${item.scoreValue}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;" title="Score: ${item.scoreValue}%"></div>`;
-            }
-            
-            html += `</div><div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
-                <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
-                  ${item.scoreValue || 0}%
-                </span>
-              </div></div>
-            </div>`;
-          });
-        }
-        
-        html += '</div>';
-        
-        // Add legend
-        if (chartData2.length > 0 && chartData2[0].segments) {
-          html += '<div style="display: flex; justify-content: center; gap: 24px;">';
-          chartData2[0].segments.forEach((segment: any) => {
-            html += `<div style="display: flex; align-items: center; gap: 4px;">
-              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: ${segment.color};"></div>
-              <span style="font-size: 12px; color: #6b7280;">${segment.label}</span>
-            </div>`;
-          });
-          html += '</div>';
-        }
-        
-        html += '</div>';
         break;
       case 'header':
         const headerStyle = component.style || {};

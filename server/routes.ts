@@ -294,7 +294,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      
+      // Set content and wait for it to load completely
+      await page.setContent(html, { 
+        waitUntil: 'networkidle0',
+        timeout: 30000 
+      });
+      
+      // Wait for elements to render (using a Promise delay instead of waitForTimeout)
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       const pdfBuffer = await page.pdf({
         format: 'A4',

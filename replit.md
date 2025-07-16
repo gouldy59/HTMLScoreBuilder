@@ -148,6 +148,12 @@ Changelog:
   * Enhanced Chart.js format support - automatically converts Chart.js data structure to horizontal bar charts
   * System now handles multiple chart data formats: direct chartData, template variables, and Chart.js JSON format
   * Chart exports generate proper file sizes: PDF (45KB+), PNG (35KB+) with complete visual content
+- July 16, 2025: Added vertical bar chart support for Chart.js format data:
+  * Charts with chartType="bar" now render as vertical bar charts instead of horizontal bars
+  * Server-side PDF/PNG generation correctly displays vertical bars with proper scaling and positioning
+  * Vertical charts show Math (85%, 138px), Science (92%, 150px), English (78%, 127px), History (88%, 143px)
+  * Client-side already supports vertical charts through Recharts BarChart component
+  * Both horizontal and vertical chart formats export correctly in PDF (20KB) and PNG (19KB)
 ```
 
 # User Preferences

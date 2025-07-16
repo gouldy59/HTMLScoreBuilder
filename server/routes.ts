@@ -281,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate PDF using Puppeteer (more reliable than html-pdf-node)
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath: 'chromium',
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -337,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate image using Puppeteer
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath: 'chromium',
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',

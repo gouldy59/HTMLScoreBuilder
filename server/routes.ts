@@ -430,8 +430,18 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
     const content = component.content || {};
     switch (component.type) {
       case 'chart':
-        // Handle generic chart component - call the same logic as horizontal-bar-chart
-        const chartData2 = content.chartData || [];
+        // Handle generic chart component - support both direct data and template variables
+        let chartData2 = content.chartData || [];
+        if (typeof content.data === 'string' && content.data.includes('{{')) {
+          // This is a template variable, try to resolve it
+          const variableData = replaceVariables(content.data, data);
+          try {
+            chartData2 = JSON.parse(variableData);
+          } catch (e) {
+            chartData2 = [];
+          }
+        }
+        
         const title2 = replaceVariables(content.title || 'Chart Title', data);
         const subtitle2 = replaceVariables(content.subtitle || '', data);
         

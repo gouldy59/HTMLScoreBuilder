@@ -143,6 +143,8 @@ Changelog:
   * All chart features (colors, score pointers, percentages, legends) export perfectly in both formats
   * Enhanced template variable support - charts using {{chartData}} variables now render correctly
   * Both direct chart data and template variable approaches work seamlessly in exports
+  * Added intelligent auto-chart generation - when chartData variable is missing, automatically creates charts from available score data (mathScore, scienceScore, englishScore, etc.)
+  * Charts now automatically show student performance data with proper score positioning and colored segments
 ```
 
 # User Preferences

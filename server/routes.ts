@@ -438,7 +438,28 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
           try {
             chartData2 = JSON.parse(variableData);
           } catch (e) {
+            // If chartData variable is missing, auto-generate from available score data
             chartData2 = [];
+            const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
+            const colorScheme = [
+              { segments: [
+                { value: 25, color: '#FDE2E7', label: '0%-25%' },
+                { value: 25, color: '#FB923C', label: '26%-50%' },
+                { value: 25, color: '#FEF3C7', label: '51%-75%' },
+                { value: 25, color: '#D1FAE5', label: '76%-100%' }
+              ]}
+            ];
+            
+            scoreFields.forEach(field => {
+              if (data[field] && typeof data[field] === 'number') {
+                const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
+                chartData2.push({
+                  label: subjectName,
+                  scoreValue: data[field],
+                  segments: colorScheme[0].segments
+                });
+              }
+            });
           }
         }
         

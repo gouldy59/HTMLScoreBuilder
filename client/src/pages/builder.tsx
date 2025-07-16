@@ -191,10 +191,11 @@ export default function Builder() {
   };
 
   const handleApplyJSONData = (data: any) => {
+
     setTemplateData(data);
     toast({ 
       title: 'Data Imported', 
-      description: 'JSON data has been applied to your template. Use Preview to see the results.' 
+      description: 'JSON data has been applied to your template. Charts will update with the new data.' 
     });
   };
 

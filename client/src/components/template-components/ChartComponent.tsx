@@ -14,6 +14,8 @@ interface ChartComponentProps {
 export function ChartComponent({ component, isSelected, onSelect, onDelete, templateData = {} }: ChartComponentProps) {
   const { content, style } = component;
 
+
+
   // Generate chart data from templateData if available, otherwise use sample data
   const getChartData = () => {
     // Default sample data
@@ -25,8 +27,28 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       { subject: 'Art', score: 95, grade: 'A' },
     ];
 
-    // If templateData has score fields, use them
+    // If templateData has data, use it
     if (Object.keys(templateData).length > 0) {
+      // Check if it's Chart.js format with labels and datasets
+      if (templateData.labels && templateData.datasets && templateData.datasets[0]?.data) {
+        const labels = templateData.labels;
+        const data = templateData.datasets[0].data;
+        const chartData = labels.map((label: string, index: number) => {
+          const score = data[index] || 0;
+          let grade = 'C';
+          if (score >= 90) grade = 'A';
+          else if (score >= 80) grade = 'B';
+          else if (score >= 70) grade = 'C';
+          else if (score >= 60) grade = 'D';
+          else grade = 'F';
+          
+          return { subject: label, score, grade };
+        });
+
+        return chartData;
+      }
+      
+      // Check for individual score fields (mathScore, scienceScore, etc.)
       const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
       const dynamicData = [];
       
@@ -46,13 +68,17 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       });
       
       // If we found score data, use it, otherwise fall back to sample data
-      return dynamicData.length > 0 ? dynamicData : sampleData;
+      if (dynamicData.length > 0) {
+
+        return dynamicData;
+      }
     }
     
     return sampleData;
   };
 
   const chartData = getChartData();
+
 
   const pieColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 

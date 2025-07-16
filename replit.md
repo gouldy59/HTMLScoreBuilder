@@ -161,6 +161,13 @@ Changelog:
   * Added server-side validation schemas for template creation and data integrity
   * Enhanced user experience with validation status indicators and detailed error reporting
   * Templates now validate JSON data before PDF/PNG generation to ensure data integrity
+- July 16, 2025: Fixed client-side chart data source integration:
+  * Chart components now properly receive and display imported JSON data in the builder interface
+  * Added support for both Chart.js format (labels/datasets) and individual score fields (mathScore, scienceScore, etc.)
+  * Charts automatically update in real-time when users import JSON data through the Import Data dialog
+  * Client-side preview now matches exported PDF/PNG output with dynamic data
+  * Enhanced data flow from builder state → CanvasArea → ChartComponent with proper templateData passing
+  * Charts gracefully fall back to sample data when no imported data is available
 ```
 
 # User Preferences

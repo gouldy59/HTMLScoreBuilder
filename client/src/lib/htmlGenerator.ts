@@ -247,12 +247,26 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       
       let verticalChartHTML = `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">`;
       verticalChartHTML += `<h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>`;
-      verticalChartHTML += '<div class="flex items-end justify-center" style="height: 300px; padding: 20px;">';
+      
+      // Chart container with axes
+      verticalChartHTML += `<div style="position: relative; width: 100%; height: 300px;">
+        <!-- Y-axis -->
+        <div style="position: absolute; left: 0; top: 0; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
+          <span style="font-size: 11px; color: #666;">100</span>
+          <span style="font-size: 11px; color: #666;">75</span>
+          <span style="font-size: 11px; color: #666;">50</span>
+          <span style="font-size: 11px; color: #666;">25</span>
+          <span style="font-size: 11px; color: #666;">0</span>
+        </div>
+        
+        <!-- Chart area -->
+        <div style="margin-left: 50px; margin-bottom: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
+          <div class="flex items-end justify-center" style="height: 100%; padding: 20px;">`;
       
       if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
         verticalChartData.labels.forEach((label: string, index: number) => {
-          const value = verticalChartData.datasets[0].data[index];
-          const height = Math.max((value / 100) * 250, 5);
+          const value = Math.min(verticalChartData.datasets[0].data[index], 100); // Cap at 100
+          const height = Math.max((value / 100) * 210, 5); // Use 210px as max height
           
           verticalChartHTML += `<div class="flex flex-col items-center mx-2">
             <div style="width: 50px; height: ${height}px; background-color: #3B82F6; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid #1D4ED8;"></div>
@@ -262,7 +276,10 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         });
       }
       
-      verticalChartHTML += '</div></div>';
+      verticalChartHTML += `</div>
+        </div>
+      </div>`;
+      verticalChartHTML += '</div>';
       return verticalChartHTML;
 
     case 'line-chart':

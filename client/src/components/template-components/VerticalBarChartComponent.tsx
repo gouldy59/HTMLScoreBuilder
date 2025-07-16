@@ -185,16 +185,20 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
             data={chartData} 
             margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis 
               dataKey="subject" 
               tick={{ fontSize: 12, fill: '#666' }}
               interval={0}
               height={60}
+              axisLine={true}
+              tickLine={true}
             />
             <YAxis 
               tick={{ fontSize: 12, fill: '#666' }}
-              domain={[0, 'dataMax + 10']}
+              domain={[0, 100]}
+              axisLine={true}
+              tickLine={true}
             />
             <Tooltip 
               formatter={(value, name) => [value, 'Score']}

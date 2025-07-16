@@ -503,22 +503,39 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
           const chartValues = chartData2.datasets[0].data;
           
           if (component.type === 'vertical-bar-chart' || component.type === 'chart') {
-            // Vertical bar chart
+            // Vertical bar chart with axes
             html += `<div class="mb-6">
               <h3 class="text-lg font-semibold mb-4 text-center">${content.title || 'Performance Chart'}</h3>
-              <div class="flex items-end justify-center" style="height: 300px; padding: 20px;">`;
+              
+              <!-- Chart container with axes -->
+              <div style="position: relative; width: 100%; height: 300px; margin: 0 auto; max-width: 600px;">
+                <!-- Y-axis -->
+                <div style="position: absolute; left: 0; top: 0; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
+                  <span style="font-size: 11px; color: #666;">100</span>
+                  <span style="font-size: 11px; color: #666;">75</span>
+                  <span style="font-size: 11px; color: #666;">50</span>
+                  <span style="font-size: 11px; color: #666;">25</span>
+                  <span style="font-size: 11px; color: #666;">0</span>
+                </div>
+                
+                <!-- Chart area -->
+                <div style="margin-left: 50px; margin-bottom: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
+                  <div style="display: flex; align-items: end; justify-content: center; height: 100%; padding: 20px;">`;
             
             labels.forEach((label, index) => {
-              const value = chartValues[index] || 0;
-              const height = Math.max((value / 100) * 250, 1);
-              html += `<div class="flex flex-col items-center mx-2">
-                <div class="bg-blue-500 border border-blue-600 rounded-t" style="width: 60px; height: ${height}px; margin-bottom: 10px;"></div>
-                <div class="text-sm text-gray-700 text-center">${label}</div>
-                <div class="text-xs text-gray-500 text-center">${value}</div>
+              const value = Math.min(chartValues[index] || 0, 100); // Cap at 100
+              const height = Math.max((value / 100) * 210, 1); // Use 210px as max height
+              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 8px;">
+                <div style="width: 50px; height: ${height}px; background-color: #3B82F6; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid #1D4ED8;"></div>
+                <div style="font-size: 12px; color: #374151; text-align: center;">${label}</div>
+                <div style="font-size: 10px; color: #6b7280; text-align: center;">${value}</div>
               </div>`;
             });
             
-            html += `</div></div>`;
+            html += `</div>
+                </div>
+              </div>
+            </div>`;
           } else if (component.type === 'line-chart') {
             // Line chart as table for PDF
             html += `<div class="mb-6">

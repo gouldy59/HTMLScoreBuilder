@@ -240,14 +240,23 @@ export default function Builder() {
       }
 
       const blob = await response.blob();
+      console.log('PDF blob size:', blob.size, 'type:', blob.type);
+      
+      if (blob.size === 0) {
+        throw new Error('Received empty PDF file');
+      }
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `${templateName || 'report'}.pdf`;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
       
       toast({ title: 'Success', description: 'PDF generated successfully' });
     } catch (error) {
@@ -294,14 +303,23 @@ export default function Builder() {
       }
 
       const blob = await response.blob();
+      console.log('Image blob size:', blob.size, 'type:', blob.type);
+      
+      if (blob.size === 0) {
+        throw new Error('Received empty image file');
+      }
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `${templateName || 'report'}.png`;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
       
       toast({ title: 'Success', description: 'Image generated successfully' });
     } catch (error) {

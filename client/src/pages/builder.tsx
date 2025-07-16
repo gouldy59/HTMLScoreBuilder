@@ -10,7 +10,7 @@ import { JSONDataDialog } from '@/components/JSONDataDialog';
 import { VersionHistoryDialog } from '@/components/VersionHistoryDialog';
 import { TemplateComponent, ComponentType, COMPONENT_TYPES } from '@/types/template';
 import { generateHTML, downloadHTML } from '@/lib/htmlGenerator';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Template } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 
@@ -51,6 +51,8 @@ export default function Builder() {
     },
     onSuccess: (savedTemplate) => {
       setCurrentTemplateId(savedTemplate.id);
+      // Invalidate templates cache so template manager shows updated data
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template saved successfully' });
     },
     onError: () => {

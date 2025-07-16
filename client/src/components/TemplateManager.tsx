@@ -63,10 +63,22 @@ export function TemplateManager({ isOpen, onClose, onLoadTemplate }: TemplateMan
     },
   });
 
-  const handleLoadTemplate = (template: Template) => {
-    onLoadTemplate(template);
-    onClose();
-    toast({ title: `Template "${template.name}" loaded successfully` });
+  const handleLoadTemplate = async (template: Template) => {
+    try {
+      // Fetch the latest version of the template from the server
+      const response = await apiRequest('GET', `/api/templates/${template.id}`);
+      const latestTemplate = await response.json();
+      
+      onLoadTemplate(latestTemplate);
+      onClose();
+      toast({ title: `Template "${latestTemplate.name}" loaded successfully` });
+    } catch (error) {
+      console.error('Error loading template:', error);
+      // Fallback to cached version if fetch fails
+      onLoadTemplate(template);
+      onClose();
+      toast({ title: `Template "${template.name}" loaded successfully` });
+    }
   };
 
   const handleDeleteTemplate = (id: number) => {

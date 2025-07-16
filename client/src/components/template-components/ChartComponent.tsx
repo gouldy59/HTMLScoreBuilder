@@ -8,19 +8,51 @@ interface ChartComponentProps {
   onSelect: () => void;
   onUpdate: (updates: Partial<TemplateComponent>) => void;
   onDelete: () => void;
+  templateData?: any;
 }
 
-export function ChartComponent({ component, isSelected, onSelect, onDelete }: ChartComponentProps) {
+export function ChartComponent({ component, isSelected, onSelect, onDelete, templateData = {} }: ChartComponentProps) {
   const { content, style } = component;
 
-  // Sample data for demonstration
-  const sampleData = [
-    { subject: 'Math', score: 85, grade: 'B+' },
-    { subject: 'Science', score: 92, grade: 'A-' },
-    { subject: 'English', score: 78, grade: 'B' },
-    { subject: 'History', score: 88, grade: 'B+' },
-    { subject: 'Art', score: 95, grade: 'A' },
-  ];
+  // Generate chart data from templateData if available, otherwise use sample data
+  const getChartData = () => {
+    // Default sample data
+    const sampleData = [
+      { subject: 'Math', score: 85, grade: 'B+' },
+      { subject: 'Science', score: 92, grade: 'A-' },
+      { subject: 'English', score: 78, grade: 'B' },
+      { subject: 'History', score: 88, grade: 'B+' },
+      { subject: 'Art', score: 95, grade: 'A' },
+    ];
+
+    // If templateData has score fields, use them
+    if (Object.keys(templateData).length > 0) {
+      const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
+      const dynamicData = [];
+      
+      scoreFields.forEach(field => {
+        if (templateData[field] && typeof templateData[field] === 'number') {
+          const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
+          const score = templateData[field];
+          let grade = 'C';
+          if (score >= 90) grade = 'A';
+          else if (score >= 80) grade = 'B';
+          else if (score >= 70) grade = 'C';
+          else if (score >= 60) grade = 'D';
+          else grade = 'F';
+          
+          dynamicData.push({ subject: subjectName, score, grade });
+        }
+      });
+      
+      // If we found score data, use it, otherwise fall back to sample data
+      return dynamicData.length > 0 ? dynamicData : sampleData;
+    }
+    
+    return sampleData;
+  };
+
+  const chartData = getChartData();
 
   const pieColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
@@ -31,7 +63,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete }: Ch
       case 'bar':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={sampleData}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="subject" />
               <YAxis />
@@ -44,7 +76,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete }: Ch
       case 'line':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={sampleData}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="subject" />
               <YAxis />
@@ -59,14 +91,14 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete }: Ch
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={sampleData}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 outerRadius={60}
                 dataKey="score"
                 label={({ subject, score }) => `${subject}: ${score}`}
               >
-                {sampleData.map((_, index) => (
+                {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
                 ))}
               </Pie>

@@ -384,6 +384,7 @@ export default function Builder() {
               onUpdateComponent={handleUpdateComponent}
               onDeleteComponent={handleDeleteComponent}
               reportBackground={reportBackground}
+              templateData={templateData}
             />
 
             <PropertiesPanel

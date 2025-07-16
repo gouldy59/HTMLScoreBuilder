@@ -20,6 +20,7 @@ interface CanvasAreaProps {
   onUpdateComponent: (componentId: string, updates: Partial<TemplateComponent>) => void;
   onDeleteComponent: (componentId: string) => void;
   reportBackground?: string;
+  templateData?: any;
 }
 
 export function CanvasArea({
@@ -30,6 +31,7 @@ export function CanvasArea({
   onUpdateComponent,
   onDeleteComponent,
   reportBackground = '#ffffff',
+  templateData = {},
 }: CanvasAreaProps) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -57,6 +59,7 @@ export function CanvasArea({
       onSelect: () => onSelectComponent(component.id),
       onUpdate: (updates: Partial<TemplateComponent>) => onUpdateComponent(component.id, updates),
       onDelete: () => onDeleteComponent(component.id),
+      templateData,
     };
 
     switch (component.type) {

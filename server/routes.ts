@@ -277,6 +277,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const data = req.body.data || {};
       const html = await generateFullHTML(template, data);
+      
+      // Debug endpoint to view HTML
+      if (req.query.debug === 'html') {
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(html);
+      }
 
       // Generate PDF using Puppeteer (more reliable than html-pdf-node)
       const browser = await puppeteer.launch({
@@ -423,6 +429,70 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
   components.forEach((component: any) => {
     const content = component.content || {};
     switch (component.type) {
+      case 'chart':
+        // Handle generic chart component - call the same logic as horizontal-bar-chart
+        const chartData2 = content.chartData || [];
+        const title2 = replaceVariables(content.title || 'Chart Title', data);
+        const subtitle2 = replaceVariables(content.subtitle || '', data);
+        
+        const chartStyle2 = component.style || {};
+        html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle2.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">${title2}</h3>
+            <p class="text-sm text-gray-600">${subtitle2}</p>
+          </div>
+          
+          <div class="space-y-3 mb-6">`;
+          
+        if (chartData2.length === 0) {
+          html += `<div class="text-center py-8 text-gray-500">
+            <p class="text-sm">No chart data available</p>
+          </div>`;
+        } else {
+          chartData2.forEach((item: any) => {
+            html += `<div style="display: flex; align-items: center;">
+              <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label || 'Category'}</div>
+              <div style="position: relative; width: calc(100% - 80px - 12px - 48px);">
+                <div style="display: flex; height: 24px; background-color: #f3f4f6; border-radius: 6px; overflow: hidden; position: relative;">`;
+            
+            // Add segments
+            if (item.segments && Array.isArray(item.segments)) {
+              item.segments.forEach((segment: any, index: number) => {
+                const borderLeft = index > 0 ? 'border-left: 1px solid #fff;' : '';
+                html += `<div style="width: ${segment.value}%; background-color: ${segment.color}; ${borderLeft} display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;" title="${segment.label}: ${segment.value}%">${content.showPercentages !== false ? segment.value + '%' : ''}</div>`;
+              });
+            }
+            
+            // Add score pointer if scoreValue exists
+            if (typeof item.scoreValue === 'number') {
+              html += `<div style="position: absolute; top: 50%; left: calc(${item.scoreValue}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;" title="Score: ${item.scoreValue}%"></div>`;
+            }
+            
+            html += `</div><div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
+                <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
+                  ${item.scoreValue || 0}%
+                </span>
+              </div></div>
+            </div>`;
+          });
+        }
+        
+        html += '</div>';
+        
+        // Add legend
+        if (chartData2.length > 0 && chartData2[0].segments) {
+          html += '<div style="display: flex; justify-content: center; gap: 24px;">';
+          chartData2[0].segments.forEach((segment: any) => {
+            html += `<div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 16px; height: 16px; border-radius: 4px; background-color: ${segment.color};"></div>
+              <span style="font-size: 12px; color: #6b7280;">${segment.label}</span>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        
+        html += '</div>';
+        break;
       case 'header':
         const headerStyle = component.style || {};
         html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${headerStyle.backgroundColor || '#DBEAFE'}; color: ${headerStyle.textColor || '#1F2937'};">`;
@@ -559,7 +629,10 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         </div>`;
         break;
       default:
-        html += `<div class="mb-6">${replaceVariables(content.html || '', data)}</div>`;
+        // For unknown component types, log and add a placeholder with debug info
+        console.log('Unknown component type:', component.type, 'defaulting to empty div');
+        html += `<div class="mb-6"><!-- Unknown component type: ${component.type} --></div>`;
+        break;
     }
   });
 

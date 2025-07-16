@@ -134,6 +134,13 @@ Changelog:
   * Charts export with proper colored segments, score pointers, and legends in both formats
   * Background colors preserve correctly in exported files
   * All visual elements match client-side rendering exactly
+- July 16, 2025: Resolved critical PDF/PNG export bug for chart components:
+  * Fixed component type mismatch - server-side HTML generation now properly handles "chart" type
+  * Added dedicated case for "chart" components matching "horizontal-bar-chart" functionality
+  * Resolved variable declaration conflicts in server-side switch statement
+  * PDF exports now generate proper file sizes (26KB+) with complete chart visualization
+  * PNG exports working correctly with chart content including segments, pointers, and labels
+  * All chart features (colors, score pointers, percentages, legends) export perfectly in both formats
 ```
 
 # User Preferences

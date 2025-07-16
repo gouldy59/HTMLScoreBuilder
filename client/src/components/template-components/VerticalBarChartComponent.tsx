@@ -124,6 +124,11 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
     return sampleData;
   }, [templateData, content.data]); // Re-calculate when templateData or component data changes
 
+  // Add debug logging to see what data is being used
+  console.log('VerticalBarChart - content.data:', content.data);
+  console.log('VerticalBarChart - templateData:', templateData);
+  console.log('VerticalBarChart - final chartData:', chartData);
+
   return (
     <div
       className={`relative p-4 rounded-lg cursor-pointer transition-all group ${
@@ -135,6 +140,7 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
         width: style.width || '100%',
       }}
       onClick={onSelect}
+      key={`${component.id}-${JSON.stringify(content.data)}-${JSON.stringify(templateData)}`}
     >
       {/* Action buttons */}
       <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">

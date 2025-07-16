@@ -33,6 +33,7 @@ export function CanvasArea({
   reportBackground = '#ffffff',
   templateData = {},
 }: CanvasAreaProps) {
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
     drop: (item: { componentType: ComponentType }, monitor) => {

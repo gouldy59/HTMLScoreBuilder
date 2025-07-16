@@ -183,34 +183,55 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
       </div>
 
       {/* Chart container */}
-      <div style={{ height: 'calc(100% - 60px)', minHeight: '250px' }}>
+      <div style={{ width: '100%', height: '300px', position: 'relative' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={chartData} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            key={JSON.stringify(chartData)}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
             <XAxis 
               dataKey="subject" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: '#666' }}
               interval={0}
+              height={60}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
-              domain={[0, 100]}
+              tick={{ fontSize: 12, fill: '#666' }}
+              domain={[0, 'dataMax + 10']}
             />
             <Tooltip 
               formatter={(value, name) => [value, 'Score']}
               labelFormatter={(label) => `Subject: ${label}`}
+              contentStyle={{ 
+                backgroundColor: '#f8f9fa', 
+                border: '1px solid #dee2e6',
+                borderRadius: '4px'
+              }}
             />
             <Bar 
               dataKey="score" 
               fill="#3B82F6" 
-              radius={[4, 4, 0, 0]}
+              stroke="#1D4ED8"
+              strokeWidth={1}
             />
           </BarChart>
         </ResponsiveContainer>
+        
+        {/* Fallback simple bars if Recharts fails */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+          <div className="flex items-end justify-center h-full px-8 pb-16">
+            {chartData.map((item, index) => (
+              <div key={index} className="flex-1 flex flex-col items-center mx-1">
+                <div 
+                  className="bg-blue-500 w-12 mb-2 rounded-t" 
+                  style={{ height: `${(item.score / 100) * 200}px` }}
+                />
+                <div className="text-xs text-gray-600 text-center">{item.subject}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

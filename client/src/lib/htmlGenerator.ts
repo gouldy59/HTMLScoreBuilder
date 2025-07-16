@@ -222,35 +222,48 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       `;
 
     case 'vertical-bar-chart':
-      const verticalChartId = `vertical-chart-${Math.random().toString(36).substr(2, 9)}`;
-      return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
-          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>
-          <div style="height: 300px;">
-            <canvas id="${verticalChartId}" width="400" height="200"></canvas>
-          </div>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const ctx = document.getElementById('${verticalChartId}').getContext('2d');
-              const chartData = ${JSON.stringify(generateChartData(variables))};
-              
-              new Chart(ctx, {
-                type: 'bar',
-                data: chartData,
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100
-                    }
-                  }
-                }
-              });
-            });
-          </script>
-        </div>`;
+      // Handle chart data - check component's own data first, then variables
+      let verticalChartData = null;
+      
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          // Template variable
+          const variableName = content.data.slice(2, -2);
+          verticalChartData = variables[variableName];
+        } else {
+          // Direct JSON data
+          try {
+            verticalChartData = JSON.parse(content.data);
+          } catch (e) {
+            verticalChartData = null;
+          }
+        }
+      }
+      
+      // Fallback to generated chart data
+      if (!verticalChartData) {
+        verticalChartData = generateChartData(variables);
+      }
+      
+      let verticalChartHTML = `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">`;
+      verticalChartHTML += `<h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>`;
+      verticalChartHTML += '<div class="flex items-end justify-center" style="height: 300px; padding: 20px;">';
+      
+      if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
+        verticalChartData.labels.forEach((label: string, index: number) => {
+          const value = verticalChartData.datasets[0].data[index];
+          const height = Math.max((value / 100) * 250, 5);
+          
+          verticalChartHTML += `<div class="flex flex-col items-center mx-2">
+            <div style="width: 50px; height: ${height}px; background-color: #3B82F6; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid #1D4ED8;"></div>
+            <div class="text-sm text-gray-700 text-center">${label}</div>
+            <div class="text-xs text-gray-500 text-center">${value}</div>
+          </div>`;
+        });
+      }
+      
+      verticalChartHTML += '</div></div>';
+      return verticalChartHTML;
 
     case 'line-chart':
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;

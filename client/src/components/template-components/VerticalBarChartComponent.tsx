@@ -15,7 +15,7 @@ interface VerticalBarChartComponentProps {
 export function VerticalBarChartComponent({ component, isSelected, onSelect, onDelete, templateData = {} }: VerticalBarChartComponentProps) {
   const { content, style } = component;
 
-  // Use useMemo to ensure chart data recalculates when templateData changes
+  // Use useMemo to ensure chart data recalculates when templateData or component content changes
   const chartData = useMemo(() => {
     // Default sample data
     const sampleData = [
@@ -25,6 +25,55 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
       { subject: 'History', score: 88, grade: 'B+' },
       { subject: 'Art', score: 95, grade: 'A' },
     ];
+
+    // First, check if component has its own data (from properties panel)
+    if (content.data && content.data.trim()) {
+      // Check if it's a template variable
+      if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+        // Handle template variables - use templateData
+        const variableName = content.data.slice(2, -2);
+        if (templateData[variableName]) {
+          const varData = templateData[variableName];
+          if (varData.labels && varData.datasets && varData.datasets[0]?.data) {
+            const labels = varData.labels;
+            const data = varData.datasets[0].data;
+            return labels.map((label: string, index: number) => {
+              const score = data[index] || 0;
+              let grade = 'C';
+              if (score >= 90) grade = 'A';
+              else if (score >= 80) grade = 'B';
+              else if (score >= 70) grade = 'C';
+              else if (score >= 60) grade = 'D';
+              else grade = 'F';
+              
+              return { subject: label, score, grade };
+            });
+          }
+        }
+      } else {
+        // Try to parse as JSON
+        try {
+          const parsedData = JSON.parse(content.data);
+          if (parsedData.labels && parsedData.datasets && parsedData.datasets[0]?.data) {
+            const labels = parsedData.labels;
+            const data = parsedData.datasets[0].data;
+            return labels.map((label: string, index: number) => {
+              const score = data[index] || 0;
+              let grade = 'C';
+              if (score >= 90) grade = 'A';
+              else if (score >= 80) grade = 'B';
+              else if (score >= 70) grade = 'C';
+              else if (score >= 60) grade = 'D';
+              else grade = 'F';
+              
+              return { subject: label, score, grade };
+            });
+          }
+        } catch (e) {
+          // If JSON parsing fails, continue to other data sources
+        }
+      }
+    }
 
     // If templateData has data, use it
     if (Object.keys(templateData).length > 0) {
@@ -73,7 +122,7 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
     }
     
     return sampleData;
-  }, [templateData]); // Re-calculate when templateData changes
+  }, [templateData, content.data]); // Re-calculate when templateData or component data changes
 
   return (
     <div

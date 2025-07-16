@@ -141,6 +141,8 @@ Changelog:
   * PDF exports now generate proper file sizes (26KB+) with complete chart visualization
   * PNG exports working correctly with chart content including segments, pointers, and labels
   * All chart features (colors, score pointers, percentages, legends) export perfectly in both formats
+  * Enhanced template variable support - charts using {{chartData}} variables now render correctly
+  * Both direct chart data and template variable approaches work seamlessly in exports
 ```
 
 # User Preferences

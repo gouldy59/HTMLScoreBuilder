@@ -3,13 +3,14 @@ import { TemplateComponent, ComponentType } from '@/types/template';
 import { HeaderComponent } from '../template-components/HeaderComponent';
 import { StudentInfoComponent } from '../template-components/StudentInfoComponent';
 import { ScoreTableComponent } from '../template-components/ScoreTableComponent';
-import { ChartComponent } from '../template-components/ChartComponent';
 import { TextBlockComponent } from '../template-components/TextBlockComponent';
-import { GradeSummaryComponent } from '../template-components/GradeSummaryComponent';
 import { ContainerComponent } from '../template-components/ContainerComponent';
 import { DividerComponent } from '../template-components/DividerComponent';
 import { SpacerComponent } from '../template-components/SpacerComponent';
 import { HorizontalBarChartComponent } from '../template-components/HorizontalBarChartComponent';
+import { VerticalBarChartComponent } from '../template-components/VerticalBarChartComponent';
+import { LineChartComponent } from '../template-components/LineChartComponent';
+import { PieChartComponent } from '../template-components/PieChartComponent';
 
 
 interface CanvasAreaProps {
@@ -70,16 +71,18 @@ export function CanvasArea({
         return <StudentInfoComponent key={component.id} {...commonProps} />;
       case 'score-table':
         return <ScoreTableComponent key={component.id} {...commonProps} />;
-      case 'chart':
-        return <ChartComponent key={component.id} {...commonProps} />;
       case 'text-block':
         return <TextBlockComponent key={component.id} {...commonProps} />;
-      case 'grade-summary':
-        return <GradeSummaryComponent key={component.id} {...commonProps} />;
       case 'container':
         return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
       case 'horizontal-bar-chart':
         return <HorizontalBarChartComponent key={component.id} {...commonProps} />;
+      case 'vertical-bar-chart':
+        return <VerticalBarChartComponent key={component.id} {...commonProps} />;
+      case 'line-chart':
+        return <LineChartComponent key={component.id} {...commonProps} />;
+      case 'pie-chart':
+        return <PieChartComponent key={component.id} {...commonProps} />;
       case 'divider':
         return <DividerComponent key={component.id} {...commonProps} />;
       case 'spacer':

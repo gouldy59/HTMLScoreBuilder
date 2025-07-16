@@ -132,15 +132,44 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
-    id: 'chart',
-    name: 'Chart',
+    id: 'vertical-bar-chart',
+    name: 'Vertical Bar Chart',
     icon: 'fas fa-chart-bar',
     category: 'report',
-    description: 'Visual data representation',
+    description: 'Vertical bar chart visualization',
     defaultContent: {
-      chartType: 'bar',
-      data: '{{chartData}}',
-      title: 'Performance Overview'
+      title: 'Performance Overview',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'line-chart',
+    name: 'Line Chart',
+    icon: 'fas fa-chart-line',
+    category: 'report',
+    description: 'Line chart visualization',
+    defaultContent: {
+      title: 'Performance Trend',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'pie-chart',
+    name: 'Pie Chart',
+    icon: 'fas fa-chart-pie',
+    category: 'report',
+    description: 'Pie chart visualization',
+    defaultContent: {
+      title: 'Performance Distribution',
+      data: '{{chartData}}'
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
@@ -161,22 +190,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
       textColor: '#1F2937'
     }
   },
-  {
-    id: 'grade-summary',
-    name: 'Grade Summary',
-    icon: 'fas fa-medal',
-    category: 'report',
-    description: 'Overall grade display',
-    defaultContent: {
-      overallGrade: '{{overallGrade}}',
-      gpa: '{{gpa}}',
-      rank: '{{rank}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#EFF6FF',
-      textColor: '#1F2937'
-    }
-  },
+
   {
     id: 'container',
     name: 'Container',

@@ -203,7 +203,7 @@ export default function Builder() {
   };
 
   const handleGeneratePDF = async () => {
-    if (!currentTemplate?.id) {
+    if (!currentTemplateId) {
       toast({ title: 'Error', description: 'Please save the template first', variant: 'destructive' });
       return;
     }
@@ -229,7 +229,7 @@ export default function Builder() {
 
       const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
 
-      const response = await fetch(`/api/templates/${currentTemplate.id}/generate-pdf`, {
+      const response = await fetch(`/api/templates/${currentTemplateId}/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: exportData })
@@ -243,7 +243,7 @@ export default function Builder() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${currentTemplate.name || 'report'}.pdf`;
+      a.download = `${templateName || 'report'}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -257,7 +257,7 @@ export default function Builder() {
   };
 
   const handleGenerateImage = async () => {
-    if (!currentTemplate?.id) {
+    if (!currentTemplateId) {
       toast({ title: 'Error', description: 'Please save the template first', variant: 'destructive' });
       return;
     }
@@ -283,7 +283,7 @@ export default function Builder() {
 
       const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
 
-      const response = await fetch(`/api/templates/${currentTemplate.id}/generate-image`, {
+      const response = await fetch(`/api/templates/${currentTemplateId}/generate-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: exportData })
@@ -297,7 +297,7 @@ export default function Builder() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${currentTemplate.name || 'report'}.png`;
+      a.download = `${templateName || 'report'}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

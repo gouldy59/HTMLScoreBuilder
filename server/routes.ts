@@ -430,37 +430,69 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
     const content = component.content || {};
     switch (component.type) {
       case 'chart':
-        // Handle generic chart component - support both direct data and template variables
+        // Handle generic chart component - support multiple data formats
         let chartData2 = content.chartData || [];
+        
+        // Check if data is a template variable
         if (typeof content.data === 'string' && content.data.includes('{{')) {
-          // This is a template variable, try to resolve it
           const variableData = replaceVariables(content.data, data);
           try {
             chartData2 = JSON.parse(variableData);
           } catch (e) {
-            // If chartData variable is missing, auto-generate from available score data
             chartData2 = [];
-            const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
-            const colorScheme = [
-              { segments: [
+          }
+        } 
+        // Check if data is Chart.js format JSON
+        else if (typeof content.data === 'string' && content.data.includes('labels')) {
+          try {
+            const chartjsData = JSON.parse(content.data);
+            // Convert Chart.js format to horizontal bar chart format
+            chartData2 = [];
+            if (chartjsData.labels && chartjsData.datasets && chartjsData.datasets[0]) {
+              const labels = chartjsData.labels;
+              const values = chartjsData.datasets[0].data;
+              const colorScheme = [
                 { value: 25, color: '#FDE2E7', label: '0%-25%' },
                 { value: 25, color: '#FB923C', label: '26%-50%' },
                 { value: 25, color: '#FEF3C7', label: '51%-75%' },
                 { value: 25, color: '#D1FAE5', label: '76%-100%' }
-              ]}
-            ];
-            
-            scoreFields.forEach(field => {
-              if (data[field] && typeof data[field] === 'number') {
-                const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-                chartData2.push({
-                  label: subjectName,
-                  scoreValue: data[field],
-                  segments: colorScheme[0].segments
-                });
-              }
-            });
+              ];
+              
+              labels.forEach((label: string, index: number) => {
+                if (values[index] !== undefined) {
+                  chartData2.push({
+                    label: label,
+                    scoreValue: values[index],
+                    segments: colorScheme
+                  });
+                }
+              });
+            }
+          } catch (e) {
+            chartData2 = [];
           }
+        }
+        
+        // If still no data, auto-generate from available score data
+        if (chartData2.length === 0) {
+          const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
+          const colorScheme = [
+            { value: 25, color: '#FDE2E7', label: '0%-25%' },
+            { value: 25, color: '#FB923C', label: '26%-50%' },
+            { value: 25, color: '#FEF3C7', label: '51%-75%' },
+            { value: 25, color: '#D1FAE5', label: '76%-100%' }
+          ];
+          
+          scoreFields.forEach(field => {
+            if (data[field] && typeof data[field] === 'number') {
+              const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
+              chartData2.push({
+                label: subjectName,
+                scoreValue: data[field],
+                segments: colorScheme
+              });
+            }
+          });
         }
         
         const title2 = replaceVariables(content.title || 'Chart Title', data);

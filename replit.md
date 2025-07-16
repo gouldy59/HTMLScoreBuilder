@@ -145,6 +145,9 @@ Changelog:
   * Both direct chart data and template variable approaches work seamlessly in exports
   * Added intelligent auto-chart generation - when chartData variable is missing, automatically creates charts from available score data (mathScore, scienceScore, englishScore, etc.)
   * Charts now automatically show student performance data with proper score positioning and colored segments
+  * Enhanced Chart.js format support - automatically converts Chart.js data structure to horizontal bar charts
+  * System now handles multiple chart data formats: direct chartData, template variables, and Chart.js JSON format
+  * Chart exports generate proper file sizes: PDF (45KB+), PNG (35KB+) with complete visual content
 ```
 
 # User Preferences

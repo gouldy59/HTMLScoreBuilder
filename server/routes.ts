@@ -521,7 +521,7 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
                 <!-- Chart area -->
                 <div style="margin-left: 50px; margin-bottom: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
                   <!-- Chart bars area -->
-                  <div style="display: flex; align-items: end; justify-content: center; height: 180px; padding: 20px 20px 0 20px;">`;
+                  <div style="display: flex; align-items: end; justify-content: center; height: 180px; padding: 20px 20px 0 20px; position: relative;">`;
             
             labels.forEach((label, index) => {
               const value = Math.min(chartValues[index] || 0, 100); // Cap at 100
@@ -539,8 +539,8 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               const totalSpacing = (barCount - 1) * spacing;
               const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
               
-              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px;">
-                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
+              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px; position: relative; width: ${maxBarWidth + 8}px; height: 100%;">
+                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor}; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);"></div>
               </div>`;
             });
             

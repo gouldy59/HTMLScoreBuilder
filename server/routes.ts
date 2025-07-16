@@ -311,7 +311,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${template.name || 'report'}.pdf"`);
-      res.send(pdfBuffer);
+      res.setHeader('Content-Length', pdfBuffer.length.toString());
+      res.end(pdfBuffer, 'binary');
     } catch (error) {
       console.error('PDF generation error:', error);
       res.status(500).json({ message: "Failed to generate PDF" });
@@ -362,7 +363,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Content-Disposition', `attachment; filename="${template.name || 'report'}.png"`);
-      res.send(imageBuffer);
+      res.setHeader('Content-Length', imageBuffer.length.toString());
+      res.end(imageBuffer, 'binary');
     } catch (error) {
       console.error('Image generation error:', error);
       res.status(500).json({ message: "Failed to generate image" });

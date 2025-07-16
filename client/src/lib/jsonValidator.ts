@@ -50,29 +50,63 @@ export const templateDataSchema = z.object({
   rank: z.number().positive().optional(),
 });
 
-// Validation functions
-export function validateJSON(jsonString: string): { isValid: boolean; data?: any; error?: string } {
+// Enhanced validation functions with detailed error reporting
+export function validateJSON(jsonString: string): { isValid: boolean; data?: any; error?: string; details?: string[] } {
+  if (!jsonString.trim()) {
+    return { isValid: false, error: 'Empty input', details: ['Please provide JSON data'] };
+  }
+
   try {
     const data = JSON.parse(jsonString);
     return { isValid: true, data };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Invalid JSON format';
+    const details = [];
+    
+    // Provide specific guidance based on common JSON errors
+    if (errorMessage.includes('Unexpected token')) {
+      details.push('Check for missing quotes around strings');
+      details.push('Ensure all brackets and braces are properly closed');
+      details.push('Remove trailing commas');
+    }
+    
+    if (errorMessage.includes('Unexpected end')) {
+      details.push('Missing closing bracket or brace');
+      details.push('Check that all objects and arrays are properly closed');
+    }
+    
     return { 
       isValid: false, 
-      error: error instanceof Error ? error.message : 'Invalid JSON format' 
+      error: errorMessage,
+      details: details.length > 0 ? details : ['Please check JSON syntax']
     };
   }
 }
 
-export function validateChartData(data: any): { isValid: boolean; data?: any; error?: string } {
+export function validateChartData(data: any): { isValid: boolean; data?: any; error?: string; details?: string[] } {
   try {
     const validatedData = chartDataSchema.parse(data);
-    return { isValid: true, data: validatedData };
+    
+    // Additional validation for chart data quality
+    const details = [];
+    if (validatedData.labels.length === 0) {
+      details.push('At least one label is required');
+    }
+    if (validatedData.datasets.length === 0) {
+      details.push('At least one dataset is required');
+    }
+    if (validatedData.datasets[0]?.data.length !== validatedData.labels.length) {
+      details.push('Number of data points must match number of labels');
+    }
+    
+    return { isValid: true, data: validatedData, details };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
+      const details = error.errors.map(err => `${err.message} at ${err.path.join('.')}`);
       return { 
         isValid: false, 
-        error: `Chart data validation error: ${firstError.message} at ${firstError.path.join('.')}` 
+        error: `Chart data validation failed`,
+        details
       };
     }
     return { isValid: false, error: 'Invalid chart data format' };
@@ -111,20 +145,49 @@ export function validateScoreData(data: any): { isValid: boolean; data?: any; er
   }
 }
 
-export function validateTemplateData(data: any): { isValid: boolean; data?: any; error?: string } {
+export function validateTemplateData(data: any): { isValid: boolean; data?: any; error?: string; details?: string[] } {
   try {
     const validatedData = templateDataSchema.parse(data);
-    return { isValid: true, data: validatedData };
+    
+    // Additional validation warnings
+    const details = [];
+    if (!data.studentName) details.push('Student name is required');
+    if (!data.studentId) details.push('Student ID is required');
+    
+    const scoreFields = ['mathScore', 'scienceScore', 'englishScore'];
+    const hasAnyScore = scoreFields.some(field => typeof data[field] === 'number');
+    if (!hasAnyScore) {
+      details.push('At least one subject score is recommended for complete reports');
+    }
+    
+    return { isValid: true, data: validatedData, details };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
+      const details = error.errors.map(err => `${err.message} at ${err.path.join('.')}`);
       return { 
         isValid: false, 
-        error: `Template data validation error: ${firstError.message} at ${firstError.path.join('.')}` 
+        error: `Template data validation failed`,
+        details
       };
     }
     return { isValid: false, error: 'Invalid template data format' };
   }
+}
+
+// Auto-fix common JSON issues
+export function autoFixJSON(jsonString: string): string {
+  let fixed = jsonString;
+  
+  // Remove trailing commas
+  fixed = fixed.replace(/,(\s*[}\]])/g, '$1');
+  
+  // Fix unquoted keys (basic cases)
+  fixed = fixed.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+  
+  // Fix single quotes to double quotes
+  fixed = fixed.replace(/'/g, '"');
+  
+  return fixed;
 }
 
 // Helper function to provide example JSON structures

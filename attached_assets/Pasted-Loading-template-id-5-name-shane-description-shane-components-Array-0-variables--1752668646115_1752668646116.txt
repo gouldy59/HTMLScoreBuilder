@@ -1,0 +1,40 @@
+Loading template: {id: 5, name: 'shane', description: 'shane', components: Array(0), variables: {…}, …}
+Console.js:61 Template loaded - currentTemplateId set to: 5
+Console.js:61 Save template called - currentTemplateId: 5
+Console.js:61 Components count: 1
+Console.js:61 Template name: shane
+Console.js:61 Updating existing template with ID: 5
+Console.js:61 Template saved successfully: {id: 5, name: 'shane', description: 'Template with 1 components', components: Array(1), variables: {…}, …}
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ @radix-ui_react-dialog.js?v=1a301bab:335
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1a301bab:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1a301bab:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1a301bab:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1a301bab:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1a301bab:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1a301bab:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1a301bab:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1a301bab:19416
+commitRoot @ chunk-WERSD76P.js?v=1a301bab:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1a301bab:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1a301bab:9119
+(anonymous) @ chunk-WERSD76P.js?v=1a301bab:18627Understand this warning
+Console.js:61 Loading template: {id: 3, name: 'test3', description: 'Template with 2 components', components: Array(2), variables: {…}, …}
+Console.js:61 Template loaded - currentTemplateId set to: 3
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ @radix-ui_react-dialog.js?v=1a301bab:335
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1a301bab:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1a301bab:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1a301bab:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1a301bab:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1a301bab:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1a301bab:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1a301bab:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1a301bab:19416
+commitRoot @ chunk-WERSD76P.js?v=1a301bab:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1a301bab:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1a301bab:9119
+(anonymous) @ chunk-WERSD76P.js?v=1a301bab:18627Understand this warning
+Console.js:61 Loading template: {id: 5, name: 'shane', description: 'shane', components: Array(0), variables: {…}, 

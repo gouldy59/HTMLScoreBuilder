@@ -29,10 +29,6 @@ export default function Builder() {
 
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {
-      console.log('Save template called - currentTemplateId:', currentTemplateId);
-      console.log('Components count:', components.length);
-      console.log('Template name:', templateName);
-      
       const templateData = {
         name: templateName,
         description: `Template with ${components.length} components`,
@@ -43,12 +39,10 @@ export default function Builder() {
 
       if (currentTemplateId) {
         // Update existing template
-        console.log('Updating existing template with ID:', currentTemplateId);
         const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
         return await response.json();
       } else {
         // Create new template for first save
-        console.log('Creating new template');
         const response = await apiRequest('POST', '/api/templates', templateData);
         const newTemplate = await response.json();
         setCurrentTemplateId(newTemplate.id);
@@ -56,12 +50,10 @@ export default function Builder() {
       }
     },
     onSuccess: (savedTemplate) => {
-      console.log('Template saved successfully:', savedTemplate);
       setCurrentTemplateId(savedTemplate.id);
       toast({ title: 'Template saved successfully' });
     },
-    onError: (error) => {
-      console.error('Save template error:', error);
+    onError: () => {
       toast({ title: 'Failed to save template', variant: 'destructive' });
     },
   });
@@ -145,13 +137,11 @@ export default function Builder() {
   };
 
   const handleLoadTemplate = (template: Template) => {
-    console.log('Loading template:', template);
     setComponents(Array.isArray(template.components) ? template.components : []);
     setTemplateName(template.name);
     setCurrentTemplateId(template.id);
     setReportBackground(template.styles?.reportBackground || '#ffffff');
     setSelectedComponentId(null);
-    console.log('Template loaded - currentTemplateId set to:', template.id);
   };
 
   const handleVersionRevert = (template: Template) => {

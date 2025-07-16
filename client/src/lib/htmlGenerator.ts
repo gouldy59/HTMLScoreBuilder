@@ -40,6 +40,51 @@ export function generateHTML(
   return html;
 }
 
+function generateChartData(variables: Record<string, any>) {
+  // Check if we have Chart.js format data
+  if (variables.chartData && variables.chartData.labels && variables.chartData.datasets) {
+    return variables.chartData;
+  }
+  
+  // Generate data from individual score fields
+  const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
+  const labels = [];
+  const data = [];
+  
+  scoreFields.forEach(field => {
+    if (variables[field] && typeof variables[field] === 'number') {
+      const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
+      labels.push(subjectName);
+      data.push(variables[field]);
+    }
+  });
+  
+  // If no data found, use sample data
+  if (labels.length === 0) {
+    return {
+      labels: ['Math', 'Science', 'English', 'History', 'Art'],
+      datasets: [{
+        label: 'Scores',
+        data: [85, 92, 78, 88, 95],
+        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+        borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+        borderWidth: 1
+      }]
+    };
+  }
+  
+  return {
+    labels,
+    datasets: [{
+      label: 'Scores',
+      data,
+      backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+      borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+      borderWidth: 1
+    }]
+  };
+}
+
 function generateComponentHTML(component: TemplateComponent, variables: Record<string, any>): string {
   const { type, content, style } = component;
 
@@ -176,41 +221,87 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         </div>
       `;
 
-    case 'chart':
-      const chartId = `chart-${Math.random().toString(36).substr(2, 9)}`;
-      const chartType = content.chartType || 'bar';
+    case 'vertical-bar-chart':
+      const verticalChartId = `vertical-chart-${Math.random().toString(36).substr(2, 9)}`;
       return `
         <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
-          <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Performance Chart', variables)}</h3>
+          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>
           <div style="height: 300px;">
-            <canvas id="${chartId}" width="400" height="200"></canvas>
+            <canvas id="${verticalChartId}" width="400" height="200"></canvas>
           </div>
           <script>
             document.addEventListener('DOMContentLoaded', function() {
-              const ctx = document.getElementById('${chartId}').getContext('2d');
-              const sampleData = {
-                labels: ['Math', 'Science', 'English', 'History', 'Art'],
-                datasets: [{
-                  label: 'Scores',
-                  data: [85, 92, 78, 88, 95],
-                  backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-                  borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-                  borderWidth: 1
-                }]
-              };
+              const ctx = document.getElementById('${verticalChartId}').getContext('2d');
+              const chartData = ${JSON.stringify(generateChartData(variables))};
               
               new Chart(ctx, {
-                type: '${chartType}',
-                data: sampleData,
+                type: 'bar',
+                data: chartData,
                 options: {
                   responsive: true,
                   maintainAspectRatio: false,
-                  scales: ${chartType !== 'pie' ? `{
+                  scales: {
                     y: {
                       beginAtZero: true,
                       max: 100
                     }
-                  }` : '{}'}
+                  }
+                }
+              });
+            });
+          </script>
+        </div>`;
+
+    case 'line-chart':
+      const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
+      return `
+        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
+          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Line Chart', variables)}</h3>
+          <div style="height: 300px;">
+            <canvas id="${lineChartId}" width="400" height="200"></canvas>
+          </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const ctx = document.getElementById('${lineChartId}').getContext('2d');
+              const chartData = ${JSON.stringify(generateChartData(variables))};
+              
+              new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100
+                    }
+                  }
+                }
+              });
+            });
+          </script>
+        </div>`;
+
+    case 'pie-chart':
+      const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
+      return `
+        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
+          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Pie Chart', variables)}</h3>
+          <div style="height: 300px;">
+            <canvas id="${pieChartId}" width="400" height="200"></canvas>
+          </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const ctx = document.getElementById('${pieChartId}').getContext('2d');
+              const chartData = ${JSON.stringify(generateChartData(variables))};
+              
+              new Chart(ctx, {
+                type: 'pie',
+                data: chartData,
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false
                 }
               });
             });
@@ -222,26 +313,6 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'};">
           <div class="prose max-w-none">
             ${replaceVariables(content.text || '', variables).split('\n').map(line => `<p>${line}</p>`).join('')}
-          </div>
-        </div>`;
-
-    case 'grade-summary':
-      return `
-        <div class="mb-6 p-6 rounded-lg text-center" style="background-color: ${style.backgroundColor || '#EFF6FF'}; color: ${style.textColor || '#1F2937'};">
-          <h3 class="text-2xl font-bold mb-4">Overall Performance</h3>
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <p class="text-sm opacity-70">Grade</p>
-              <p class="text-3xl font-bold">${replaceVariables(content.overallGrade || '{{overallGrade}}', variables)}</p>
-            </div>
-            <div>
-              <p class="text-sm opacity-70">GPA</p>
-              <p class="text-3xl font-bold">${replaceVariables(content.gpa || '{{gpa}}', variables)}</p>
-            </div>
-            <div>
-              <p class="text-sm opacity-70">Class Rank</p>
-              <p class="text-3xl font-bold">${replaceVariables(content.rank || '{{rank}}', variables)}</p>
-            </div>
           </div>
         </div>`;
 

@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { HeaderComponent } from './HeaderComponent';
 import { StudentInfoComponent } from './StudentInfoComponent';
 import { ScoreTableComponent } from './ScoreTableComponent';
-import { ChartComponent } from './ChartComponent';
 import { TextBlockComponent } from './TextBlockComponent';
-import { GradeSummaryComponent } from './GradeSummaryComponent';
 import { DividerComponent } from './DividerComponent';
 import { SpacerComponent } from './SpacerComponent';
 import { HorizontalBarChartComponent } from './HorizontalBarChartComponent';
+import { VerticalBarChartComponent } from './VerticalBarChartComponent';
+import { LineChartComponent } from './LineChartComponent';
+import { PieChartComponent } from './PieChartComponent';
 
 interface ContainerComponentProps {
   component: TemplateComponent;
@@ -47,14 +48,16 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         return <StudentInfoComponent {...commonProps} />;
       case 'score-table':
         return <ScoreTableComponent {...commonProps} />;
-      case 'chart':
-        return <ChartComponent {...commonProps} />;
       case 'text-block':
         return <TextBlockComponent {...commonProps} />;
-      case 'grade-summary':
-        return <GradeSummaryComponent {...commonProps} />;
       case 'horizontal-bar-chart':
         return <HorizontalBarChartComponent {...commonProps} />;
+      case 'vertical-bar-chart':
+        return <VerticalBarChartComponent {...commonProps} />;
+      case 'line-chart':
+        return <LineChartComponent {...commonProps} />;
+      case 'pie-chart':
+        return <PieChartComponent {...commonProps} />;
       case 'divider':
         return <DividerComponent {...commonProps} />;
       case 'spacer':

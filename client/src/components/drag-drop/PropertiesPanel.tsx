@@ -109,7 +109,9 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
-      case 'chart':
+      case 'vertical-bar-chart':
+      case 'line-chart':
+      case 'pie-chart':
         return (
           <div className="space-y-3">
             <div>
@@ -120,22 +122,6 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
                 onChange={(e) => updateContent('title', e.target.value)}
                 placeholder="Enter chart title..."
               />
-            </div>
-            <div>
-              <Label htmlFor="chartType">Chart Type</Label>
-              <Select
-                value={selectedComponent.content.chartType || 'bar'}
-                onValueChange={(value) => updateContent('chartType', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select chart type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bar">Bar Chart</SelectItem>
-                  <SelectItem value="line">Line Chart</SelectItem>
-                  <SelectItem value="pie">Pie Chart</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div>
               <Label htmlFor="chartData">Data Source</Label>

@@ -1,9 +1,9 @@
 import { TemplateComponent } from '@/types/template';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useMemo } from 'react';
 
-interface ChartComponentProps {
+interface LineChartComponentProps {
   component: TemplateComponent;
   isSelected: boolean;
   onSelect: () => void;
@@ -12,10 +12,8 @@ interface ChartComponentProps {
   templateData?: any;
 }
 
-export function ChartComponent({ component, isSelected, onSelect, onDelete, templateData = {} }: ChartComponentProps) {
+export function LineChartComponent({ component, isSelected, onSelect, onDelete, templateData = {} }: LineChartComponentProps) {
   const { content, style } = component;
-
-
 
   // Use useMemo to ensure chart data recalculates when templateData changes
   const chartData = useMemo(() => {
@@ -77,81 +75,15 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
     return sampleData;
   }, [templateData]); // Re-calculate when templateData changes
 
-
-
-  const pieColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
-
-  const renderChart = () => {
-    const chartType = content.chartType || 'bar';
-    
-    switch (chartType) {
-      case 'bar':
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} key={JSON.stringify(chartData)}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="subject" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="score" fill="#3B82F6" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      
-      case 'line':
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} key={JSON.stringify(chartData)}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="subject" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="score" stroke="#3B82F6" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        );
-      
-      case 'pie':
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart key={JSON.stringify(chartData)}>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={60}
-                dataKey="score"
-                label={({ subject, score }) => `${subject}: ${score}`}
-              >
-                {chartData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        );
-      
-      default:
-        return (
-          <div className="flex items-center justify-center h-full bg-gray-100 rounded border-2 border-dashed border-gray-300">
-            <div className="text-center text-gray-500">
-              <i className="fas fa-chart-bar text-3xl mb-2"></i>
-              <p>Unsupported chart type: {chartType}</p>
-            </div>
-          </div>
-        );
-    }
-  };
-
   return (
     <div
-      className={`relative p-6 rounded-lg cursor-pointer transition-all group ${
+      className={`relative p-4 rounded-lg cursor-pointer transition-all group ${
         isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
       }`}
       style={{
-        backgroundColor: style.backgroundColor || '#F8FAFC',
-        height: style.height || '300px',
+        backgroundColor: style.backgroundColor || '#ffffff',
+        minHeight: style.height || '300px',
+        width: style.width || '100%',
       }}
       onClick={onSelect}
     >
@@ -183,9 +115,22 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold mb-4">{content.title || 'Performance Chart'}</h3>
-      <div className="h-48">
-        {renderChart()}
+      {/* Chart title */}
+      <h3 className="text-lg font-semibold mb-4 text-center">
+        {content.title || 'Line Chart'}
+      </h3>
+
+      {/* Chart container */}
+      <div style={{ height: 'calc(100% - 60px)' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} key={JSON.stringify(chartData)}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="subject" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="score" stroke="#3B82F6" strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

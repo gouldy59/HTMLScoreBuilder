@@ -262,7 +262,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         <!-- Chart area -->
         <div style="margin-left: 50px; margin-bottom: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
           <!-- Chart bars area -->
-          <div class="flex items-end justify-center" style="height: 180px; padding: 20px 20px 0 20px;">`;
+          <div class="flex items-end justify-center" style="height: 180px; padding: 20px 20px 0 20px; position: relative;">`;
       
       if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
         verticalChartData.labels.forEach((label: string, index: number) => {
@@ -281,8 +281,8 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
           const totalSpacing = (barCount - 1) * spacing;
           const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
           
-          verticalChartHTML += `<div class="flex flex-col items-center mx-1">
-            <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
+          verticalChartHTML += `<div class="flex flex-col items-center mx-1" style="position: relative; width: ${maxBarWidth + 8}px; height: 100%;">
+            <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor}; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);"></div>
           </div>`;
         });
         

@@ -176,11 +176,7 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
         <span className="text-xs text-gray-500 block">{dataSourceInfo}</span>
       </h3>
 
-      {/* Debug info */}
-      <div className="text-xs text-gray-600 mb-2 text-center">
-        Data points: {chartData.length} | 
-        Values: {chartData.map(d => `${d.subject}:${d.score}`).join(', ')}
-      </div>
+
 
       {/* Chart container */}
       <div style={{ width: '100%', height: '300px', position: 'relative' }}>
@@ -217,21 +213,6 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
             />
           </BarChart>
         </ResponsiveContainer>
-        
-        {/* Fallback simple bars if Recharts fails */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-          <div className="flex items-end justify-center h-full px-8 pb-16">
-            {chartData.map((item, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center mx-1">
-                <div 
-                  className="bg-blue-500 w-12 mb-2 rounded-t" 
-                  style={{ height: `${(item.score / 100) * 200}px` }}
-                />
-                <div className="text-xs text-gray-600 text-center">{item.subject}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

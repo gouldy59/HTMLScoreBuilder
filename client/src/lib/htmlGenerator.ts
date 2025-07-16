@@ -268,8 +268,13 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
           const value = Math.min(verticalChartData.datasets[0].data[index], 100); // Cap at 100
           const height = Math.max((value / 100) * 210, 5); // Use 210px as max height
           
+          // Use custom colors if available, otherwise use default colors
+          const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
+          const barColors = content.barColors || defaultColors;
+          const barColor = barColors[index % barColors.length];
+          
           verticalChartHTML += `<div class="flex flex-col items-center mx-2">
-            <div style="width: 50px; height: ${height}px; background-color: #3B82F6; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid #1D4ED8;"></div>
+            <div style="width: 50px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
             <div class="text-sm text-gray-700 text-center">${label}</div>
             <div class="text-xs text-gray-500 text-center">${value}</div>
           </div>`;

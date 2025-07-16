@@ -110,6 +110,135 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
         );
 
       case 'vertical-bar-chart':
+        const defaultBarColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
+        const barColors = selectedComponent.content.barColors || defaultBarColors;
+        
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Input
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter chart title..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartData">Data Source</Label>
+              <div className="space-y-2">
+                <Textarea
+                  id="chartData"
+                  value={selectedComponent.content.data || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    updateContent('data', value);
+                    
+                    // Validate JSON if it's not a template variable
+                    if (value && !value.startsWith('{{')) {
+                      const jsonValidation = validateJSON(value);
+                      if (jsonValidation.isValid && jsonValidation.data) {
+                        const chartValidation = validateChartData(jsonValidation.data);
+                        if (!chartValidation.isValid) {
+                          setJsonError(`Chart data: ${chartValidation.error}`);
+                        } else {
+                          setJsonError('');
+                        }
+                      } else {
+                        setJsonError(`JSON: ${jsonValidation.error}`);
+                      }
+                    } else {
+                      setJsonError('');
+                    }
+                  }}
+                  placeholder="{{chartData}} or valid JSON chart data"
+                  className="min-h-20 font-mono text-sm"
+                />
+                {jsonError && (
+                  <p className="text-sm text-red-600">{jsonError}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const example = getExampleJSON('chart');
+                      updateContent('data', example);
+                      setJsonError('');
+                    }}
+                  >
+                    <i className="fas fa-lightbulb mr-1 text-xs"></i>
+                    Example
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const value = selectedComponent.content.data;
+                      if (value && !value.startsWith('{{')) {
+                        const validation = validateJSON(value);
+                        if (validation.isValid) {
+                          toast({ title: 'Valid JSON format', description: 'Chart data is properly formatted' });
+                        } else {
+                          toast({ title: 'Invalid JSON', description: validation.error, variant: 'destructive' });
+                        }
+                      }
+                    }}
+                  >
+                    <i className="fas fa-check mr-1 text-xs"></i>
+                    Validate
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Bar Color Customization */}
+            <div>
+              <Label className="text-sm font-medium">Bar Colors</Label>
+              <p className="text-xs text-gray-500 mb-3">Customize the color of each bar in your chart</p>
+              <div className="grid grid-cols-2 gap-2">
+                {barColors.slice(0, 8).map((color, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="text-xs w-8 text-gray-600">#{index + 1}</span>
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={(e) => {
+                        const newColors = [...barColors];
+                        newColors[index] = e.target.value;
+                        updateContent('barColors', newColors);
+                      }}
+                      className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
+                    />
+                    <Input
+                      value={color}
+                      onChange={(e) => {
+                        const newColors = [...barColors];
+                        newColors[index] = e.target.value;
+                        updateContent('barColors', newColors);
+                      }}
+                      className="flex-1 text-xs"
+                      placeholder="#3B82F6"
+                    />
+                  </div>
+                ))}
+              </div>
+              <Button
+                onClick={() => {
+                  updateContent('barColors', [...defaultBarColors]);
+                }}
+                variant="outline"
+                size="sm"
+                className="w-full mt-2 text-xs"
+              >
+                Reset All Colors
+              </Button>
+            </div>
+          </div>
+        );
+      
       case 'line-chart':
       case 'pie-chart':
         return (

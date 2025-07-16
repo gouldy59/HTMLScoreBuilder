@@ -446,9 +446,50 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         else if (typeof content.data === 'string' && content.data.includes('labels')) {
           try {
             const chartjsData = JSON.parse(content.data);
-            // Convert Chart.js format to horizontal bar chart format
             chartData2 = [];
-            if (chartjsData.labels && chartjsData.datasets && chartjsData.datasets[0]) {
+            
+            // Handle different chart types based on chartType property
+            const chartType = content.chartType || 'bar';
+            
+            if (chartType === 'bar' && chartjsData.labels && chartjsData.datasets && chartjsData.datasets[0]) {
+              // Render as vertical bar chart
+              const labels = chartjsData.labels;
+              const values = chartjsData.datasets[0].data;
+              const backgroundColor = chartjsData.datasets[0].backgroundColor || '#3B82F6';
+              const chartStyle = component.style || {};
+              const title = content.title || 'Chart';
+              const subtitle = content.subtitle || '';
+              
+              html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+                <div class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
+                  <p class="text-sm text-gray-600">${subtitle}</p>
+                </div>
+                
+                <div style="display: flex; align-items: end; justify-content: space-around; height: 200px; border-bottom: 2px solid #e5e7eb; padding: 20px; gap: 20px;">`;
+              
+              // Calculate max value for scaling
+              const maxValue = Math.max(...values);
+              
+              labels.forEach((label: string, index: number) => {
+                const value = values[index];
+                const height = (value / maxValue) * 150; // Scale to max 150px height
+                
+                html += `<div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 4px;">${value}%</span>
+                    <div style="width: 40px; height: ${height}px; background-color: ${backgroundColor}; border-radius: 4px 4px 0 0; position: relative;">
+                      <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #6b7280;">${value}</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 12px; color: #6b7280; text-align: center; word-wrap: break-word; max-width: 60px;">${label}</span>
+                </div>`;
+              });
+              
+              html += `</div></div>`;
+              break; // Exit the chart case early since we've rendered the chart
+            } else {
+              // Fallback to horizontal bar chart format for other types
               const labels = chartjsData.labels;
               const values = chartjsData.datasets[0].data;
               const colorScheme = [

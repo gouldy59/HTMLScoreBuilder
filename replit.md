@@ -170,6 +170,11 @@ Changelog:
   * Charts gracefully fall back to sample data when no imported data is available
   * Fixed chart re-rendering issue using useMemo and key props to ensure data updates are reflected immediately
   * Resolved stale data problem where charts weren't updating with new imported JSON data
+- July 16, 2025: Investigating vertical bar chart X-axis alignment issue:
+  * Reverted complex positioning attempts and returned to simpler flexbox approach
+  * Issue identified: bars floating above X-axis instead of sitting directly on the border line
+  * Problem likely related to flexbox justify-center alignment causing labels to appear above axis
+  * Currently debugging alignment between client-side Recharts rendering and server-side HTML generation
 ```
 
 # User Preferences

@@ -176,15 +176,39 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
         <span className="text-xs text-gray-500 block">{dataSourceInfo}</span>
       </h3>
 
+      {/* Debug info */}
+      <div className="text-xs text-gray-600 mb-2 text-center">
+        Data points: {chartData.length} | 
+        Values: {chartData.map(d => `${d.subject}:${d.score}`).join(', ')}
+      </div>
+
       {/* Chart container */}
-      <div style={{ height: 'calc(100% - 60px)' }}>
+      <div style={{ height: 'calc(100% - 60px)', minHeight: '250px' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} key={JSON.stringify(chartData)}>
+          <BarChart 
+            data={chartData} 
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            key={JSON.stringify(chartData)}
+          >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="subject" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="score" fill="#3B82F6" />
+            <XAxis 
+              dataKey="subject" 
+              tick={{ fontSize: 12 }}
+              interval={0}
+            />
+            <YAxis 
+              tick={{ fontSize: 12 }}
+              domain={[0, 100]}
+            />
+            <Tooltip 
+              formatter={(value, name) => [value, 'Score']}
+              labelFormatter={(label) => `Subject: ${label}`}
+            />
+            <Bar 
+              dataKey="score" 
+              fill="#3B82F6" 
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

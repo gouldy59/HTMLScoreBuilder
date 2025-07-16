@@ -531,10 +531,17 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               const barColors = content.barColors || defaultColors;
               const barColor = barColors[index % barColors.length];
               
-              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 8px;">
-                <div style="width: 50px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
-                <div style="font-size: 12px; color: #374151; text-align: center;">${label}</div>
-                <div style="font-size: 10px; color: #6b7280; text-align: center;">${value}</div>
+              // Calculate bar width based on number of bars to prevent overflow
+              const barCount = labels.length;
+              const availableWidth = 500; // Available width for bars
+              const spacing = 8; // Space between bars
+              const totalSpacing = (barCount - 1) * spacing;
+              const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
+              
+              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px;">
+                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
+                <div style="font-size: ${barCount > 8 ? '10px' : '12px'}; color: #374151; text-align: center; word-wrap: break-word; max-width: ${maxBarWidth + 10}px;">${label}</div>
+                <div style="font-size: ${barCount > 8 ? '8px' : '10px'}; color: #6b7280; text-align: center;">${value}</div>
               </div>`;
             });
             

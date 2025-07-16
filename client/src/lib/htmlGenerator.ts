@@ -273,10 +273,17 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
           const barColors = content.barColors || defaultColors;
           const barColor = barColors[index % barColors.length];
           
-          verticalChartHTML += `<div class="flex flex-col items-center mx-2">
-            <div style="width: 50px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
-            <div class="text-sm text-gray-700 text-center">${label}</div>
-            <div class="text-xs text-gray-500 text-center">${value}</div>
+          // Calculate bar width based on number of bars to prevent overflow
+          const barCount = verticalChartData.labels.length;
+          const availableWidth = 500; // Available width for bars
+          const spacing = 8; // Space between bars
+          const totalSpacing = (barCount - 1) * spacing;
+          const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
+          
+          verticalChartHTML += `<div class="flex flex-col items-center mx-1">
+            <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
+            <div class="text-sm text-gray-700 text-center" style="font-size: ${barCount > 8 ? '10px' : '12px'}; word-wrap: break-word; max-width: ${maxBarWidth + 10}px;">${label}</div>
+            <div class="text-xs text-gray-500 text-center" style="font-size: ${barCount > 8 ? '8px' : '10px'};">${value}</div>
           </div>`;
         });
       }

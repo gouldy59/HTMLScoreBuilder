@@ -1,6 +1,6 @@
 import { TemplateComponent } from '@/types/template';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useMemo } from 'react';
 
 interface VerticalBarChartComponentProps {
@@ -211,10 +211,17 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
             />
             <Bar 
               dataKey="score" 
-              fill="#3B82F6" 
+              fill="#3B82F6"
               stroke="#1D4ED8"
               strokeWidth={1}
-            />
+            >
+              {chartData.map((entry, index) => {
+                const barColors = content.barColors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
+                return (
+                  <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                );
+              })}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

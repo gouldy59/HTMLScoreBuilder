@@ -525,8 +525,14 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
             labels.forEach((label, index) => {
               const value = Math.min(chartValues[index] || 0, 100); // Cap at 100
               const height = Math.max((value / 100) * 210, 1); // Use 210px as max height
+              
+              // Use custom colors if available, otherwise use default colors
+              const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
+              const barColors = content.barColors || defaultColors;
+              const barColor = barColors[index % barColors.length];
+              
               html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 8px;">
-                <div style="width: 50px; height: ${height}px; background-color: #3B82F6; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid #1D4ED8;"></div>
+                <div style="width: 50px; height: ${height}px; background-color: ${barColor}; margin-bottom: 10px; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
                 <div style="font-size: 12px; color: #374151; text-align: center;">${label}</div>
                 <div style="font-size: 10px; color: #6b7280; text-align: center;">${value}</div>
               </div>`;

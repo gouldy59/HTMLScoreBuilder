@@ -40,18 +40,14 @@ export default function Builder() {
 
       if (currentTemplateId) {
         // Create a new version for existing templates
-        const response = await apiRequest(`/api/templates/${currentTemplateId}/versions`, {
-          method: 'POST',
-          body: JSON.stringify(templateData),
-        });
-        return response;
+        const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
+        return await response.json();
       } else {
         // Create new template for first save
-        const response = await apiRequest('/api/templates', {
-          method: 'POST',
-          body: JSON.stringify(templateData),
-        });
-        return response;
+        const response = await apiRequest('POST', '/api/templates', templateData);
+        const newTemplate = await response.json();
+        setCurrentTemplateId(newTemplate.id);
+        return newTemplate;
       }
     },
     onSuccess: (savedTemplate) => {

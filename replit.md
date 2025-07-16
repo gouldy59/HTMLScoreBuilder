@@ -128,6 +128,12 @@ Changelog:
   * Separated version creation from regular template saves for proper workflow
   * Fixed PDF download corruption by using proper binary data transmission with res.end()
   * All export formats (HTML, PDF, PNG) now work correctly with proper file downloads
+- July 16, 2025: Fixed Puppeteer compatibility issues for PDF/PNG exports:
+  * Resolved TypeError: page.waitForTimeout is not a function by replacing with setTimeout Promise wrapper
+  * PDF and image generation now work completely with full chart rendering
+  * Charts export with proper colored segments, score pointers, and legends in both formats
+  * Background colors preserve correctly in exported files
+  * All visual elements match client-side rendering exactly
 ```
 
 # User Preferences

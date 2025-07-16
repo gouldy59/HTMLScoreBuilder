@@ -6,6 +6,32 @@ import { z } from "zod";
 import puppeteer from 'puppeteer';
 import htmlPdf from 'html-pdf-node';
 
+// Server-side validation schemas
+const componentSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  content: z.record(z.any()),
+  style: z.record(z.any()),
+  position: z.object({
+    x: z.number(),
+    y: z.number()
+  }),
+  children: z.array(z.any()).optional()
+});
+
+const templateValidationSchema = z.object({
+  name: z.string().min(1, 'Template name is required'),
+  description: z.string().optional(),
+  components: z.array(componentSchema),
+  variables: z.record(z.any()),
+  styles: z.record(z.any())
+});
+
+const jsonDataSchema = z.record(z.any()).refine(
+  (data) => Object.keys(data).length > 0,
+  { message: 'JSON data cannot be empty' }
+);
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Template routes
   app.get("/api/templates", async (req, res) => {
@@ -439,7 +465,14 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
           try {
             chartData2 = JSON.parse(variableData);
           } catch (e) {
-            chartData2 = [];
+            // If template variable parsing fails, check if this should be a vertical chart
+            const chartType = content.chartType || 'horizontal-bar';
+            if (chartType === 'bar') {
+              // Skip to vertical bar chart auto-generation
+              chartData2 = [];
+            } else {
+              chartData2 = [];
+            }
           }
         } 
         // Check if data is Chart.js format JSON
@@ -517,6 +550,55 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         // If still no data, auto-generate from available score data
         if (chartData2.length === 0) {
           const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
+          const chartType = content.chartType || 'horizontal-bar';
+          
+          // Check if this should be a vertical bar chart
+          if (chartType === 'bar') {
+            // Generate vertical bar chart from score data
+            const chartStyle = component.style || {};
+            const title = content.title || 'Chart';
+            const subtitle = content.subtitle || '';
+            const backgroundColor = '#3B82F6';
+            
+            html += `<div class="mb-6 p-6 rounded-lg" style="background-color: ${chartStyle.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
+                <p class="text-sm text-gray-600">${subtitle}</p>
+              </div>
+              
+              <div style="display: flex; align-items: end; justify-content: space-around; height: 200px; border-bottom: 2px solid #e5e7eb; padding: 20px; gap: 20px;">`;
+            
+            const scores = [];
+            scoreFields.forEach(field => {
+              if (data[field] && typeof data[field] === 'number') {
+                const label = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
+                scores.push({ label, value: data[field] });
+              }
+            });
+            
+            if (scores.length > 0) {
+              const maxValue = Math.max(...scores.map(s => s.value));
+              
+              scores.forEach((score) => {
+                const height = (score.value / maxValue) * 150; // Scale to max 150px height
+                
+                html += `<div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 4px;">${score.value}%</span>
+                    <div style="width: 40px; height: ${height}px; background-color: ${backgroundColor}; border-radius: 4px 4px 0 0; position: relative;">
+                      <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #6b7280;">${score.value}</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 12px; color: #6b7280; text-align: center; word-wrap: break-word; max-width: 60px;">${score.label}</span>
+                </div>`;
+              });
+            }
+            
+            html += `</div></div>`;
+            break; // Exit the chart case early since we've rendered the chart
+          }
+          
+          // Fallback to horizontal bar chart for other types
           const colorScheme = [
             { value: 25, color: '#FDE2E7', label: '0%-25%' },
             { value: 25, color: '#FB923C', label: '26%-50%' },

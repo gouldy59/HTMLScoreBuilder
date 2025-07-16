@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { validateJSON, validateTemplateData, validateChartData, validateStudentInfo, validateScoreData, getExampleJSON } from '@/lib/jsonValidator';
+import { validateJSON, validateTemplateData, validateChartData, validateStudentInfo, validateScoreData, getExampleJSON, autoFixJSON } from '@/lib/jsonValidator';
 import { useToast } from '@/hooks/use-toast';
 
 interface JSONDataDialogProps {
@@ -19,19 +19,22 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
   const [jsonInput, setJsonInput] = useState('');
   const [validationType, setValidationType] = useState<'template' | 'chart' | 'student' | 'score'>('template');
   const [validationError, setValidationError] = useState('');
+  const [validationDetails, setValidationDetails] = useState<string[]>([]);
   const [isValid, setIsValid] = useState(false);
   const { toast } = useToast();
 
   const validateInput = (input: string, type: string) => {
     if (!input.trim()) {
       setValidationError('');
+      setValidationDetails([]);
       setIsValid(false);
       return;
     }
 
     const jsonValidation = validateJSON(input);
     if (!jsonValidation.isValid) {
-      setValidationError(`JSON Format Error: ${jsonValidation.error}`);
+      setValidationError(jsonValidation.error || 'JSON Format Error');
+      setValidationDetails(jsonValidation.details || []);
       setIsValid(false);
       return;
     }
@@ -56,9 +59,11 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
 
     if (!dataValidation.isValid) {
       setValidationError(dataValidation.error || 'Validation failed');
+      setValidationDetails(dataValidation.details || []);
       setIsValid(false);
     } else {
       setValidationError('');
+      setValidationDetails(dataValidation.details || []);
       setIsValid(true);
     }
   };
@@ -77,6 +82,19 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
     const example = getExampleJSON(validationType);
     setJsonInput(example);
     validateInput(example, validationType);
+  };
+
+  const handleAutoFix = () => {
+    if (!jsonInput.trim()) return;
+    
+    const fixed = autoFixJSON(jsonInput);
+    setJsonInput(fixed);
+    validateInput(fixed, validationType);
+    
+    toast({
+      title: 'Auto-fix Applied',
+      description: 'Common JSON formatting issues have been automatically corrected'
+    });
   };
 
   const handleApply = () => {
@@ -173,18 +191,49 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
             />
             {validationError && (
               <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-700">
+                <p className="text-sm text-red-700 font-medium mb-2">
                   <i className="fas fa-exclamation-triangle mr-2"></i>
                   {validationError}
                 </p>
+                {validationDetails.length > 0 && (
+                  <ul className="text-xs text-red-600 space-y-1 ml-4">
+                    {validationDetails.map((detail, index) => (
+                      <li key={index} className="list-disc">{detail}</li>
+                    ))}
+                  </ul>
+                )}
+                {validationError.includes('JSON') && (
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAutoFix}
+                      className="text-red-700 border-red-200 hover:bg-red-100"
+                    >
+                      <i className="fas fa-magic mr-1 text-xs"></i>
+                      Try Auto-fix
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
             {isValid && !validationError && jsonInput && (
               <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-green-700 font-medium">
                   <i className="fas fa-check-circle mr-2"></i>
                   JSON data is valid and ready to apply
                 </p>
+                {validationDetails.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-green-600 font-medium mb-1">Additional Notes:</p>
+                    <ul className="text-xs text-green-600 space-y-1 ml-4">
+                      {validationDetails.map((detail, index) => (
+                        <li key={index} className="list-disc">{detail}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>

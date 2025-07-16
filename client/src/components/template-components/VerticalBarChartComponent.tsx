@@ -124,10 +124,10 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
     return sampleData;
   }, [templateData, content.data]); // Re-calculate when templateData or component data changes
 
-  // Add debug logging to see what data is being used
-  console.log('VerticalBarChart - content.data:', content.data);
-  console.log('VerticalBarChart - templateData:', templateData);
-  console.log('VerticalBarChart - final chartData:', chartData);
+  // Debug: Show data source in chart title for clarity
+  const dataSourceInfo = content.data && content.data.trim() ? 
+    (content.data.startsWith('{{') ? ' (Using Template Variable)' : ' (Using Custom Data)') : 
+    ' (Using Sample Data)';
 
   return (
     <div
@@ -173,6 +173,7 @@ export function VerticalBarChartComponent({ component, isSelected, onSelect, onD
       {/* Chart title */}
       <h3 className="text-lg font-semibold mb-4 text-center">
         {content.title || 'Vertical Bar Chart'}
+        <span className="text-xs text-gray-500 block">{dataSourceInfo}</span>
       </h3>
 
       {/* Chart container */}

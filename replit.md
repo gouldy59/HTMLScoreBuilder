@@ -168,6 +168,8 @@ Changelog:
   * Client-side preview now matches exported PDF/PNG output with dynamic data
   * Enhanced data flow from builder state → CanvasArea → ChartComponent with proper templateData passing
   * Charts gracefully fall back to sample data when no imported data is available
+  * Fixed chart re-rendering issue using useMemo and key props to ensure data updates are reflected immediately
+  * Resolved stale data problem where charts weren't updating with new imported JSON data
 ```
 
 # User Preferences

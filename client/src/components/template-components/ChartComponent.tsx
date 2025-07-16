@@ -1,6 +1,7 @@
 import { TemplateComponent } from '@/types/template';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { useMemo } from 'react';
 
 interface ChartComponentProps {
   component: TemplateComponent;
@@ -16,8 +17,8 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
 
 
 
-  // Generate chart data from templateData if available, otherwise use sample data
-  const getChartData = () => {
+  // Use useMemo to ensure chart data recalculates when templateData changes
+  const chartData = useMemo(() => {
     // Default sample data
     const sampleData = [
       { subject: 'Math', score: 85, grade: 'B+' },
@@ -33,7 +34,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       if (templateData.labels && templateData.datasets && templateData.datasets[0]?.data) {
         const labels = templateData.labels;
         const data = templateData.datasets[0].data;
-        const chartData = labels.map((label: string, index: number) => {
+        const resultData = labels.map((label: string, index: number) => {
           const score = data[index] || 0;
           let grade = 'C';
           if (score >= 90) grade = 'A';
@@ -45,7 +46,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
           return { subject: label, score, grade };
         });
 
-        return chartData;
+        return resultData;
       }
       
       // Check for individual score fields (mathScore, scienceScore, etc.)
@@ -69,15 +70,13 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       
       // If we found score data, use it, otherwise fall back to sample data
       if (dynamicData.length > 0) {
-
         return dynamicData;
       }
     }
     
     return sampleData;
-  };
+  }, [templateData]); // Re-calculate when templateData changes
 
-  const chartData = getChartData();
 
 
   const pieColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -89,7 +88,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       case 'bar':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
+            <BarChart data={chartData} key={JSON.stringify(chartData)}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="subject" />
               <YAxis />
@@ -102,7 +101,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       case 'line':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
+            <LineChart data={chartData} key={JSON.stringify(chartData)}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="subject" />
               <YAxis />
@@ -115,7 +114,7 @@ export function ChartComponent({ component, isSelected, onSelect, onDelete, temp
       case 'pie':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart key={JSON.stringify(chartData)}>
               <Pie
                 data={chartData}
                 cx="50%"

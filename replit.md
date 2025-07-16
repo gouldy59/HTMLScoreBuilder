@@ -122,6 +122,12 @@ Changelog:
   * Added Generate PDF and Generate Image buttons to the toolbar
   * Enhanced HTML rendering for proper PDF/image output with full chart support
   * Both exports use the same data as HTML export (imported JSON or sample data)
+- July 16, 2025: Fixed template save and load functionality issues:
+  * Resolved template saving after loading - now properly updates existing templates instead of creating versions
+  * Fixed template loading dialog to display available templates correctly
+  * Separated version creation from regular template saves for proper workflow
+  * Fixed PDF download corruption by using proper binary data transmission with res.end()
+  * All export formats (HTML, PDF, PNG) now work correctly with proper file downloads
 ```
 
 # User Preferences

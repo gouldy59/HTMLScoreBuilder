@@ -288,6 +288,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export HTML endpoint
+  app.post("/api/templates/:id/export-html", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const data = req.body.data || {};
+      const html = await generateFullHTML(template, data);
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="${template.name || 'report'}.html"`);
+      res.send(html);
+    } catch (error) {
+      console.error('HTML export error:', error);
+      res.status(500).json({ message: "Failed to export HTML" });
+    }
+  });
+
   // Generate PDF endpoint
   app.post("/api/templates/:id/generate-pdf", async (req, res) => {
     try {

@@ -88,20 +88,12 @@ export default function Builder() {
       };
 
       if (currentTemplateId) {
-        // Get current template to check if it's published
-        const currentTemplate = await apiRequest('GET', `/api/templates/${currentTemplateId}`);
-        const template = await currentTemplate.json();
-        
-        console.log('Template publish status:', template.isPublished, 'Local state:', isPublished);
-        
-        if (template.isPublished) {
+        if (isPublished) {
           // If published, create a new version
-          console.log('Creating new version for published template');
           const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
           return await response.json();
         } else {
           // If unpublished, update existing template
-          console.log('Updating existing unpublished template');
           const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
           return await response.json();
         }
@@ -115,7 +107,6 @@ export default function Builder() {
       }
     },
     onSuccess: (savedTemplate) => {
-      console.log('Save successful, template ID:', savedTemplate.id, 'isPublished:', savedTemplate.isPublished);
       setCurrentTemplateId(savedTemplate.id);
       // Update the publish state to match the saved template
       setIsPublished(savedTemplate.isPublished || false);
@@ -148,12 +139,11 @@ export default function Builder() {
   const publishTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to publish');
-      console.log('Publishing template ID:', currentTemplateId);
+
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      console.log('Publish successful, template:', updatedTemplate.id, 'isPublished:', updatedTemplate.isPublished);
       setIsPublished(true);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template published successfully' });
@@ -170,12 +160,11 @@ export default function Builder() {
   const unpublishTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to unpublish');
-      console.log('Unpublishing template ID:', currentTemplateId);
+
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      console.log('Unpublish successful, template:', updatedTemplate.id, 'isPublished:', updatedTemplate.isPublished);
       setIsPublished(false);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template unpublished successfully' });

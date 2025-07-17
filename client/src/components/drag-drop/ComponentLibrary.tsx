@@ -2,6 +2,7 @@ import { useDrag } from 'react-dnd';
 import { COMPONENT_TYPES, ComponentType } from '@/types/template';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useLocation } from 'wouter';
 
 interface DraggableComponentProps {
   componentType: ComponentType;
@@ -38,6 +39,12 @@ interface ComponentLibraryProps {
 }
 
 export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLibraryProps) {
+  const [, setLocation] = useLocation();
+
+  const handleLoadTemplate = () => {
+    // Navigate to home screen's template manager tab
+    setLocation('/?tab=templates');
+  };
   const reportComponents = COMPONENT_TYPES.filter(c => c.category === 'report');
   const layoutComponents = COMPONENT_TYPES.filter(c => c.category === 'layout');
 
@@ -99,7 +106,7 @@ export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLi
             <i className="fas fa-save mr-2"></i>Save Template
           </Button>
           <Button 
-            onClick={onLoadTemplate}
+            onClick={handleLoadTemplate}
             variant="outline" 
             className="w-full"
           >

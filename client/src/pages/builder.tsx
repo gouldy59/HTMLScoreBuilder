@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { DragDropProvider } from '@/components/drag-drop/DragDropProvider';
 import { ComponentLibrary } from '@/components/drag-drop/ComponentLibrary';
 import { CanvasArea } from '@/components/drag-drop/CanvasArea';
@@ -13,8 +13,10 @@ import { generateHTML, downloadHTML } from '@/lib/htmlGenerator';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Template } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 export default function Builder() {
+  const [location] = useLocation();
   const [components, setComponents] = useState<TemplateComponent[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState('Untitled Template');
@@ -26,6 +28,28 @@ export default function Builder() {
   const [templateData, setTemplateData] = useState<any>({});
   const [reportBackground, setReportBackground] = useState<string>('#ffffff');
   const { toast } = useToast();
+
+  // Extract templateId from URL parameters
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const templateId = urlParams.get('templateId');
+
+  // Load template if templateId is provided in URL
+  const { data: templateToLoad } = useQuery<Template>({
+    queryKey: ['/api/templates', templateId],
+    enabled: !!templateId && !currentTemplateId, // Only load if we don't already have a template loaded
+  });
+
+  // Effect to load template data when available
+  useEffect(() => {
+    if (templateToLoad && !currentTemplateId) {
+      setComponents(Array.isArray(templateToLoad.components) ? templateToLoad.components : []);
+      setTemplateName(templateToLoad.name);
+      setCurrentTemplateId(templateToLoad.id);
+      setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
+      setSelectedComponentId(null);
+      toast({ title: 'Template loaded', description: `Loaded ${templateToLoad.name}` });
+    }
+  }, [templateToLoad, currentTemplateId, toast]);
 
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {

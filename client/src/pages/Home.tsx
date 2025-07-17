@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,7 +7,17 @@ import { FileText, Search, History, Plus } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export function Home() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState('builder');
+
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const tab = urlParams.get('tab');
+    if (tab === 'templates') {
+      setActiveTab('templates');
+    }
+  }, [location]);
 
   const handleCreateNew = () => {
     setLocation('/builder');
@@ -29,7 +39,7 @@ export function Home() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="builder" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="builder">Page Builder</TabsTrigger>
             <TabsTrigger value="templates">Template Manager</TabsTrigger>

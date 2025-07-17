@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { GitBranch, Home, Edit3 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { GitBranch, Home, Edit3, Globe, EyeOff } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 
@@ -13,9 +14,13 @@ interface ToolbarProps {
   onVersionHistory: () => void;
   onGeneratePDF: () => void;
   onGenerateImage: () => void;
+  isPublished?: boolean;
+  onPublish?: () => void;
+  onUnpublish?: () => void;
+  currentTemplateId?: number | null;
 }
 
-export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExportHTML, onImportData, onVersionHistory, onGeneratePDF, onGenerateImage }: ToolbarProps) {
+export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExportHTML, onImportData, onVersionHistory, onGeneratePDF, onGenerateImage, isPublished, onPublish, onUnpublish, currentTemplateId }: ToolbarProps) {
   const [, setLocation] = useLocation();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(templateName);
@@ -71,6 +76,21 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
           ) : (
             <div className="flex items-center gap-2">
               <span className="text-gray-900 font-medium">{templateName || 'Untitled Template'}</span>
+              {currentTemplateId && (
+                <Badge variant={isPublished ? "default" : "secondary"} className="ml-2">
+                  {isPublished ? (
+                    <>
+                      <Globe className="w-3 h-3 mr-1" />
+                      Published
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-3 h-3 mr-1" />
+                      Draft
+                    </>
+                  )}
+                </Badge>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -98,6 +118,32 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
         <Button onClick={onPreview} variant="outline">
           <i className="fas fa-eye mr-2"></i>Preview
         </Button>
+        
+        {/* Publish/Unpublish Buttons */}
+        {currentTemplateId && (
+          <>
+            {isPublished ? (
+              <Button 
+                onClick={onUnpublish} 
+                variant="outline" 
+                className="border-orange-300 text-orange-600 hover:bg-orange-50"
+              >
+                <EyeOff className="w-4 h-4 mr-2" />
+                Unpublish
+              </Button>
+            ) : (
+              <Button 
+                onClick={onPublish} 
+                variant="outline" 
+                className="border-green-300 text-green-600 hover:bg-green-50"
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                Publish
+              </Button>
+            )}
+          </>
+        )}
+        
         <Button onClick={onGeneratePDF} variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
           <i className="fas fa-file-pdf mr-2"></i>Generate PDF
         </Button>

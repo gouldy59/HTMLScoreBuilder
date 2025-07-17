@@ -217,6 +217,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template publish operations
+  app.post("/api/templates/:id/publish", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.publishTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      res.json(template);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to publish template" });
+    }
+  });
+
+  app.post("/api/templates/:id/unpublish", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.unpublishTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      res.json(template);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to unpublish template" });
+    }
+  });
+
+  // Template audit history
+  app.get("/api/templates/:id/audit", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const auditHistory = await storage.getTemplateAuditHistory(id);
+      res.json(auditHistory);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch audit history" });
+    }
+  });
+
   // HTML generation endpoint
   app.post("/api/templates/:id/generate", async (req, res) => {
     try {

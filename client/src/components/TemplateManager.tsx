@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Calendar, FileText, Eye, Edit, History } from 'lucide-react';
+import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { TemplateVersionHistory } from './TemplateVersionHistory';
+import { AuditHistoryDialog } from './AuditHistoryDialog';
 
 interface Template {
   id: number;
@@ -16,6 +17,8 @@ interface Template {
   created_at: string;
   updated_at: string;
   components: any[];
+  isPublished?: boolean;
+  publishedAt?: string;
 }
 
 export function TemplateManager() {
@@ -23,6 +26,7 @@ export function TemplateManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showAuditHistory, setShowAuditHistory] = useState(false);
   const [, setLocation] = useLocation();
   const itemsPerPage = 10;
 
@@ -48,6 +52,11 @@ export function TemplateManager() {
   const handleViewVersionHistory = (template: Template) => {
     setSelectedTemplate(template);
     setShowVersionHistory(true);
+  };
+
+  const handleViewAuditHistory = (template: Template) => {
+    setSelectedTemplate(template);
+    setShowAuditHistory(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -129,6 +138,7 @@ export function TemplateManager() {
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Components</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Updated</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -144,6 +154,21 @@ export function TemplateManager() {
                         {template.components?.length || 0} components
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant={template.isPublished ? "default" : "secondary"}>
+                        {template.isPublished ? (
+                          <>
+                            <Globe className="w-3 h-3 mr-1" />
+                            Published
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="w-3 h-3 mr-1" />
+                            Draft
+                          </>
+                        )}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {formatDate(template.created_at)}
                     </TableCell>
@@ -156,13 +181,23 @@ export function TemplateManager() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleViewVersionHistory(template)}
+                          title="View version history"
                         >
                           <History className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleViewAuditHistory(template)}
+                          title="View audit history"
+                        >
+                          <Clock className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleEdit(template)}
+                          title="Edit template"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -218,6 +253,16 @@ export function TemplateManager() {
           </div>
         )}
       </CardContent>
+      
+      {/* Audit History Dialog */}
+      <AuditHistoryDialog
+        isOpen={showAuditHistory}
+        onClose={() => {
+          setShowAuditHistory(false);
+          setSelectedTemplate(null);
+        }}
+        templateId={selectedTemplate?.id || null}
+      />
     </Card>
   );
 }

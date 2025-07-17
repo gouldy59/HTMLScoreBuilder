@@ -21,6 +21,7 @@ export default function Builder() {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState('Untitled Template');
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
+  const [isPublished, setIsPublished] = useState(false);
   
 
 
@@ -52,6 +53,7 @@ export default function Builder() {
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
         setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
+        setIsPublished(templateToLoad.isPublished || false);
         setSelectedComponentId(null);
         toast({ 
           title: 'Template loaded successfully!', 
@@ -69,6 +71,7 @@ export default function Builder() {
       setComponents([]);
       setTemplateName('Untitled Template');
       setReportBackground('#ffffff');
+      setIsPublished(false);
       setSelectedComponentId(null);
     }
   }, [templateId, location, currentTemplateId]);
@@ -85,9 +88,19 @@ export default function Builder() {
       };
 
       if (currentTemplateId) {
-        // Always create a new version instead of updating existing template
-        const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
-        return await response.json();
+        // Get current template to check if it's published
+        const currentTemplate = await apiRequest('GET', `/api/templates/${currentTemplateId}`);
+        const template = await currentTemplate.json();
+        
+        if (template.isPublished) {
+          // If published, create a new version
+          const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
+          return await response.json();
+        } else {
+          // If unpublished, update existing template
+          const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
+          return await response.json();
+        }
       } else {
         // Create new template for first save
         const response = await apiRequest('POST', '/api/templates', templateData);
@@ -110,6 +123,46 @@ export default function Builder() {
       toast({ 
         title: 'Error saving template', 
         description: errorMessage, 
+        variant: 'destructive' 
+      });
+    },
+  });
+
+  const publishTemplateMutation = useMutation({
+    mutationFn: async () => {
+      if (!currentTemplateId) throw new Error('No template to publish');
+      const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
+      return await response.json();
+    },
+    onSuccess: (updatedTemplate) => {
+      setIsPublished(true);
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({ title: 'Template published successfully' });
+    },
+    onError: () => {
+      toast({ 
+        title: 'Error publishing template', 
+        description: 'Failed to publish template',
+        variant: 'destructive' 
+      });
+    },
+  });
+
+  const unpublishTemplateMutation = useMutation({
+    mutationFn: async () => {
+      if (!currentTemplateId) throw new Error('No template to unpublish');
+      const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
+      return await response.json();
+    },
+    onSuccess: (updatedTemplate) => {
+      setIsPublished(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      toast({ title: 'Template unpublished successfully' });
+    },
+    onError: () => {
+      toast({ 
+        title: 'Error unpublishing template', 
+        description: 'Failed to unpublish template',
         variant: 'destructive' 
       });
     },
@@ -377,6 +430,14 @@ export default function Builder() {
     }
   };
 
+  const handlePublishTemplate = () => {
+    publishTemplateMutation.mutate();
+  };
+
+  const handleUnpublishTemplate = () => {
+    unpublishTemplateMutation.mutate();
+  };
+
   return (
     <DragDropProvider>
       <div className="flex h-screen">
@@ -390,6 +451,10 @@ export default function Builder() {
             templateName={templateName}
             onTemplateNameChange={setTemplateName}
             onPreview={handlePreview}
+            isPublished={isPublished}
+            onPublish={handlePublishTemplate}
+            onUnpublish={handleUnpublishTemplate}
+            currentTemplateId={currentTemplateId}
             onExportHTML={handleExportHTML}
             onImportData={handleImportData}
             onVersionHistory={() => setIsVersionHistoryOpen(true)}

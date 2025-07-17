@@ -13,8 +13,20 @@ export const templates = pgTable("templates", {
   isLatest: boolean("is_latest").notNull().default(true),
   parentId: integer("parent_id"),
   changeDescription: text("change_description"),
+  isPublished: boolean("is_published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const templateAuditLog = pgTable("template_audit_log", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").notNull(),
+  action: text("action").notNull(), // 'create', 'update', 'publish', 'unpublish', 'version_created'
+  oldValues: jsonb("old_values"),
+  newValues: jsonb("new_values"),
+  changeDescription: text("change_description"),
+  timestamp: timestamp("timestamp").defaultNow(),
 });
 
 export const users = pgTable("users", {
@@ -30,6 +42,13 @@ export const insertTemplateSchema = createInsertSchema(templates).omit({
   version: true,
   isLatest: true,
   parentId: true,
+  isPublished: true,
+  publishedAt: true,
+});
+
+export const insertAuditLogSchema = createInsertSchema(templateAuditLog).omit({
+  id: true,
+  timestamp: true,
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -47,3 +66,5 @@ export type Template = typeof templates.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type CreateVersion = z.infer<typeof createVersionSchema>;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof templateAuditLog.$inferSelect;

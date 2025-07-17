@@ -1,9 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { GitBranch, Home } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { GitBranch, Home, Edit3 } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useState, useEffect } from 'react';
 
 interface ToolbarProps {
   templateName: string;
+  onTemplateNameChange: (name: string) => void;
   onPreview: () => void;
   onExportHTML: () => void;
   onImportData: () => void;
@@ -12,11 +15,37 @@ interface ToolbarProps {
   onGenerateImage: () => void;
 }
 
-export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, onVersionHistory, onGeneratePDF, onGenerateImage }: ToolbarProps) {
+export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExportHTML, onImportData, onVersionHistory, onGeneratePDF, onGenerateImage }: ToolbarProps) {
   const [, setLocation] = useLocation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(templateName);
+
+  // Update editValue when templateName changes (e.g., when loading a template)
+  useEffect(() => {
+    setEditValue(templateName);
+  }, [templateName]);
 
   const handleGoHome = () => {
     setLocation('/');
+  };
+
+  const handleEditClick = () => {
+    setEditValue(templateName);
+    setIsEditing(true);
+  };
+
+  const handleSaveName = () => {
+    onTemplateNameChange(editValue.trim() || 'Untitled Template');
+    setIsEditing(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      setEditValue(templateName);
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -28,10 +57,32 @@ export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, o
         </Button>
         <div className="h-6 w-px bg-gray-300"></div>
         <h2 className="font-semibold text-gray-900">Score Report Template</h2>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{templateName || 'Untitled Template'}</span>
-          <span>•</span>
-          <span>Last saved 2 min ago</span>
+        <div className="flex items-center gap-2 text-sm">
+          {isEditing ? (
+            <Input
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleSaveName}
+              onKeyDown={handleKeyPress}
+              className="h-8 w-48 text-sm"
+              placeholder="Enter template name..."
+              autoFocus
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-900 font-medium">{templateName || 'Untitled Template'}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleEditClick}
+                className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+              >
+                <Edit3 className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
+          <span className="text-gray-500">•</span>
+          <span className="text-gray-500">Last saved 2 min ago</span>
         </div>
       </div>
       

@@ -196,6 +196,13 @@ Changelog:
   * Endpoints accept templateId and JSON data to generate reports programmatically
   * Restored template loading functionality with URL parameter support (/builder?templateId=X)
   * Fixed "Load Template" button to redirect to Template Manager for template selection
+- July 17, 2025: Added editable template name functionality in Page Builder:
+  * Added inline template name editing in the toolbar with pencil icon
+  * Users can click the edit button or the template name to modify it
+  * Supports Enter to save, Escape to cancel, and click-away to save
+  * Template name automatically updates when loading saved templates
+  * Names are properly saved when creating or updating templates
+  * Cleaned up debug logging now that template loading works correctly
 ```
 
 # User Preferences

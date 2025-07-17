@@ -480,31 +480,15 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         }
         
         // Auto-generate chart data if needed
-        if (!chartData2 || chartData2.length === 0) {
-          if (data.mathScore || data.scienceScore || data.englishScore || data.historyScore || data.artScore) {
-            chartData2 = {
-              labels: ['Math', 'Science', 'English', 'History', 'Art'],
-              datasets: [{
-                label: 'Test Scores',
-                data: [
-                  data.mathScore || 85,
-                  data.scienceScore || 92,
-                  data.englishScore || 78,
-                  data.historyScore || 88,
-                  data.artScore || 95
-                ]
-              }]
-            };
-          } else {
-            // Use default sample data when no scores are provided
-            chartData2 = {
-              labels: ['Math', 'Science', 'English', 'History', 'Art'],
-              datasets: [{
-                label: 'Test Scores',
-                data: [85, 92, 78, 88, 95]
-              }]
-            };
-          }
+        if (!chartData2 || chartData2.length === 0 || (Array.isArray(chartData2) && chartData2.length === 0)) {
+          // Always use default sample data for consistency
+          chartData2 = {
+            labels: ['Math', 'Science', 'English', 'History', 'Art'],
+            datasets: [{
+              label: 'Test Scores',
+              data: [85, 92, 78, 88, 95]
+            }]
+          };
         }
         
         // Check if chartData2 is in Chart.js format
@@ -518,7 +502,7 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               <h3 class="text-lg font-semibold mb-4 text-center">${content.title || 'Performance Chart'}</h3>
               
               <!-- Chart container with axes -->
-              <div style="position: relative; width: 100%; height: 300px; margin: 0 auto; max-width: 600px;">
+              <div style="position: relative; width: 100%; height: 300px; margin: 0 auto; max-width: 700px;">
                 <!-- Y-axis -->
                 <div style="position: absolute; left: 0; top: 0; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
                   <span style="font-size: 11px; color: #666;">100</span>
@@ -531,7 +515,7 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
                 <!-- Chart area -->
                 <div style="margin-left: 50px; height: 200px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
                   <!-- Bars container -->
-                  <div style="display: flex; align-items: end; justify-content: center; height: 100%; padding: 20px;">`;
+                  <div style="display: flex; align-items: end; justify-content: center; height: 100%; padding: 20px 20px 0px 20px;">`;
             
             labels.forEach((label, index) => {
               const value = Math.min(chartValues[index] || 0, 100); // Cap at 100

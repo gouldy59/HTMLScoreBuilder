@@ -519,12 +519,13 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
                 </div>
                 
                 <!-- Chart area -->
-                <div style="margin-left: 50px; margin-bottom: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
-                  <div style="display: flex; align-items: end; justify-content: center; height: 100%; padding: 20px;">`;
+                <div style="margin-left: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
+                  <!-- Bars container -->
+                  <div style="display: flex; align-items: end; justify-content: center; height: 200px; padding: 20px 20px 0 20px;">`;
             
             labels.forEach((label, index) => {
               const value = Math.min(chartValues[index] || 0, 100); // Cap at 100
-              const height = Math.max((value / 100) * 210, 1); // Use 210px as max height
+              const height = Math.max((value / 100) * 180, 1); // Use 180px as max height (fits in 200px container)
               
               // Use custom colors if available, otherwise use default colors
               const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
@@ -538,10 +539,26 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               const totalSpacing = (barCount - 1) * spacing;
               const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
               
-              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px; height: 100%; position: relative;">
-                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor}; position: absolute; bottom: 0;"></div>
-                <div style="position: absolute; bottom: -20px; font-size: ${barCount > 8 ? '10px' : '12px'}; color: #374151; text-align: center; word-wrap: break-word; max-width: ${maxBarWidth + 10}px;">${label}</div>
-                <div style="position: absolute; bottom: -35px; font-size: ${barCount > 8 ? '8px' : '10px'}; color: #6b7280; text-align: center;">${value}</div>
+              html += `<div style="display: flex; align-items: end; margin: 0 4px;">
+                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
+              </div>`;
+            });
+            
+            html += `</div>
+                  <!-- Labels container -->
+                  <div style="display: flex; justify-content: center; padding: 5px 20px; height: 50px;">`;
+            
+            labels.forEach((label, index) => {
+              const value = Math.min(chartValues[index] || 0, 100);
+              const barCount = labels.length;
+              const availableWidth = 500;
+              const spacing = 8;
+              const totalSpacing = (barCount - 1) * spacing;
+              const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
+              
+              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px; width: ${maxBarWidth + 8}px;">
+                <div style="font-size: ${barCount > 8 ? '10px' : '12px'}; color: #374151; text-align: center; word-wrap: break-word; max-width: ${maxBarWidth + 10}px; margin-top: 2px;">${label}</div>
+                <div style="font-size: ${barCount > 8 ? '8px' : '10px'}; color: #6b7280; text-align: center; margin-top: 1px;">${value}</div>
               </div>`;
             });
             

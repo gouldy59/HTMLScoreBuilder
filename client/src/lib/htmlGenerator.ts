@@ -289,7 +289,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         verticalChartHTML += `</div>
         </div>
         <!-- Labels container - outside and below chart area -->
-        <div style="margin-left: 50px;" class="flex justify-center" style="padding: 5px 20px; height: 50px;">`;
+        <div style="margin-left: 50px; padding: 5px 20px; height: 50px;" class="flex justify-center">`;
         
         verticalChartData.labels.forEach((label: string, index: number) => {
           const value = Math.min(verticalChartData.datasets[0].data[index], 100);

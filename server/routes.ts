@@ -504,7 +504,7 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               <!-- Chart container with axes -->
               <div style="position: relative; width: 100%; height: 300px; margin: 0 auto; max-width: 700px;">
                 <!-- Y-axis -->
-                <div style="position: absolute; left: 0; top: 0; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
+                <div style="position: absolute; left: 0; top: 0; bottom: 50px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
                   <span style="font-size: 11px; color: #666;">100</span>
                   <span style="font-size: 11px; color: #666;">75</span>
                   <span style="font-size: 11px; color: #666;">50</span>

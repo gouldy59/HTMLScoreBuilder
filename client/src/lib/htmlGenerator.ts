@@ -251,7 +251,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       // Chart container with axes
       verticalChartHTML += `<div style="position: relative; width: 100%; height: 300px;">
         <!-- Y-axis -->
-        <div style="position: absolute; left: 0; top: 0; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
+        <div style="position: absolute; left: 0; top: 0; bottom: 50px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
           <span style="font-size: 11px; color: #666;">100</span>
           <span style="font-size: 11px; color: #666;">75</span>
           <span style="font-size: 11px; color: #666;">50</span>

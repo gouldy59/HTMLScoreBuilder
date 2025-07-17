@@ -1,292 +1,223 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { Template } from '@shared/schema';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, Calendar, FileText, Eye, Edit, History } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { TemplateVersionHistory } from './TemplateVersionHistory';
 
-interface TemplateManagerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLoadTemplate: (template: Template) => void;
+interface Template {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  components: any[];
 }
 
-export function TemplateManager({ isOpen, onClose, onLoadTemplate }: TemplateManagerProps) {
+export function TemplateManager() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [newTemplateName, setNewTemplateName] = useState('');
-  const [newTemplateDescription, setNewTemplateDescription] = useState('');
-  const { toast } = useToast();
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [, setLocation] = useLocation();
+  const itemsPerPage = 10;
 
-  const { data: templates, isLoading } = useQuery<Template[]>({
+  const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ['/api/templates'],
   });
 
-  const deleteTemplateMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest('DELETE', `/api/templates/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      toast({ title: 'Template deleted successfully' });
-      setSelectedTemplate(null);
-    },
-    onError: () => {
-      toast({ title: 'Failed to delete template', variant: 'destructive' });
-    },
-  });
+  // Filter templates based on search term
+  const filteredTemplates = templates.filter(template =>
+    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const createTemplateMutation = useMutation({
-    mutationFn: async (templateData: { name: string; description?: string }) => {
-      const response = await apiRequest('POST', '/api/templates', {
-        name: templateData.name,
-        description: templateData.description,
-        components: [],
-        variables: {},
-        styles: {},
-      });
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      toast({ title: 'Template created successfully' });
-      setIsCreating(false);
-      setNewTemplateName('');
-      setNewTemplateDescription('');
-    },
-    onError: () => {
-      toast({ title: 'Failed to create template', variant: 'destructive' });
-    },
-  });
+  // Paginate filtered templates
+  const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleLoadTemplate = async (template: Template) => {
-    try {
-      // Fetch the latest version of the template from the server
-      const response = await apiRequest('GET', `/api/templates/${template.id}`);
-      const latestTemplate = await response.json();
-      
-      onLoadTemplate(latestTemplate);
-      onClose();
-      toast({ title: `Template "${latestTemplate.name}" loaded successfully` });
-    } catch (error) {
-      console.error('Error loading template:', error);
-      // Fallback to cached version if fetch fails
-      onLoadTemplate(template);
-      onClose();
-      toast({ title: `Template "${template.name}" loaded successfully` });
-    }
+  const handleEdit = (template: Template) => {
+    setLocation(`/builder?templateId=${template.id}`);
   };
 
-  const handleDeleteTemplate = (id: number) => {
-    if (confirm('Are you sure you want to delete this template?')) {
-      deleteTemplateMutation.mutate(id);
-    }
+  const handleViewVersionHistory = (template: Template) => {
+    setSelectedTemplate(template);
+    setShowVersionHistory(true);
   };
 
-  const handleCreateTemplate = () => {
-    if (!newTemplateName.trim()) return;
-    
-    createTemplateMutation.mutate({
-      name: newTemplateName,
-      description: newTemplateDescription,
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Template Manager</DialogTitle>
-        </DialogHeader>
+  if (showVersionHistory && selectedTemplate) {
+    return (
+      <TemplateVersionHistory
+        template={selectedTemplate}
+        onBack={() => {
+          setShowVersionHistory(false);
+          setSelectedTemplate(null);
+        }}
+      />
+    );
+  }
 
-        <div className="flex-1 overflow-hidden flex">
-          {/* Template List */}
-          <div className="w-1/2 border-r border-gray-200 p-6 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-gray-900">Saved Templates</h3>
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          Template Library
+        </CardTitle>
+        <CardDescription>
+          Manage and organize your score report templates
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Search templates by name or description..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Results Summary */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            Showing {paginatedTemplates.length} of {filteredTemplates.length} templates
+          </p>
+          <Badge variant="outline">
+            Total: {templates.length}
+          </Badge>
+        </div>
+
+        {/* Templates Table */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-gray-500">Loading templates...</div>
+          </div>
+        ) : paginatedTemplates.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <FileText className="w-12 h-12 mb-4 text-gray-300" />
+            <p className="text-lg font-medium">No templates found</p>
+            <p className="text-sm">
+              {searchTerm ? 'Try adjusting your search terms' : 'Create your first template to get started'}
+            </p>
+          </div>
+        ) : (
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Components</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedTemplates.map((template) => (
+                  <TableRow key={template.id}>
+                    <TableCell className="font-medium">{template.name}</TableCell>
+                    <TableCell className="max-w-xs truncate">{template.description}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {template.components?.length || 0} components
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {formatDate(template.created_at)}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {formatDate(template.updated_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewVersionHistory(template)}
+                        >
+                          <History className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(template)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="flex items-center gap-2">
               <Button
-                onClick={() => setIsCreating(true)}
+                variant="outline"
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
               >
-                <i className="fas fa-plus mr-1"></i>New
+                Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const page = i + 1;
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
               </Button>
             </div>
-
-            {isCreating && (
-              <div className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="templateName">Template Name</Label>
-                    <Input
-                      id="templateName"
-                      value={newTemplateName}
-                      onChange={(e) => setNewTemplateName(e.target.value)}
-                      placeholder="Enter template name..."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="templateDescription">Description (optional)</Label>
-                    <Textarea
-                      id="templateDescription"
-                      value={newTemplateDescription}
-                      onChange={(e) => setNewTemplateDescription(e.target.value)}
-                      placeholder="Enter description..."
-                      className="h-20"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleCreateTemplate}
-                      disabled={!newTemplateName.trim() || createTemplateMutation.isPending}
-                      size="sm"
-                    >
-                      Create
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setIsCreating(false);
-                        setNewTemplateName('');
-                        setNewTemplateDescription('');
-                      }}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {templates && templates.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <div className="mb-4">
-                      <i className="fas fa-folder-open text-4xl text-gray-300"></i>
-                    </div>
-                    <p>No templates found</p>
-                    <p className="text-sm">Create your first template to get started</p>
-                  </div>
-                ) : (
-                  templates?.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`p-4 border border-gray-200 rounded-lg cursor-pointer group transition-colors ${
-                        selectedTemplate?.id === template.id ? 'border-blue-400 bg-blue-50' : 'hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedTemplate(template)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{template.name}</h4>
-                          {template.description && (
-                            <p className="text-sm text-gray-500 mt-1">{template.description}</p>
-                          )}
-                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                            <span>
-                              Modified {template.updatedAt ? new Date(template.updatedAt).toLocaleDateString() : 'Unknown'}
-                            </span>
-                            <span>
-                              {Array.isArray(template.components) ? template.components.length : 0} components
-                            </span>
-                          </div>
-                        </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="flex gap-1">
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleLoadTemplate(template);
-                              }}
-                              size="sm"
-                              variant="outline"
-                              title="Load Template"
-                            >
-                              <i className="fas fa-folder-open"></i>
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteTemplate(template.id);
-                              }}
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete Template"
-                              disabled={deleteTemplateMutation.isPending}
-                            >
-                              <i className="fas fa-trash"></i>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
           </div>
-
-          {/* Template Preview */}
-          <div className="w-1/2 p-6">
-            <h3 className="font-medium text-gray-900 mb-4">Preview</h3>
-            {selectedTemplate ? (
-              <div>
-                <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
-                  <div className="h-96 bg-gray-50 flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                      <i className="fas fa-file-alt text-4xl mb-2"></i>
-                      <p className="font-medium">{selectedTemplate.name}</p>
-                      <p className="text-sm">
-                        {Array.isArray(selectedTemplate.components) ? selectedTemplate.components.length : 0} components
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Template Actions */}
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => handleLoadTemplate(selectedTemplate)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <i className="fas fa-folder-open mr-2"></i>Load Template
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      // TODO: Implement duplicate functionality
-                      toast({ title: 'Duplicate functionality coming soon' });
-                    }}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <i className="fas fa-copy mr-2"></i>Duplicate
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="border border-gray-200 rounded-lg h-96 flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <i className="fas fa-file-alt text-4xl mb-2"></i>
-                  <p className="font-medium">Select a template to preview</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        )}
+      </CardContent>
+    </Card>
   );
 }

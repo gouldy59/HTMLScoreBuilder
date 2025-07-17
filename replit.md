@@ -188,6 +188,14 @@ Changelog:
   * Added navigation flow: Home → Builder (via "Start Building") → Home (via "Home" button)
   * Restructured routing: "/" (Home), "/builder" (Page Builder) with proper navigation controls
   * Enhanced user experience with professional template management interface
+- July 17, 2025: Added API endpoints section with programmatic template generation:
+  * Created third tab "API Endpoints" on home screen for developer access
+  * Implemented 3 POST endpoints: /export-html, /generate-image, /generate-pdf
+  * Built interactive API tester with template selection and JSON data input
+  * Added comprehensive API documentation with sample requests for each endpoint
+  * Endpoints accept templateId and JSON data to generate reports programmatically
+  * Restored template loading functionality with URL parameter support (/builder?templateId=X)
+  * Fixed "Load Template" button to redirect to Template Manager for template selection
 ```
 
 # User Preferences

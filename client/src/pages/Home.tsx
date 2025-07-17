@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TemplateManager } from '@/components/TemplateManager';
+import { APITester } from '@/components/APITester';
 import { FileText, Search, History, Plus } from 'lucide-react';
 import { useLocation } from 'wouter';
 
@@ -16,6 +17,8 @@ export function Home() {
     const tab = urlParams.get('tab');
     if (tab === 'templates') {
       setActiveTab('templates');
+    } else if (tab === 'api') {
+      setActiveTab('api');
     }
   }, [location]);
 
@@ -40,9 +43,10 @@ export function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="builder">Page Builder</TabsTrigger>
             <TabsTrigger value="templates">Template Manager</TabsTrigger>
+            <TabsTrigger value="api">API Endpoints</TabsTrigger>
           </TabsList>
 
           <TabsContent value="builder" className="mt-6">
@@ -98,6 +102,10 @@ export function Home() {
 
           <TabsContent value="templates" className="mt-6">
             <TemplateManager />
+          </TabsContent>
+
+          <TabsContent value="api" className="mt-6">
+            <APITester />
           </TabsContent>
         </Tabs>
       </div>

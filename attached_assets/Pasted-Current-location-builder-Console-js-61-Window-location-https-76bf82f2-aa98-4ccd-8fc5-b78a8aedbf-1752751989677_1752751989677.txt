@@ -1,0 +1,28 @@
+Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder
+Console.js:61 Parsed templateId: null from search: 
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateId: 1 from search: ?templateId=1
+Console.js:61 Template loading effect: {templateToLoad: false, templateId: '1', templateLoading: true, currentTemplateId: null}
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateId: 1 from search: ?templateId=1
+Console.js:61 Template loading effect: {templateToLoad: true, templateId: '1', templateLoading: false, currentTemplateId: null}
+Console.js:61 Comparing IDs: 1 vs current: null
+Console.js:61 Loading components: 0 []
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateId: 1 from search: ?templateId=1
+Console.js:61 Template loading effect: {templateToLoad: true, templateId: '1', templateLoading: false, currentTemplateId: undefined}
+Console.js:61 Comparing IDs: 1 vs current: undefined
+Console.js:61 Loading components: 0 []
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateId: 1 from search: ?templateId=1
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateId: 1 from search: ?templateId=1
+Console.js:61 Current location: /builder
+Console.js:61 Window location: https://76bf82f2-aa98-4ccd-8fc5-b78a8aedbf35-00-1vms7rzchx7hr.kirk.replit.dev/builder?templateId=1
+Console.js:61 Parsed templateI

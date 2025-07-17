@@ -5,7 +5,7 @@ import { ComponentLibrary } from '@/components/drag-drop/ComponentLibrary';
 import { CanvasArea } from '@/components/drag-drop/CanvasArea';
 import { PropertiesPanel } from '@/components/drag-drop/PropertiesPanel';
 import { Toolbar } from '@/components/Toolbar';
-import { TemplateManager } from '@/components/TemplateManager';
+
 import { JSONDataDialog } from '@/components/JSONDataDialog';
 import { VersionHistoryDialog } from '@/components/VersionHistoryDialog';
 import { TemplateComponent, ComponentType, COMPONENT_TYPES } from '@/types/template';
@@ -19,7 +19,7 @@ export default function Builder() {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState('Untitled Template');
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
-  const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
+
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isJSONDialogOpen, setIsJSONDialogOpen] = useState(false);
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
@@ -136,14 +136,6 @@ export default function Builder() {
       setSelectedComponentId(null);
     }
     toast({ title: 'Component deleted' });
-  };
-
-  const handleLoadTemplate = (template: Template) => {
-    setComponents(Array.isArray(template.components) ? template.components : []);
-    setTemplateName(template.name);
-    setCurrentTemplateId(template.id);
-    setReportBackground(template.styles?.reportBackground || '#ffffff');
-    setSelectedComponentId(null);
   };
 
   const handleVersionRevert = (template: Template) => {
@@ -362,7 +354,7 @@ export default function Builder() {
       <div className="flex h-screen">
         <ComponentLibrary
           onSaveTemplate={() => saveTemplateMutation.mutate()}
-          onLoadTemplate={() => setIsTemplateManagerOpen(true)}
+          onLoadTemplate={() => {}}
         />
 
         <div className="flex-1 flex flex-col">
@@ -400,12 +392,6 @@ export default function Builder() {
             />
           </div>
         </div>
-
-        <TemplateManager
-          isOpen={isTemplateManagerOpen}
-          onClose={() => setIsTemplateManagerOpen(false)}
-          onLoadTemplate={handleLoadTemplate}
-        />
 
         <JSONDataDialog
           isOpen={isJSONDialogOpen}

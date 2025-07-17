@@ -140,11 +140,13 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to publish');
 
+      console.log('Publishing template ID:', currentTemplateId, 'Current state:', isPublished);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      setIsPublished(true);
+      console.log('Publish response:', updatedTemplate);
+      setIsPublished(updatedTemplate.isPublished === true);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template published successfully' });
     },
@@ -161,11 +163,13 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to unpublish');
 
+      console.log('Unpublishing template ID:', currentTemplateId, 'Current state:', isPublished);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      setIsPublished(false);
+      console.log('Unpublish response:', updatedTemplate);
+      setIsPublished(updatedTemplate.isPublished === false);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template unpublished successfully' });
     },

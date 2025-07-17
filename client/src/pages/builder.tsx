@@ -57,16 +57,16 @@ export default function Builder() {
     }
   }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast]);
 
-  // Separate effect to handle reset when no templateId (only when changing from having a templateId to not having one)
+  // Handle URL changes without templateId - only clear if explicitly navigating to fresh builder
   useEffect(() => {
-    if (!templateId && currentTemplateId !== null) {
-      setCurrentTemplateId(null);
+    if (!templateId && location === '/builder' && currentTemplateId === null) {
+      // Fresh builder page - ensure clean state
       setComponents([]);
       setTemplateName('Untitled Template');
       setReportBackground('#ffffff');
       setSelectedComponentId(null);
     }
-  }, [templateId, currentTemplateId]);
+  }, [templateId, location, currentTemplateId]);
 
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {

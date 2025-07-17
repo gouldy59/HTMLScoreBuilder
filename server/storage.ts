@@ -58,9 +58,19 @@ export class MemStorage implements IStorage {
   }
 
   async getAllTemplates(): Promise<Template[]> {
-    // Only return main templates (not versions) or latest versions
-    return Array.from(this.templates.values())
-      .filter(template => template.parentId === null || template.isLatest)
+    // Only return the latest version of each template family
+    const familyLatestMap = new Map<number, Template>();
+    
+    Array.from(this.templates.values()).forEach(template => {
+      const familyId = template.parentId || template.id;
+      
+      // Only include templates that are marked as latest
+      if (template.isLatest) {
+        familyLatestMap.set(familyId, template);
+      }
+    });
+    
+    return Array.from(familyLatestMap.values())
       .sort((a, b) => 
         new Date(b.updatedAt || b.createdAt || 0).getTime() - 
         new Date(a.updatedAt || a.createdAt || 0).getTime()
@@ -68,6 +78,13 @@ export class MemStorage implements IStorage {
   }
 
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
+    // Check for unique template name
+    const existingTemplates = await this.getAllTemplates();
+    const nameExists = existingTemplates.some(t => t.name === insertTemplate.name);
+    if (nameExists) {
+      throw new Error(`Template name "${insertTemplate.name}" already exists`);
+    }
+
     const id = this.currentTemplateId++;
     const now = new Date();
     const template: Template = {
@@ -95,6 +112,15 @@ export class MemStorage implements IStorage {
   async updateTemplate(id: number, templateUpdate: Partial<InsertTemplate>): Promise<Template | undefined> {
     const existing = this.templates.get(id);
     if (!existing) return undefined;
+
+    // Check for unique template name if name is being updated
+    if (templateUpdate.name && templateUpdate.name !== existing.name) {
+      const existingTemplates = await this.getAllTemplates();
+      const nameExists = existingTemplates.some(t => t.name === templateUpdate.name && t.id !== id);
+      if (nameExists) {
+        throw new Error(`Template name "${templateUpdate.name}" already exists`);
+      }
+    }
 
     const updated: Template = {
       ...existing,

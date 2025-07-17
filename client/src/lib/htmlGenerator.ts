@@ -260,14 +260,14 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         </div>
         
         <!-- Chart area -->
-        <div style="margin-left: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
+        <div style="margin-left: 50px; height: 200px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
           <!-- Bars container -->
-          <div class="flex items-end justify-center" style="height: 200px; padding: 20px 20px 0 20px;">`;
+          <div class="flex items-end justify-center" style="height: 100%; padding: 20px;">`;
       
       if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
         verticalChartData.labels.forEach((label: string, index: number) => {
           const value = Math.min(verticalChartData.datasets[0].data[index], 100); // Cap at 100
-          const height = Math.max((value / 100) * 180, 5); // Use 180px as max height (fits in 200px container)
+          const height = Math.max((value / 100) * 160, 5); // Use 160px as max height (fits in 180px with padding)
           
           // Use custom colors if available, otherwise use default colors
           const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
@@ -287,8 +287,9 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         });
         
         verticalChartHTML += `</div>
-          <!-- Labels container -->
-          <div class="flex justify-center" style="padding: 5px 20px; height: 50px;">`;
+        </div>
+        <!-- Labels container - outside and below chart area -->
+        <div style="margin-left: 50px;" class="flex justify-center" style="padding: 5px 20px; height: 50px;">`;
         
         verticalChartData.labels.forEach((label: string, index: number) => {
           const value = Math.min(verticalChartData.datasets[0].data[index], 100);
@@ -306,7 +307,6 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       }
       
       verticalChartHTML += `</div>
-        </div>
       </div>`;
       verticalChartHTML += '</div>';
       return verticalChartHTML;

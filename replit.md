@@ -175,6 +175,12 @@ Changelog:
   * Issue identified: bars floating above X-axis instead of sitting directly on the border line
   * Problem likely related to flexbox justify-center alignment causing labels to appear above axis
   * Currently debugging alignment between client-side Recharts rendering and server-side HTML generation
+- July 17, 2025: Fixed vertical bar chart X-axis alignment and removed device modes:
+  * Fixed bars to sit directly on X-axis line by removing bottom padding from chart container
+  * Adjusted chart area height and Y-axis positioning for proper scale alignment
+  * Enhanced data consistency between builder and preview modes with complete 5-bar chart data
+  * Removed Desktop/Tablet/Mobile device preview toggle buttons from toolbar for simplified interface
+  * Charts now display correctly in both builder and preview modes with proper axis alignment
 ```
 
 # User Preferences

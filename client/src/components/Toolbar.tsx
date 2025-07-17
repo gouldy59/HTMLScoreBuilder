@@ -24,19 +24,6 @@ export function Toolbar({ templateName, onPreview, onExportHTML, onImportData, o
       </div>
       
       <div className="flex items-center gap-3">
-        {/* Device Preview Toggle */}
-        <div className="flex items-center bg-gray-100 rounded-lg p-1">
-          <button className="px-3 py-1 text-sm font-medium bg-white text-gray-900 rounded-md shadow-sm">
-            <i className="fas fa-desktop mr-1"></i>Desktop
-          </button>
-          <button className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-md">
-            <i className="fas fa-tablet-alt mr-1"></i>Tablet
-          </button>
-          <button className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-md">
-            <i className="fas fa-mobile-alt mr-1"></i>Mobile
-          </button>
-        </div>
-
         {/* Action Buttons */}
         <Button onClick={onImportData} variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
           <i className="fas fa-file-import mr-2"></i>Import Data

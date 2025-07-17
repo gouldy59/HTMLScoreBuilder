@@ -217,6 +217,13 @@ Changelog:
   * Fixed Template Manager display to show only latest version of each template family
   * Versions no longer appear as separate templates in the Template Manager interface
   * Each template family now shows only its latest version, with full version history accessible via "Versions" button
+- July 17, 2025: Simplified template saving to automatic versioning system:
+  * Removed "Save as Version" button from Component Library interface
+  * Modified "Save Template" button to automatically create versions after the initial save
+  * First save creates a new template (version 1), subsequent saves create new versions
+  * Every save now preserves template history through automatic version creation
+  * Streamlined user experience - single "Save Template" button handles all saving operations
+  * Version tracking continues to work with full history accessible through "Versions" button
 ```
 
 # User Preferences

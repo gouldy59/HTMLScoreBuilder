@@ -81,11 +81,12 @@ export default function Builder() {
         components: components,
         variables: {},
         styles: { reportBackground },
+        changeDescription: 'Template saved from builder',
       };
 
       if (currentTemplateId) {
-        // Update existing template
-        const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
+        // Always create a new version instead of updating existing template
+        const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
         return await response.json();
       } else {
         // Create new template for first save
@@ -111,33 +112,6 @@ export default function Builder() {
         description: errorMessage, 
         variant: 'destructive' 
       });
-    },
-  });
-
-  const saveVersionMutation = useMutation({
-    mutationFn: async () => {
-      if (!currentTemplateId) {
-        throw new Error('No template to create version for');
-      }
-
-      const versionData = {
-        name: templateName,
-        description: `Template with ${components.length} components`,
-        components: components,
-        variables: {},
-        styles: { reportBackground },
-        changeDescription: 'Manual version save',
-      };
-
-      const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, versionData);
-      return await response.json();
-    },
-    onSuccess: (savedVersion) => {
-      setCurrentTemplateId(savedVersion.id);
-      toast({ title: 'Version saved successfully' });
-    },
-    onError: () => {
-      toast({ title: 'Failed to save version', variant: 'destructive' });
     },
   });
 
@@ -409,7 +383,6 @@ export default function Builder() {
         <ComponentLibrary
           onSaveTemplate={() => saveTemplateMutation.mutate()}
           onLoadTemplate={() => {}}
-          onSaveVersion={() => saveVersionMutation.mutate()}
         />
 
         <div className="flex-1 flex flex-col">

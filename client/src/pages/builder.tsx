@@ -33,23 +33,40 @@ export default function Builder() {
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const templateId = urlParams.get('templateId');
 
+  // Reset state when URL changes or no templateId
+  useEffect(() => {
+    if (!templateId) {
+      // Clear template state when no templateId in URL
+      setCurrentTemplateId(null);
+      setComponents([]);
+      setTemplateName('Untitled Template');
+      setReportBackground('#ffffff');
+      setSelectedComponentId(null);
+    }
+  }, [templateId]);
+
   // Load template if templateId is provided in URL
-  const { data: templateToLoad } = useQuery<Template>({
+  const { data: templateToLoad, isLoading: templateLoading } = useQuery<Template>({
     queryKey: ['/api/templates', templateId],
-    enabled: !!templateId && !currentTemplateId, // Only load if we don't already have a template loaded
+    enabled: !!templateId, // Load whenever templateId is present
   });
 
   // Effect to load template data when available
   useEffect(() => {
-    if (templateToLoad && !currentTemplateId) {
-      setComponents(Array.isArray(templateToLoad.components) ? templateToLoad.components : []);
-      setTemplateName(templateToLoad.name);
-      setCurrentTemplateId(templateToLoad.id);
-      setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
-      setSelectedComponentId(null);
-      toast({ title: 'Template loaded', description: `Loaded ${templateToLoad.name}` });
+    if (templateToLoad && templateId && !templateLoading) {
+      // Check if we're loading a different template
+      const requestedTemplateId = parseInt(templateId);
+      if (requestedTemplateId !== currentTemplateId) {
+        console.log('Loading template:', templateToLoad.name, 'Components:', templateToLoad.components);
+        setComponents(Array.isArray(templateToLoad.components) ? templateToLoad.components : []);
+        setTemplateName(templateToLoad.name);
+        setCurrentTemplateId(templateToLoad.id);
+        setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
+        setSelectedComponentId(null);
+        toast({ title: 'Template loaded', description: `Loaded ${templateToLoad.name} with ${templateToLoad.components?.length || 0} components` });
+      }
     }
-  }, [templateToLoad, currentTemplateId, toast]);
+  }, [templateToLoad, templateId, currentTemplateId, templateLoading, toast]);
 
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {

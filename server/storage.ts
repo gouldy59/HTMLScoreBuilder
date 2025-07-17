@@ -90,18 +90,22 @@ export class MemStorage implements IStorage {
   }
 
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
-    // Check for unique template name
+    // Generate unique name if needed
+    let finalName = insertTemplate.name;
     const existingTemplates = await this.getAllTemplates();
-    const nameExists = existingTemplates.some(t => t.name === insertTemplate.name);
+    
+    // Check if name already exists and generate unique name
+    const nameExists = existingTemplates.some(t => t.name === finalName);
     if (nameExists) {
-      throw new Error(`Template name "${insertTemplate.name}" already exists`);
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+      finalName = `${insertTemplate.name} ${timestamp}`;
     }
 
     const id = this.currentTemplateId++;
     const now = new Date();
     const template: Template = {
       id,
-      name: insertTemplate.name,
+      name: finalName,
       description: insertTemplate.description || null,
       components: insertTemplate.components || [],
       variables: insertTemplate.variables || {},

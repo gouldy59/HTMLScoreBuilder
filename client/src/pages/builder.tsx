@@ -106,6 +106,7 @@ export default function Builder() {
         const response = await apiRequest('POST', '/api/templates', templateData);
         const newTemplate = await response.json();
         setCurrentTemplateId(newTemplate.id);
+        setTemplateName(newTemplate.name); // Update the name in state
         return newTemplate;
       }
     },
@@ -116,9 +117,16 @@ export default function Builder() {
       toast({ title: 'Template saved successfully' });
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.status === 409 
-        ? error.response.data.message 
-        : 'Failed to save template';
+      console.error('Save template error:', error);
+      let errorMessage = 'Failed to save template';
+      
+      if (error.response?.status === 409) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
       
       toast({ 
         title: 'Error saving template', 

@@ -481,17 +481,27 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
         
         // Auto-generate chart data if needed
         if (!chartData2 || chartData2.length === 0) {
-          if (data.mathScore || data.scienceScore || data.englishScore) {
+          if (data.mathScore || data.scienceScore || data.englishScore || data.historyScore || data.artScore) {
             chartData2 = {
-              labels: ['Math', 'Science', 'English', 'History'],
+              labels: ['Math', 'Science', 'English', 'History', 'Art'],
               datasets: [{
                 label: 'Test Scores',
                 data: [
-                  data.mathScore || 75,
-                  data.scienceScore || 80,
-                  data.englishScore || 70,
-                  data.historyScore || 85
+                  data.mathScore || 85,
+                  data.scienceScore || 92,
+                  data.englishScore || 78,
+                  data.historyScore || 88,
+                  data.artScore || 95
                 ]
+              }]
+            };
+          } else {
+            // Use default sample data when no scores are provided
+            chartData2 = {
+              labels: ['Math', 'Science', 'English', 'History', 'Art'],
+              datasets: [{
+                label: 'Test Scores',
+                data: [85, 92, 78, 88, 95]
               }]
             };
           }

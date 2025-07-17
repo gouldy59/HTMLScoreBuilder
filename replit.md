@@ -203,6 +203,13 @@ Changelog:
   * Template name automatically updates when loading saved templates
   * Names are properly saved when creating or updating templates
   * Cleaned up debug logging now that template loading works correctly
+- July 17, 2025: Enhanced template versioning system with user-friendly interface:
+  * Added "Save as Version" button to Component Library for creating new template versions
+  * Fixed template version history display to show all versions instead of just one
+  * Version system properly tracks: version numbers, parent templates, change descriptions
+  * Users can now distinguish between "Save Template" (updates current) and "Save as Version" (creates new)
+  * Version history dialog shows chronological list of all template versions
+  * Each version maintains full component data, styles, and metadata for complete restoration
 ```
 
 # User Preferences

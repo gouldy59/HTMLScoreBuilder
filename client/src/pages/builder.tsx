@@ -401,6 +401,7 @@ export default function Builder() {
         <ComponentLibrary
           onSaveTemplate={() => saveTemplateMutation.mutate()}
           onLoadTemplate={() => {}}
+          onSaveVersion={() => saveVersionMutation.mutate()}
         />
 
         <div className="flex-1 flex flex-col">

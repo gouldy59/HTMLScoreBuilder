@@ -42,6 +42,7 @@ export default function Builder() {
   const { data: templateToLoad, isLoading: templateLoading } = useQuery<Template>({
     queryKey: ['/api/templates', templateId],
     enabled: !!templateId, // Load whenever templateId is present
+    select: (data: any) => Array.isArray(data) ? data[0] : data, // Fix array wrapping issue
   });
 
   // Effect to handle template loading (only when template data is available)
@@ -53,12 +54,17 @@ export default function Builder() {
       if (requestedTemplateId !== currentTemplateId) {
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
         console.log('Loading components:', componentsToLoad.length, componentsToLoad);
+        console.log('Full template data:', templateToLoad);
         setComponents(componentsToLoad);
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
         setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
         setSelectedComponentId(null);
-        toast({ title: 'Template loaded', description: `Loaded ${templateToLoad.name} with ${componentsToLoad.length} components` });
+        toast({ 
+          title: 'Template loaded successfully!', 
+          description: `Loaded "${templateToLoad.name}" with ${componentsToLoad.length} components`,
+          duration: 3000
+        });
       }
     }
   }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast]);

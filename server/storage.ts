@@ -187,12 +187,10 @@ export class MemStorage implements IStorage {
 
   // Template versioning operations
   async createTemplateVersion(templateId: number, version: CreateVersion): Promise<Template> {
-    console.log('Creating template version for template ID:', templateId);
     const originalTemplate = this.templates.get(templateId);
     if (!originalTemplate) {
       throw new Error('Template not found');
     }
-    console.log('Original template found:', originalTemplate.name, 'isPublished:', originalTemplate.isPublished);
 
     // Get the family ID (either parentId or the template's own ID)
     const familyId = originalTemplate.parentId || templateId;
@@ -236,7 +234,6 @@ export class MemStorage implements IStorage {
     this.templateFamilies.set(familyId, family);
     
     // Create audit log
-    console.log('Creating audit log for version creation');
     await this.createAuditLog({
       templateId: newVersionId,
       action: 'version_created',
@@ -244,7 +241,6 @@ export class MemStorage implements IStorage {
       newValues: newVersion,
       changeDescription: version.changeDescription || 'New version created'
     });
-    console.log('Audit log created successfully');
 
     return newVersion;
   }
@@ -375,9 +371,7 @@ export class MemStorage implements IStorage {
       timestamp: now,
     };
 
-    console.log('Creating audit log:', { id, templateId: auditLog.templateId, action: auditLog.action });
     this.auditLogs.set(id, log);
-    console.log('Total audit logs:', this.auditLogs.size);
     return log;
   }
 

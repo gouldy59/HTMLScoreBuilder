@@ -233,6 +233,9 @@ Changelog:
   * Enhanced Template Manager with publish status column and audit history access
   * Publish/unpublish buttons with proper API endpoints and real-time status updates
   * All template modifications now logged with action type, timestamps, and change descriptions
+  * Fixed publish state synchronization bug where UI showed incorrect publish status after version creation
+  * Modified save logic to use local UI state instead of server state for publish status checks
+  * New versions now correctly start as unpublished and show proper Draft status in UI
 ```
 
 # User Preferences

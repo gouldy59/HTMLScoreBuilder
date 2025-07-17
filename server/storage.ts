@@ -238,7 +238,7 @@ export class MemStorage implements IStorage {
     // Create audit log
     console.log('Creating audit log for version creation');
     await this.createAuditLog({
-      templateId: familyId,
+      templateId: newVersionId,
       action: 'version_created',
       oldValues: originalTemplate,
       newValues: newVersion,

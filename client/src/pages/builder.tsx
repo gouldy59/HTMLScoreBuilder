@@ -115,9 +115,12 @@ export default function Builder() {
       }
     },
     onSuccess: (savedTemplate) => {
+      console.log('Save successful, template ID:', savedTemplate.id, 'isPublished:', savedTemplate.isPublished);
       setCurrentTemplateId(savedTemplate.id);
-      // Update the publish state in case it changed
+      // Update the publish state to match the saved template
       setIsPublished(savedTemplate.isPublished || false);
+      // Update the template name in case it changed
+      setTemplateName(savedTemplate.name);
       // Invalidate templates cache so template manager shows updated data
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template saved successfully' });
@@ -145,10 +148,12 @@ export default function Builder() {
   const publishTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to publish');
+      console.log('Publishing template ID:', currentTemplateId);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
+      console.log('Publish successful, template:', updatedTemplate.id, 'isPublished:', updatedTemplate.isPublished);
       setIsPublished(true);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template published successfully' });
@@ -165,10 +170,12 @@ export default function Builder() {
   const unpublishTemplateMutation = useMutation({
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to unpublish');
+      console.log('Unpublishing template ID:', currentTemplateId);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
+      console.log('Unpublish successful, template:', updatedTemplate.id, 'isPublished:', updatedTemplate.isPublished);
       setIsPublished(false);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template unpublished successfully' });

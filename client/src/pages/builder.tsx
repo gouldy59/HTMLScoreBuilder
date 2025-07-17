@@ -22,7 +22,7 @@ export default function Builder() {
   const [templateName, setTemplateName] = useState('Untitled Template');
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
   
-  console.log('Builder state - Components count:', components.length, 'Template ID:', currentTemplateId);
+
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isJSONDialogOpen, setIsJSONDialogOpen] = useState(false);
@@ -41,34 +41,32 @@ export default function Builder() {
     enabled: !!templateId, // Load whenever templateId is present
   });
 
-  // Effect to handle template loading and reset
+  // Effect to handle template loading (only when template data is available)
   useEffect(() => {
-    if (!templateId) {
-      // Clear template state when no templateId in URL
-      setCurrentTemplateId(null);
-      setComponents([]);
-      setTemplateName('Untitled Template');
-      setReportBackground('#ffffff');
-      setSelectedComponentId(null);
-    } else if (templateToLoad && !templateLoading) {
-      // Load template data when available
+    if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
       if (requestedTemplateId !== currentTemplateId) {
-        console.log('Loading template:', templateToLoad.name, 'Components:', templateToLoad.components);
-        console.log('Components array check:', Array.isArray(templateToLoad.components), templateToLoad.components?.length);
-        
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
         setComponents(componentsToLoad);
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
         setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
         setSelectedComponentId(null);
-        
-        console.log('Components state set to:', componentsToLoad);
         toast({ title: 'Template loaded', description: `Loaded ${templateToLoad.name} with ${componentsToLoad.length} components` });
       }
     }
-  }, [templateId, templateToLoad, templateLoading, currentTemplateId, toast]);
+  }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast]);
+
+  // Separate effect to handle reset when no templateId (only when changing from having a templateId to not having one)
+  useEffect(() => {
+    if (!templateId && currentTemplateId !== null) {
+      setCurrentTemplateId(null);
+      setComponents([]);
+      setTemplateName('Untitled Template');
+      setReportBackground('#ffffff');
+      setSelectedComponentId(null);
+    }
+  }, [templateId, currentTemplateId]);
 
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {

@@ -31,9 +31,12 @@ export default function Builder() {
   const [reportBackground, setReportBackground] = useState<string>('#ffffff');
   const { toast } = useToast();
 
-  // Extract templateId from URL parameters
-  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  // Extract templateId from URL parameters using window.location
+  console.log('Current location:', location);
+  console.log('Window location:', window.location.href);
+  const urlParams = new URLSearchParams(window.location.search);
   const templateId = urlParams.get('templateId');
+  console.log('Parsed templateId:', templateId, 'from search:', window.location.search);
 
   // Load template if templateId is provided in URL
   const { data: templateToLoad, isLoading: templateLoading } = useQuery<Template>({

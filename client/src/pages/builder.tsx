@@ -101,8 +101,16 @@ export default function Builder() {
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template saved successfully' });
     },
-    onError: () => {
-      toast({ title: 'Failed to save template', variant: 'destructive' });
+    onError: (error: any) => {
+      const errorMessage = error.response?.status === 409 
+        ? error.response.data.message 
+        : 'Failed to save template';
+      
+      toast({ 
+        title: 'Error saving template', 
+        description: errorMessage, 
+        variant: 'destructive' 
+      });
     },
   });
 

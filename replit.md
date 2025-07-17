@@ -210,6 +210,13 @@ Changelog:
   * Users can now distinguish between "Save Template" (updates current) and "Save as Version" (creates new)
   * Version history dialog shows chronological list of all template versions
   * Each version maintains full component data, styles, and metadata for complete restoration
+- July 17, 2025: Implemented template name uniqueness validation and fixed version display:
+  * Added server-side validation to prevent duplicate template names across the system
+  * Template creation and updates now return 409 error with descriptive message for name conflicts
+  * Enhanced client-side error handling to display specific validation messages to users
+  * Fixed Template Manager display to show only latest version of each template family
+  * Versions no longer appear as separate templates in the Template Manager interface
+  * Each template family now shows only its latest version, with full version history accessible via "Versions" button
 ```
 
 # User Preferences

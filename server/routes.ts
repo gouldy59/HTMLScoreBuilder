@@ -74,6 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const template = await storage.createTemplate(validation.data);
       res.status(201).json(template);
     } catch (error) {
+      if (error instanceof Error && error.message.includes("already exists")) {
+        return res.status(409).json({ message: error.message });
+      }
       res.status(500).json({ message: "Failed to create template" });
     }
   });
@@ -100,6 +103,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(template);
     } catch (error) {
+      if (error instanceof Error && error.message.includes("already exists")) {
+        return res.status(409).json({ message: error.message });
+      }
       res.status(500).json({ message: "Failed to update template" });
     }
   });

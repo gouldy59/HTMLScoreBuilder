@@ -43,10 +43,13 @@ export default function Builder() {
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
+    console.log('Template loading effect:', { templateToLoad: !!templateToLoad, templateId, templateLoading, currentTemplateId });
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
+      console.log('Comparing IDs:', requestedTemplateId, 'vs current:', currentTemplateId);
       if (requestedTemplateId !== currentTemplateId) {
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
+        console.log('Loading components:', componentsToLoad.length, componentsToLoad);
         setComponents(componentsToLoad);
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);

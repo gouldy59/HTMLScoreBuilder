@@ -538,10 +538,10 @@ async function generateFullHTML(template: any, data: Record<string, any>): Promi
               const totalSpacing = (barCount - 1) * spacing;
               const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
               
-              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px;">
-                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
-                <div style="font-size: ${barCount > 8 ? '10px' : '12px'}; color: #374151; text-align: center; word-wrap: break-word; max-width: ${maxBarWidth + 10}px; margin-top: 5px;">${label}</div>
-                <div style="font-size: ${barCount > 8 ? '8px' : '10px'}; color: #6b7280; text-align: center; margin-top: 2px;">${value}</div>
+              html += `<div style="display: flex; flex-direction: column; align-items: center; margin: 0 4px; height: 100%; position: relative;">
+                <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor}; position: absolute; bottom: 0;"></div>
+                <div style="position: absolute; bottom: -20px; font-size: ${barCount > 8 ? '10px' : '12px'}; color: #374151; text-align: center; word-wrap: break-word; max-width: ${maxBarWidth + 10}px;">${label}</div>
+                <div style="position: absolute; bottom: -35px; font-size: ${barCount > 8 ? '8px' : '10px'}; color: #6b7280; text-align: center;">${value}</div>
               </div>`;
             });
             

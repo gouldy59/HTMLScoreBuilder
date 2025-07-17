@@ -92,12 +92,16 @@ export default function Builder() {
         const currentTemplate = await apiRequest('GET', `/api/templates/${currentTemplateId}`);
         const template = await currentTemplate.json();
         
+        console.log('Template publish status:', template.isPublished, 'Local state:', isPublished);
+        
         if (template.isPublished) {
           // If published, create a new version
+          console.log('Creating new version for published template');
           const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
           return await response.json();
         } else {
           // If unpublished, update existing template
+          console.log('Updating existing unpublished template');
           const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
           return await response.json();
         }
@@ -112,6 +116,8 @@ export default function Builder() {
     },
     onSuccess: (savedTemplate) => {
       setCurrentTemplateId(savedTemplate.id);
+      // Update the publish state in case it changed
+      setIsPublished(savedTemplate.isPublished || false);
       // Invalidate templates cache so template manager shows updated data
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template saved successfully' });

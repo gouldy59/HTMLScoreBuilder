@@ -262,7 +262,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         <!-- Chart area -->
         <div style="margin-left: 50px; height: 200px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
           <!-- Bars container -->
-          <div class="flex items-end justify-center" style="height: 100%; padding: 20px;">`;
+          <div class="flex items-end justify-center" style="height: 100%; padding: 20px 20px 0px 20px;">`;
       
       if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
         verticalChartData.labels.forEach((label: string, index: number) => {

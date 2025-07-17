@@ -36,9 +36,10 @@ function DraggableComponent({ componentType }: DraggableComponentProps) {
 interface ComponentLibraryProps {
   onSaveTemplate: () => void;
   onLoadTemplate: () => void;
+  onSaveVersion: () => void;
 }
 
-export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLibraryProps) {
+export function ComponentLibrary({ onSaveTemplate, onLoadTemplate, onSaveVersion }: ComponentLibraryProps) {
   const [, setLocation] = useLocation();
 
   const handleLoadTemplate = () => {
@@ -104,6 +105,13 @@ export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLi
             className="w-full bg-blue-600 hover:bg-blue-700"
           >
             <i className="fas fa-save mr-2"></i>Save Template
+          </Button>
+          <Button 
+            onClick={onSaveVersion}
+            variant="outline" 
+            className="w-full border-green-300 text-green-600 hover:bg-green-50"
+          >
+            <i className="fas fa-code-branch mr-2"></i>Save as Version
           </Button>
           <Button 
             onClick={handleLoadTemplate}

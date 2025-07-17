@@ -32,11 +32,8 @@ export default function Builder() {
   const { toast } = useToast();
 
   // Extract templateId from URL parameters using window.location
-  console.log('Current location:', location);
-  console.log('Window location:', window.location.href);
   const urlParams = new URLSearchParams(window.location.search);
   const templateId = urlParams.get('templateId');
-  console.log('Parsed templateId:', templateId, 'from search:', window.location.search);
 
   // Load template if templateId is provided in URL
   const { data: templateToLoad, isLoading: templateLoading } = useQuery<Template>({
@@ -47,14 +44,10 @@ export default function Builder() {
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
-    console.log('Template loading effect:', { templateToLoad: !!templateToLoad, templateId, templateLoading, currentTemplateId });
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
-      console.log('Comparing IDs:', requestedTemplateId, 'vs current:', currentTemplateId);
       if (requestedTemplateId !== currentTemplateId) {
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
-        console.log('Loading components:', componentsToLoad.length, componentsToLoad);
-        console.log('Full template data:', templateToLoad);
         setComponents(componentsToLoad);
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
@@ -413,6 +406,7 @@ export default function Builder() {
         <div className="flex-1 flex flex-col">
           <Toolbar
             templateName={templateName}
+            onTemplateNameChange={setTemplateName}
             onPreview={handlePreview}
             onExportHTML={handleExportHTML}
             onImportData={handleImportData}

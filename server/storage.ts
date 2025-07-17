@@ -1,4 +1,4 @@
-import { templates, users, type Template, type InsertTemplate, type User, type InsertUser, type CreateVersion } from "@shared/schema";
+import { templates, users, templateAuditLog, type Template, type InsertTemplate, type User, type InsertUser, type CreateVersion, type InsertAuditLog, type AuditLog } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -18,22 +18,34 @@ export interface IStorage {
   getTemplateHistory(templateId: number): Promise<Template[]>;
   revertToVersion(templateId: number, targetVersionId: number): Promise<Template | undefined>;
   getLatestVersion(templateId: number): Promise<Template | undefined>;
+  
+  // Template publish operations
+  publishTemplate(templateId: number): Promise<Template | undefined>;
+  unpublishTemplate(templateId: number): Promise<Template | undefined>;
+  
+  // Audit log operations
+  createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
+  getTemplateAuditHistory(templateId: number): Promise<AuditLog[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private templates: Map<number, Template>;
+  private auditLogs: Map<number, AuditLog>;
   private currentUserId: number;
   private currentTemplateId: number;
+  private currentAuditLogId: number;
   // Map to track template families: parentId -> Set of version IDs
   private templateFamilies: Map<number, Set<number>>;
 
   constructor() {
     this.users = new Map();
     this.templates = new Map();
+    this.auditLogs = new Map();
     this.templateFamilies = new Map();
     this.currentUserId = 1;
     this.currentTemplateId = 1;
+    this.currentAuditLogId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -98,6 +110,8 @@ export class MemStorage implements IStorage {
       isLatest: true,
       parentId: null,
       changeDescription: null,
+      isPublished: false,
+      publishedAt: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -105,6 +119,15 @@ export class MemStorage implements IStorage {
     
     // Initialize template family
     this.templateFamilies.set(id, new Set([id]));
+    
+    // Create audit log
+    await this.createAuditLog({
+      templateId: id,
+      action: 'create',
+      oldValues: null,
+      newValues: template,
+      changeDescription: 'Template created'
+    });
     
     return template;
   }
@@ -128,6 +151,16 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
     this.templates.set(id, updated);
+    
+    // Create audit log
+    await this.createAuditLog({
+      templateId: id,
+      action: 'update',
+      oldValues: existing,
+      newValues: updated,
+      changeDescription: 'Template updated'
+    });
+    
     return updated;
   }
 
@@ -184,6 +217,8 @@ export class MemStorage implements IStorage {
       isLatest: true,
       parentId: familyId,
       changeDescription: version.changeDescription || null,
+      isPublished: false,
+      publishedAt: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -193,6 +228,15 @@ export class MemStorage implements IStorage {
     // Add to family
     family.add(newVersionId);
     this.templateFamilies.set(familyId, family);
+    
+    // Create audit log
+    await this.createAuditLog({
+      templateId: familyId,
+      action: 'version_created',
+      oldValues: originalTemplate,
+      newValues: newVersion,
+      changeDescription: version.changeDescription || 'New version created'
+    });
 
     return newVersion;
   }
@@ -253,6 +297,84 @@ export class MemStorage implements IStorage {
       .filter(Boolean) as Template[];
     
     return versions.find(v => v.isLatest);
+  }
+
+  // Template publish operations
+  async publishTemplate(templateId: number): Promise<Template | undefined> {
+    const template = this.templates.get(templateId);
+    if (!template) return undefined;
+
+    const oldValues = { ...template };
+    const now = new Date();
+    const updated: Template = {
+      ...template,
+      isPublished: true,
+      publishedAt: now,
+      updatedAt: now,
+    };
+
+    this.templates.set(templateId, updated);
+    
+    // Create audit log
+    await this.createAuditLog({
+      templateId: templateId,
+      action: 'publish',
+      oldValues: oldValues,
+      newValues: updated,
+      changeDescription: 'Template published'
+    });
+
+    return updated;
+  }
+
+  async unpublishTemplate(templateId: number): Promise<Template | undefined> {
+    const template = this.templates.get(templateId);
+    if (!template) return undefined;
+
+    const oldValues = { ...template };
+    const updated: Template = {
+      ...template,
+      isPublished: false,
+      publishedAt: null,
+      updatedAt: new Date(),
+    };
+
+    this.templates.set(templateId, updated);
+    
+    // Create audit log
+    await this.createAuditLog({
+      templateId: templateId,
+      action: 'unpublish',
+      oldValues: oldValues,
+      newValues: updated,
+      changeDescription: 'Template unpublished'
+    });
+
+    return updated;
+  }
+
+  // Audit log operations
+  async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> {
+    const id = this.currentAuditLogId++;
+    const now = new Date();
+    const log: AuditLog = {
+      id,
+      templateId: auditLog.templateId,
+      action: auditLog.action,
+      oldValues: auditLog.oldValues,
+      newValues: auditLog.newValues,
+      changeDescription: auditLog.changeDescription,
+      timestamp: now,
+    };
+
+    this.auditLogs.set(id, log);
+    return log;
+  }
+
+  async getTemplateAuditHistory(templateId: number): Promise<AuditLog[]> {
+    return Array.from(this.auditLogs.values())
+      .filter(log => log.templateId === templateId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 }
 

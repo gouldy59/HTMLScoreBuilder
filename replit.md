@@ -224,6 +224,15 @@ Changelog:
   * Every save now preserves template history through automatic version creation
   * Streamlined user experience - single "Save Template" button handles all saving operations
   * Version tracking continues to work with full history accessible through "Versions" button
+- July 17, 2025: Implemented comprehensive publish/unpublish system with audit logging:
+  * Added publish/unpublish functionality with clear status indicators (Published/Draft badges)
+  * Implemented conditional save logic: published templates create versions, unpublished templates update existing
+  * Added publish status display in both Page Builder toolbar and Template Manager table
+  * Created comprehensive audit trail system tracking all template changes (create, update, publish, unpublish, version creation)
+  * Added audit history dialog with detailed change tracking and timestamps
+  * Enhanced Template Manager with publish status column and audit history access
+  * Publish/unpublish buttons with proper API endpoints and real-time status updates
+  * All template modifications now logged with action type, timestamps, and change descriptions
 ```
 
 # User Preferences

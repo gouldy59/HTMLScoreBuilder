@@ -98,6 +98,48 @@ export class MemStorage implements IStorage {
       );
   }
 
+  async getTemplateFamilies(): Promise<any[]> {
+    // Group templates by family and return family overview with latest template info
+    const familyMap = new Map<number, any>();
+    
+    Array.from(this.templates.values()).forEach(template => {
+      const familyId = template.parentId || template.id;
+      
+      if (!familyMap.has(familyId)) {
+        familyMap.set(familyId, {
+          familyId,
+          name: template.name,
+          description: template.description,
+          totalVersions: 0,
+          latestVersion: template,
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
+          isPublished: false,
+          publishedAt: null
+        });
+      }
+      
+      const family = familyMap.get(familyId);
+      family.totalVersions++;
+      
+      // Update with latest version info
+      if (template.isLatest) {
+        family.latestVersion = template;
+        family.updatedAt = template.updatedAt;
+        family.isPublished = template.isPublished;
+        family.publishedAt = template.publishedAt;
+        family.name = template.name; // Use latest name
+        family.description = template.description; // Use latest description
+      }
+    });
+    
+    return Array.from(familyMap.values())
+      .sort((a, b) => 
+        new Date(b.updatedAt || b.createdAt || 0).getTime() - 
+        new Date(a.updatedAt || a.createdAt || 0).getTime()
+      );
+  }
+
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
     // Generate unique name if needed
     let finalName = insertTemplate.name;

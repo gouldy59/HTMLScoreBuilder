@@ -5,6 +5,7 @@ import { ComponentLibrary } from '@/components/drag-drop/ComponentLibrary';
 import { CanvasArea } from '@/components/drag-drop/CanvasArea';
 import { PropertiesPanel } from '@/components/drag-drop/PropertiesPanel';
 import { Toolbar } from '@/components/Toolbar';
+import { TemplateNameWizard } from '@/components/TemplateNameWizard';
 
 import { JSONDataDialog } from '@/components/JSONDataDialog';
 import { VersionHistoryDialog } from '@/components/VersionHistoryDialog';
@@ -22,6 +23,7 @@ export default function Builder() {
   const [templateName, setTemplateName] = useState('Untitled Template');
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(null);
   const [isPublished, setIsPublished] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   
 
 
@@ -97,15 +99,19 @@ export default function Builder() {
     }
   }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast, refetch]);
 
-  // Handle URL changes without templateId - only clear if explicitly navigating to fresh builder
+  // Handle URL changes without templateId - show wizard for fresh builder
   useEffect(() => {
     if (!templateId && location === '/builder' && currentTemplateId === null) {
-      // Fresh builder page - ensure clean state
+      // Fresh builder page - show wizard first
+      setShowWizard(true);
       setComponents([]);
       setTemplateName('Untitled Template');
       setReportBackground('#ffffff');
       setIsPublished(false);
       setSelectedComponentId(null);
+    } else if (templateId) {
+      // Loading existing template - skip wizard
+      setShowWizard(false);
     }
   }, [templateId, location, currentTemplateId]);
 
@@ -480,6 +486,16 @@ export default function Builder() {
   const handleUnpublishTemplate = () => {
     unpublishTemplateMutation.mutate();
   };
+
+  const handleWizardContinue = (name: string) => {
+    setTemplateName(name);
+    setShowWizard(false);
+  };
+
+  // Show wizard for new templates
+  if (showWizard && !templateId) {
+    return <TemplateNameWizard onContinue={handleWizardContinue} />;
+  }
 
   return (
     <DragDropProvider>

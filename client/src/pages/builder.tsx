@@ -41,15 +41,26 @@ export default function Builder() {
     queryKey: ['/api/templates', templateId],
     enabled: !!templateId, // Load whenever templateId is present
     select: (data: any) => Array.isArray(data) ? data[0] : data, // Fix array wrapping issue
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
   });
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
-      if (requestedTemplateId !== currentTemplateId) {
+      // Always reload if the templateId changed, even if it's different from currentTemplateId
+      if (requestedTemplateId !== currentTemplateId || currentTemplateId === null) {
+        console.log('Loading template:', { 
+          templateId: requestedTemplateId, 
+          name: templateToLoad.name, 
+          version: templateToLoad.version,
+          componentCount: templateToLoad.components?.length || 0,
+          components: templateToLoad.components 
+        });
+        
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
-        setComponents(componentsToLoad);
+        setComponents([...componentsToLoad]); // Force new array to trigger re-render
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
         setReportBackground((templateToLoad.styles as any)?.reportBackground || '#ffffff');
@@ -57,7 +68,7 @@ export default function Builder() {
         setSelectedComponentId(null);
         toast({ 
           title: 'Template loaded successfully!', 
-          description: `Loaded "${templateToLoad.name}" with ${componentsToLoad.length} components`,
+          description: `Loaded "${templateToLoad.name}" (v${templateToLoad.version}) with ${componentsToLoad.length} components`,
           duration: 3000
         });
       }

@@ -236,6 +236,21 @@ Changelog:
   * Fixed publish state synchronization bug where UI showed incorrect publish status after version creation
   * Modified save logic to use local UI state instead of server state for publish status checks
   * New versions now correctly start as unpublished and show proper Draft status in UI
+- July 21, 2025: Fixed critical template version loading bug:
+  * Resolved React Query cache conflicts causing wrong template data to load between versions
+  * Implemented custom query functions with specific query keys to avoid cache collisions
+  * Template version loading now works correctly with proper cache invalidation
+  * Each template version (ID 1, 2, 3, etc.) now loads its own specific data and components
+  * Enhanced debugging with detailed logging to track template loading process
+  * Fixed server API responses to ensure correct template data is returned for each version
+- July 21, 2025: Implemented wizard interface for Page Builder:
+  * Created TemplateNameWizard component with professional design and validation
+  * Added routing for /builder/new to show wizard before main builder interface
+  * Wizard requires minimum 3-character template name with real-time validation
+  * Added "Back to Home" and "Continue to Builder" buttons with proper navigation
+  * Home screen "Start Building" button now goes to wizard first, then main builder
+  * Direct /builder access and ?templateId= loading still bypasses wizard for existing templates
+  * Improved card layout with responsive button positioning and proper container constraints
 ```
 
 # User Preferences

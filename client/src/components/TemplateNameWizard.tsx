@@ -43,7 +43,7 @@ export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNam
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-lg mx-auto">
         <CardHeader className="text-center">
           <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
             <FileText className="w-6 h-6 text-blue-600" />
@@ -74,12 +74,12 @@ export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNam
             )}
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               onClick={handleBack} 
               variant="outline" 
               size="lg"
-              className="flex-1"
+              className="flex-1 min-w-0"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
@@ -87,7 +87,7 @@ export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNam
             <Button 
               onClick={handleContinue} 
               size="lg"
-              className="flex-1"
+              className="flex-1 min-w-0"
               disabled={!templateName.trim()}
             >
               Continue to Builder

@@ -23,7 +23,7 @@ export function Home() {
   }, [location]);
 
   const handleCreateNew = () => {
-    setLocation('/builder');
+    setLocation('/builder/new');
   };
 
   return (

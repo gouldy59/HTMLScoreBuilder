@@ -52,7 +52,7 @@ export default function Builder() {
         setComponents(componentsToLoad);
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
-        setReportBackground(templateToLoad.styles?.reportBackground || '#ffffff');
+        setReportBackground((templateToLoad.styles as any)?.reportBackground || '#ffffff');
         setIsPublished(templateToLoad.isPublished || false);
         setSelectedComponentId(null);
         toast({ 
@@ -140,12 +140,10 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to publish');
 
-      console.log('Publishing template ID:', currentTemplateId, 'Current state:', isPublished);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      console.log('Publish response:', updatedTemplate);
       setIsPublished(updatedTemplate.isPublished === true);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template published successfully' });
@@ -163,12 +161,10 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to unpublish');
 
-      console.log('Unpublishing template ID:', currentTemplateId, 'Current state:', isPublished);
       const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
-      console.log('Unpublish response:', updatedTemplate);
       setIsPublished(updatedTemplate.isPublished === false);
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
       toast({ title: 'Template unpublished successfully' });
@@ -237,7 +233,7 @@ export default function Builder() {
     setComponents(Array.isArray(template.components) ? template.components : []);
     setTemplateName(template.name);
     setCurrentTemplateId(template.id);
-    setReportBackground(template.styles?.reportBackground || '#ffffff');
+    setReportBackground((template.styles as any)?.reportBackground || '#ffffff');
     setSelectedComponentId(null);
     setIsVersionHistoryOpen(false);
   };

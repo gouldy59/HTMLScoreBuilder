@@ -37,26 +37,48 @@ export default function Builder() {
   const templateId = urlParams.get('templateId');
 
   // Load template if templateId is provided in URL
-  const { data: templateToLoad, isLoading: templateLoading } = useQuery<Template>({
-    queryKey: ['/api/templates', templateId],
+  const { data: templateToLoad, isLoading: templateLoading, refetch } = useQuery<Template>({
+    queryKey: ['template-single', templateId], // More specific query key to avoid cache conflicts
+    queryFn: async () => {
+      const response = await fetch(`/api/templates/${templateId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch template ${templateId}`);
+      }
+      return response.json();
+    },
     enabled: !!templateId, // Load whenever templateId is present
-    select: (data: any) => Array.isArray(data) ? data[0] : data, // Fix array wrapping issue
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
+      
+      // Force invalidate cache and refetch when templateId changes
+      if (requestedTemplateId !== currentTemplateId) {
+        queryClient.invalidateQueries({ queryKey: ['template-single'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+        if (refetch) {
+          refetch();
+        }
+      }
+      
       // Always reload if the templateId changed, even if it's different from currentTemplateId
       if (requestedTemplateId !== currentTemplateId || currentTemplateId === null) {
         console.log('Loading template:', { 
           templateId: requestedTemplateId, 
+          actualTemplateId: templateToLoad.id,
           name: templateToLoad.name, 
           version: templateToLoad.version,
           componentCount: templateToLoad.components?.length || 0,
-          components: templateToLoad.components 
+          isLatest: templateToLoad.isLatest,
+          parentId: templateToLoad.parentId,
+          queryUrl: `/api/templates/${templateId}`,
+          templateToLoad: templateToLoad
         });
         
         const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
@@ -73,7 +95,7 @@ export default function Builder() {
         });
       }
     }
-  }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast]);
+  }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast, refetch]);
 
   // Handle URL changes without templateId - only clear if explicitly navigating to fresh builder
   useEffect(() => {

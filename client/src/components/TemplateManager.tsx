@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,9 +33,16 @@ export function TemplateManager() {
   const [, setLocation] = useLocation();
   const itemsPerPage = 10;
 
-  const { data: templateFamilies = [], isLoading, error } = useQuery<TemplateFamily[]>({
+  const { data: templateFamilies = [], isLoading, error, refetch } = useQuery<TemplateFamily[]>({
     queryKey: ['/api/template-families'],
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
   });
+
+  // Force a refetch when component mounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   // Debug logging
   console.log('TemplateManager render:', { 
@@ -146,7 +153,7 @@ export function TemplateManager() {
               {searchTerm ? 'Try adjusting your search terms' : 'Create your first template to get started'}
             </p>
             <p className="text-xs mt-2 text-gray-400">
-              Debug: Found {templateFamilies.length} families, filtered to {filteredFamilies.length}
+              Debug: Found {templateFamilies.length} families, filtered to {filteredFamilies.length}, loading: {isLoading ? 'yes' : 'no'}
             </p>
           </div>
         ) : (

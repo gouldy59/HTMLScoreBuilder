@@ -34,10 +34,17 @@ export function TemplateFamilyVersionsDialog({
 }: TemplateFamilyVersionsDialogProps) {
   const [, setLocation] = useLocation();
 
-  const { data: versions = [], isLoading } = useQuery<Template[]>({
-    queryKey: ['/api/templates', familyId, 'versions'],
+  // Get all templates and filter by family
+  const { data: allTemplates = [], isLoading } = useQuery<Template[]>({
+    queryKey: ['/api/templates'],
     enabled: !!familyId && open,
   });
+
+  // Filter templates to only show versions from this family
+  const versions = allTemplates.filter(template => {
+    const templateFamilyId = template.parentId || template.id;
+    return templateFamilyId === familyId;
+  }).sort((a, b) => b.version - a.version); // Sort by version descending
 
   const handleEdit = (template: Template) => {
     setLocation(`/builder?templateId=${template.id}`);

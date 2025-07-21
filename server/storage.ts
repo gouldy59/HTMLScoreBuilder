@@ -70,7 +70,16 @@ export class MemStorage implements IStorage {
   }
 
   async getAllTemplates(): Promise<Template[]> {
-    // Only return the latest version of each template family
+    // Return all templates including versions for Template Manager
+    return Array.from(this.templates.values())
+      .sort((a, b) => 
+        new Date(b.updatedAt || b.createdAt || 0).getTime() - 
+        new Date(a.updatedAt || a.createdAt || 0).getTime()
+      );
+  }
+
+  async getLatestTemplates(): Promise<Template[]> {
+    // Only return the latest version of each template family (for specific use cases)
     const familyLatestMap = new Map<number, Template>();
     
     Array.from(this.templates.values()).forEach(template => {
@@ -92,7 +101,7 @@ export class MemStorage implements IStorage {
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
     // Generate unique name if needed
     let finalName = insertTemplate.name;
-    const existingTemplates = await this.getAllTemplates();
+    const existingTemplates = await this.getLatestTemplates();
     
     // Check if name already exists and generate unique name
     const nameExists = existingTemplates.some(t => t.name === finalName);
@@ -142,7 +151,7 @@ export class MemStorage implements IStorage {
 
     // Check for unique template name if name is being updated
     if (templateUpdate.name && templateUpdate.name !== existing.name) {
-      const existingTemplates = await this.getAllTemplates();
+      const existingTemplates = await this.getLatestTemplates();
       const nameExists = existingTemplates.some(t => t.name === templateUpdate.name && t.id !== id);
       if (nameExists) {
         throw new Error(`Template name "${templateUpdate.name}" already exists`);

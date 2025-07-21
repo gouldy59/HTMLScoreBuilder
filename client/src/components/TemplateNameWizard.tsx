@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, ArrowRight } from 'lucide-react';
+import { FileText, ArrowRight, ArrowLeft, Home } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 interface TemplateNameWizardProps {
   onContinue: (templateName: string) => void;
@@ -11,6 +12,7 @@ interface TemplateNameWizardProps {
 }
 
 export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNameWizardProps) {
+  const [location, setLocation] = useLocation();
   const [templateName, setTemplateName] = useState(initialName);
   const [error, setError] = useState('');
 
@@ -33,6 +35,10 @@ export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNam
     if (e.key === 'Enter') {
       handleContinue();
     }
+  };
+
+  const handleBack = () => {
+    setLocation('/');
   };
 
   return (
@@ -68,15 +74,26 @@ export function TemplateNameWizard({ onContinue, initialName = '' }: TemplateNam
             )}
           </div>
           
-          <Button 
-            onClick={handleContinue} 
-            className="w-full" 
-            size="lg"
-            disabled={!templateName.trim()}
-          >
-            Continue to Builder
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={handleBack} 
+              variant="outline" 
+              size="lg"
+              className="flex-1"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+            <Button 
+              onClick={handleContinue} 
+              size="lg"
+              className="flex-1"
+              disabled={!templateName.trim()}
+            >
+              Continue to Builder
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
           
           <div className="text-center text-sm text-gray-500">
             Step 1 of 1 • Template Setup

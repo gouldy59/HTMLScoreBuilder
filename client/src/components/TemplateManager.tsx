@@ -33,8 +33,16 @@ export function TemplateManager() {
   const [, setLocation] = useLocation();
   const itemsPerPage = 10;
 
-  const { data: templateFamilies = [], isLoading } = useQuery<TemplateFamily[]>({
+  const { data: templateFamilies = [], isLoading, error } = useQuery<TemplateFamily[]>({
     queryKey: ['/api/template-families'],
+  });
+
+  // Debug logging
+  console.log('TemplateManager render:', { 
+    templateFamilies, 
+    isLoading, 
+    error,
+    filteredFamilies: templateFamilies.length 
   });
 
   // Filter template families based on search term
@@ -281,9 +289,9 @@ export function TemplateManager() {
       />
       
       <AuditHistoryDialog
-        templateId={selectedFamily?.latestVersion?.id || 0}
-        open={showAuditHistory}
-        onOpenChange={setShowAuditHistory}
+        isOpen={showAuditHistory}
+        onClose={() => setShowAuditHistory(false)}
+        templateId={selectedFamily?.latestVersion?.id || null}
       />
     </Card>
   );

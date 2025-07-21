@@ -40,7 +40,7 @@ export function TemplateManager() {
   // Filter template families based on search term
   const filteredFamilies = templateFamilies.filter(family =>
     family.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    family.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (family.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Paginate filtered families
@@ -136,6 +136,9 @@ export function TemplateManager() {
             <p className="text-lg font-medium">No template families found</p>
             <p className="text-sm">
               {searchTerm ? 'Try adjusting your search terms' : 'Create your first template to get started'}
+            </p>
+            <p className="text-xs mt-2 text-gray-400">
+              Debug: Found {templateFamilies.length} families, filtered to {filteredFamilies.length}
             </p>
           </div>
         ) : (

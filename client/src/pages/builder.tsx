@@ -99,18 +99,18 @@ export default function Builder() {
     }
   }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast, refetch]);
 
-  // Handle URL changes without templateId - show wizard for fresh builder
+  // Handle URL changes - show wizard for new builder or skip for existing templates
   useEffect(() => {
-    if (!templateId && location === '/builder' && currentTemplateId === null) {
-      // Fresh builder page - show wizard first
+    if (location === '/builder/new' && currentTemplateId === null) {
+      // New builder page - show wizard first
       setShowWizard(true);
       setComponents([]);
       setTemplateName('Untitled Template');
       setReportBackground('#ffffff');
       setIsPublished(false);
       setSelectedComponentId(null);
-    } else if (templateId) {
-      // Loading existing template - skip wizard
+    } else if (templateId || location === '/builder') {
+      // Loading existing template or direct builder access - skip wizard
       setShowWizard(false);
     }
   }, [templateId, location, currentTemplateId]);
@@ -490,10 +490,12 @@ export default function Builder() {
   const handleWizardContinue = (name: string) => {
     setTemplateName(name);
     setShowWizard(false);
+    // Navigate to main builder after wizard completion
+    window.history.pushState({}, '', '/builder');
   };
 
   // Show wizard for new templates
-  if (showWizard && !templateId) {
+  if (showWizard && location === '/builder/new') {
     return <TemplateNameWizard onContinue={handleWizardContinue} />;
   }
 

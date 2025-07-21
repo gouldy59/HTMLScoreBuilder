@@ -5,57 +5,65 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock } from 'lucide-react';
+import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock, FolderOpen } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { TemplateVersionHistory } from './TemplateVersionHistory';
 import { AuditHistoryDialog } from './AuditHistoryDialog';
+import { TemplateFamilyVersionsDialog } from './TemplateFamilyVersionsDialog';
 
-interface Template {
-  id: number;
+interface TemplateFamily {
+  familyId: number;
   name: string;
   description: string;
-  created_at: string;
-  updated_at: string;
-  components: any[];
-  isPublished?: boolean;
+  totalVersions: number;
+  latestVersion: any;
+  createdAt: string;
+  updatedAt: string;
+  isPublished: boolean;
   publishedAt?: string;
 }
 
 export function TemplateManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedFamily, setSelectedFamily] = useState<TemplateFamily | null>(null);
+  const [showVersionsDialog, setShowVersionsDialog] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showAuditHistory, setShowAuditHistory] = useState(false);
   const [, setLocation] = useLocation();
   const itemsPerPage = 10;
 
-  const { data: templates = [], isLoading } = useQuery<Template[]>({
-    queryKey: ['/api/templates'],
+  const { data: templateFamilies = [], isLoading } = useQuery<TemplateFamily[]>({
+    queryKey: ['/api/template-families'],
   });
 
-  // Filter templates based on search term
-  const filteredTemplates = templates.filter(template =>
-    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter template families based on search term
+  const filteredFamilies = templateFamilies.filter(family =>
+    family.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    family.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginate filtered templates
-  const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
+  // Paginate filtered families
+  const totalPages = Math.ceil(filteredFamilies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedFamilies = filteredFamilies.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleEdit = (template: Template) => {
-    setLocation(`/builder?templateId=${template.id}`);
+  const handleEdit = (family: TemplateFamily) => {
+    setLocation(`/builder?templateId=${family.latestVersion.id}`);
   };
 
-  const handleViewVersionHistory = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleViewVersions = (family: TemplateFamily) => {
+    setSelectedFamily(family);
+    setShowVersionsDialog(true);
+  };
+
+  const handleViewVersionHistory = (family: TemplateFamily) => {
+    setSelectedFamily(family);
     setShowVersionHistory(true);
   };
 
-  const handleViewAuditHistory = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleViewAuditHistory = (family: TemplateFamily) => {
+    setSelectedFamily(family);
     setShowAuditHistory(true);
   };
 
@@ -69,13 +77,13 @@ export function TemplateManager() {
     });
   };
 
-  if (showVersionHistory && selectedTemplate) {
+  if (showVersionHistory && selectedFamily) {
     return (
       <TemplateVersionHistory
-        template={selectedTemplate}
+        template={selectedFamily.latestVersion}
         onBack={() => {
           setShowVersionHistory(false);
-          setSelectedTemplate(null);
+          setSelectedFamily(null);
         }}
       />
     );
@@ -110,10 +118,10 @@ export function TemplateManager() {
         {/* Results Summary */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Showing {paginatedTemplates.length} of {filteredTemplates.length} templates
+            Showing {paginatedFamilies.length} of {filteredFamilies.length} template families
           </p>
           <Badge variant="outline">
-            Total: {templates.length}
+            Total: {templateFamilies.length}
           </Badge>
         </div>
 
@@ -122,10 +130,10 @@ export function TemplateManager() {
           <div className="flex items-center justify-center py-8">
             <div className="text-gray-500">Loading templates...</div>
           </div>
-        ) : paginatedTemplates.length === 0 ? (
+        ) : paginatedFamilies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <FileText className="w-12 h-12 mb-4 text-gray-300" />
-            <p className="text-lg font-medium">No templates found</p>
+            <p className="text-lg font-medium">No template families found</p>
             <p className="text-sm">
               {searchTerm ? 'Try adjusting your search terms' : 'Create your first template to get started'}
             </p>
@@ -135,28 +143,38 @@ export function TemplateManager() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Template Name</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Versions</TableHead>
                   <TableHead>Components</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
                   <TableHead>Updated</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedTemplates.map((template) => (
-                  <TableRow key={template.id}>
-                    <TableCell className="font-medium">{template.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{template.description}</TableCell>
+                {paginatedFamilies.map((family) => (
+                  <TableRow 
+                    key={family.familyId} 
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleViewVersions(family)}
+                  >
+                    <TableCell className="font-medium">{family.name}</TableCell>
+                    <TableCell className="max-w-xs truncate">{family.description}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <FolderOpen className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium">{family.totalVersions}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
-                        {template.components?.length || 0} components
+                        {family.latestVersion?.components?.length || 0} components
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={template.isPublished ? "default" : "secondary"}>
-                        {template.isPublished ? (
+                      <Badge variant={family.isPublished ? "default" : "secondary"}>
+                        {family.isPublished ? (
                           <>
                             <Globe className="w-3 h-3 mr-1" />
                             Published
@@ -170,17 +188,14 @@ export function TemplateManager() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
-                      {formatDate(template.created_at)}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {formatDate(template.updated_at)}
+                      {formatDate(family.updatedAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleViewVersionHistory(template)}
+                          onClick={() => handleViewVersionHistory(family)}
                           title="View version history"
                         >
                           <History className="w-4 h-4" />
@@ -188,7 +203,7 @@ export function TemplateManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleViewAuditHistory(template)}
+                          onClick={() => handleViewAuditHistory(family)}
                           title="View audit history"
                         >
                           <Clock className="w-4 h-4" />
@@ -196,8 +211,8 @@ export function TemplateManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleEdit(template)}
-                          title="Edit template"
+                          onClick={() => handleEdit(family)}
+                          title="Edit latest version"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -254,14 +269,18 @@ export function TemplateManager() {
         )}
       </CardContent>
       
-      {/* Audit History Dialog */}
+      {/* Dialogs */}
+      <TemplateFamilyVersionsDialog
+        familyId={selectedFamily?.familyId || null}
+        familyName={selectedFamily?.name || ''}
+        open={showVersionsDialog}
+        onOpenChange={setShowVersionsDialog}
+      />
+      
       <AuditHistoryDialog
-        isOpen={showAuditHistory}
-        onClose={() => {
-          setShowAuditHistory(false);
-          setSelectedTemplate(null);
-        }}
-        templateId={selectedTemplate?.id || null}
+        templateId={selectedFamily?.latestVersion?.id || 0}
+        open={showAuditHistory}
+        onOpenChange={setShowAuditHistory}
       />
     </Card>
   );

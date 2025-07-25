@@ -575,31 +575,47 @@ function generateHTMLFromTemplate(template: any, data: any): string {
       case 'chart':
         // Generate chart HTML with proper data
         const chartData = component.content?.chartData || [];
-        htmlContent += `<div class="chart-container" style="padding: 20px; margin: 20px 0;">`;
+        console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
+        
+        htmlContent += `<div class="chart-container" style="padding: 20px; margin: 20px 0; background: white;">`;
         htmlContent += `<h3>${component.content?.title || 'Chart'}</h3>`;
         htmlContent += `<p>${component.content?.subtitle || ''}</p>`;
         
-        chartData.forEach((item: any) => {
-          const percentage = item.scoreValue || 0;
-          htmlContent += `<div style="margin: 15px 0;">`;
-          htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">`;
-          htmlContent += `<span>${item.label}</span>`;
-          htmlContent += `<span>${percentage}%</span>`;
+        // If no chart data, show placeholder
+        if (chartData.length === 0) {
+          htmlContent += `<div style="padding: 40px; text-align: center; background: #f8f9fa; border-radius: 8px; border: 2px dashed #dee2e6;">`;
+          htmlContent += `<p style="color: #6c757d; margin: 0;">No chart data available</p>`;
           htmlContent += `</div>`;
-          htmlContent += `<div style="background: #f0f0f0; height: 30px; border-radius: 15px; position: relative; overflow: hidden;">`;
-          
-          // Create segments
-          let currentWidth = 0;
-          (item.segments || []).forEach((segment: any) => {
-            htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segment.value}%; height: 100%; background-color: ${segment.color};"></div>`;
-            currentWidth += segment.value;
+        } else {
+          chartData.forEach((item: any) => {
+            const percentage = item.scoreValue || 0;
+            htmlContent += `<div style="margin: 15px 0;">`;
+            htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">`;
+            htmlContent += `<span style="font-weight: 500; color: #374151;">${item.label}</span>`;
+            htmlContent += `<span style="font-weight: 600; color: #1f2937;">${percentage}%</span>`;
+            htmlContent += `</div>`;
+            
+            // Create the bar container with enhanced styling
+            htmlContent += `<div style="background: #f3f4f6; height: 32px; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb;">`;
+            
+            // Create segments if they exist
+            if (item.segments && item.segments.length > 0) {
+              let currentWidth = 0;
+              item.segments.forEach((segment: any) => {
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segment.value || 0}%; height: 100%; background-color: ${segment.color || '#e5e7eb'}; transition: none;"></div>`;
+                currentWidth += segment.value || 0;
+              });
+            } else {
+              // Fallback: create a simple progress bar
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%);"></div>`;
+            }
+            
+            // Add score pointer with enhanced visibility
+            htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background: #1f2937; border-radius: 50%; border: 3px solid white; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`;
+            htmlContent += `</div>`;
+            htmlContent += `</div>`;
           });
-          
-          // Add score pointer
-          htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background: #333; border-radius: 50%; border: 2px solid white; z-index: 10;"></div>`;
-          htmlContent += `</div>`;
-          htmlContent += `</div>`;
-        });
+        }
         
         htmlContent += `</div>`;
         break;

@@ -11,6 +11,15 @@ import { HorizontalBarChartComponent } from '../template-components/HorizontalBa
 import { VerticalBarChartComponent } from '../template-components/VerticalBarChartComponent';
 import { LineChartComponent } from '../template-components/LineChartComponent';
 import { PieChartComponent } from '../template-components/PieChartComponent';
+import { LollipopChartComponent } from '../template-components/LollipopChartComponent';
+import { NightingaleChartComponent } from '../template-components/NightingaleChartComponent';
+import { IconChartComponent } from '../template-components/IconChartComponent';
+import { WordCloudComponent } from '../template-components/WordCloudComponent';
+import { TableChartComponent } from '../template-components/TableChartComponent';
+import { BubbleChartComponent } from '../template-components/BubbleChartComponent';
+import { StackedColumnChartComponent } from '../template-components/StackedColumnChartComponent';
+import { DonutChartComponent } from '../template-components/DonutChartComponent';
+import { VennDiagramComponent } from '../template-components/VennDiagramComponent';
 
 
 interface CanvasAreaProps {
@@ -83,6 +92,24 @@ export function CanvasArea({
         return <LineChartComponent key={component.id} {...commonProps} />;
       case 'pie-chart':
         return <PieChartComponent key={component.id} {...commonProps} />;
+      case 'lollipop-chart':
+        return <LollipopChartComponent key={component.id} {...commonProps} />;
+      case 'nightingale-chart':
+        return <NightingaleChartComponent key={component.id} {...commonProps} />;
+      case 'icon-chart':
+        return <IconChartComponent key={component.id} {...commonProps} />;
+      case 'word-cloud':
+        return <WordCloudComponent key={component.id} {...commonProps} />;
+      case 'table-chart':
+        return <TableChartComponent key={component.id} {...commonProps} />;
+      case 'bubble-chart':
+        return <BubbleChartComponent key={component.id} {...commonProps} />;
+      case 'stacked-column-chart':
+        return <StackedColumnChartComponent key={component.id} {...commonProps} />;
+      case 'donut-chart':
+        return <DonutChartComponent key={component.id} {...commonProps} />;
+      case 'venn-diagram':
+        return <VennDiagramComponent key={component.id} {...commonProps} />;
       case 'divider':
         return <DividerComponent key={component.id} {...commonProps} />;
       case 'spacer':

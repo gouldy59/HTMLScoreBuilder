@@ -289,6 +289,17 @@ Changelog:
   * Added detailed deletion warnings showing template details (name, versions, components)
   * Implemented template name uniqueness validation with proper error handling
   * Fixed delete API call parameter order issues for reliable template removal
+- July 25, 2025: Expanded chart component library with 9 new visualization types:
+  * Added Lollipop Chart with dots and stems for performance metrics
+  * Added Nightingale Chart (radial area chart) for circular data visualization
+  * Added Icon Chart using emoji/icons for intuitive data representation
+  * Added Word Cloud for text frequency and keyword visualization
+  * Added Table Chart with enhanced data table featuring status indicators
+  * Added Bubble Chart for multi-dimensional data analysis
+  * Added Stacked Column Chart for vertical stacked data series
+  * Added Donut Chart with center space and detailed legends
+  * Added Venn Diagram for set relationships and overlap analysis
+  * All new charts include sample data, interactive previews, and consistent styling
 ```
 
 # User Preferences

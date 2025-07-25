@@ -11,6 +11,15 @@ import { HorizontalBarChartComponent } from './HorizontalBarChartComponent';
 import { VerticalBarChartComponent } from './VerticalBarChartComponent';
 import { LineChartComponent } from './LineChartComponent';
 import { PieChartComponent } from './PieChartComponent';
+import { LollipopChartComponent } from './LollipopChartComponent';
+import { NightingaleChartComponent } from './NightingaleChartComponent';
+import { IconChartComponent } from './IconChartComponent';
+import { WordCloudComponent } from './WordCloudComponent';
+import { TableChartComponent } from './TableChartComponent';
+import { BubbleChartComponent } from './BubbleChartComponent';
+import { StackedColumnChartComponent } from './StackedColumnChartComponent';
+import { DonutChartComponent } from './DonutChartComponent';
+import { VennDiagramComponent } from './VennDiagramComponent';
 
 interface ContainerComponentProps {
   component: TemplateComponent;
@@ -58,6 +67,24 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         return <LineChartComponent {...commonProps} />;
       case 'pie-chart':
         return <PieChartComponent {...commonProps} />;
+      case 'lollipop-chart':
+        return <LollipopChartComponent {...commonProps} />;
+      case 'nightingale-chart':
+        return <NightingaleChartComponent {...commonProps} />;
+      case 'icon-chart':
+        return <IconChartComponent {...commonProps} />;
+      case 'word-cloud':
+        return <WordCloudComponent {...commonProps} />;
+      case 'table-chart':
+        return <TableChartComponent {...commonProps} />;
+      case 'bubble-chart':
+        return <BubbleChartComponent {...commonProps} />;
+      case 'stacked-column-chart':
+        return <StackedColumnChartComponent {...commonProps} />;
+      case 'donut-chart':
+        return <DonutChartComponent {...commonProps} />;
+      case 'venn-diagram':
+        return <VennDiagramComponent {...commonProps} />;
       case 'divider':
         return <DividerComponent {...commonProps} />;
       case 'spacer':

@@ -419,7 +419,7 @@ export class MemStorage implements IStorage {
       action: auditLog.action,
       oldValues: auditLog.oldValues,
       newValues: auditLog.newValues,
-      changeDescription: auditLog.changeDescription,
+      changeDescription: auditLog.changeDescription || null,
       timestamp: now,
     };
 
@@ -430,12 +430,12 @@ export class MemStorage implements IStorage {
   async getTemplateAuditHistory(templateId: number): Promise<AuditLog[]> {
     return Array.from(this.auditLogs.values())
       .filter(log => log.templateId === templateId)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
   }
 }
 
 import { db } from "./db";
-import { eq, desc, and, or } from "drizzle-orm";
+import { eq, desc, and, or, ne } from "drizzle-orm";
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
@@ -471,6 +471,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTemplate(template: InsertTemplate): Promise<Template> {
+    // Check for name uniqueness
+    const [existingTemplate] = await db
+      .select()
+      .from(templates)
+      .where(eq(templates.name, template.name));
+    
+    if (existingTemplate) {
+      throw new Error(`Template with name "${template.name}" already exists`);
+    }
+
     const [newTemplate] = await db
       .insert(templates)
       .values(template)
@@ -479,6 +489,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined> {
+    // Check for name uniqueness if name is being updated
+    if (template.name) {
+      const [existingTemplate] = await db
+        .select()
+        .from(templates)
+        .where(and(eq(templates.name, template.name), ne(templates.id, id)));
+      
+      if (existingTemplate) {
+        throw new Error(`Template with name "${template.name}" already exists`);
+      }
+    }
+
     const [updatedTemplate] = await db
       .update(templates)
       .set({ ...template, updatedAt: new Date() })
@@ -489,7 +511,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTemplate(id: number): Promise<boolean> {
     const result = await db.delete(templates).where(eq(templates.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async createTemplateVersion(templateId: number, version: CreateVersion): Promise<Template> {

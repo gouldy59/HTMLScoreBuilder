@@ -5,8 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock, FolderOpen } from 'lucide-react';
+import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock, FolderOpen, Trash2 } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import { TemplateVersionHistory } from './TemplateVersionHistory';
 import { AuditHistoryDialog } from './AuditHistoryDialog';
 import { TemplateFamilyVersionsDialog } from './TemplateFamilyVersionsDialog';
@@ -48,6 +51,8 @@ export function TemplateManager() {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showAuditHistory, setShowAuditHistory] = useState(false);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const itemsPerPage = 10;
 
   const { data: rawTemplates = [], isLoading, error, refetch } = useQuery<Template[]>({
@@ -111,6 +116,32 @@ export function TemplateManager() {
   const handleViewAuditHistory = (family: TemplateFamily) => {
     setSelectedFamily(family);
     setShowAuditHistory(true);
+  };
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (templateId: number) => apiRequest(`/api/templates/${templateId}`, 'DELETE'),
+    onSuccess: () => {
+      toast({
+        title: "Template deleted",
+        description: "The template has been successfully deleted.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/template-families'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete failed",
+        description: error.message || "Failed to delete template",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = (family: TemplateFamily, event: any) => {
+    event.stopPropagation();
+    if (confirm(`Are you sure you want to delete "${family.name}"? This action cannot be undone.`)) {
+      deleteMutation.mutate(family.latestVersion.id);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -264,6 +295,15 @@ export function TemplateManager() {
                           title="Edit latest version"
                         >
                           <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDelete(family, e)}
+                          title="Delete template"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>

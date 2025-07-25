@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { GitBranch, Home, Edit3, Globe, EyeOff } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { GitBranch, Home, Edit3, Globe, EyeOff, Download, FileText, Image as ImageIcon, ChevronDown, Eye, Upload, History } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 
@@ -143,15 +144,29 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
           </>
         )}
         
-        <Button onClick={onGeneratePDF} variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
-          <i className="fas fa-file-pdf mr-2"></i>Generate PDF
-        </Button>
-        <Button onClick={onGenerateImage} variant="outline" className="border-purple-300 text-purple-600 hover:bg-purple-50">
-          <i className="fas fa-image mr-2"></i>Generate Image
-        </Button>
-        <Button onClick={onExportHTML} className="bg-green-600 hover:bg-green-700">
-          <i className="fas fa-download mr-2"></i>Export HTML
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-green-600 hover:bg-green-700">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+              <ChevronDown className="w-4 h-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onExportHTML} className="flex items-center">
+              <FileText className="w-4 h-4 mr-2" />
+              Export HTML
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onGeneratePDF} className="flex items-center">
+              <FileText className="w-4 h-4 mr-2 text-red-600" />
+              Generate PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onGenerateImage} className="flex items-center">
+              <ImageIcon className="w-4 h-4 mr-2 text-purple-600" />
+              Generate Image
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

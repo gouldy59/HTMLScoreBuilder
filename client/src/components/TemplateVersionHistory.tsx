@@ -11,8 +11,8 @@ interface Template {
   id: number;
   name: string;
   description: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   components: any[];
 }
 
@@ -39,25 +39,25 @@ export function TemplateVersionHistory({ template, onBack }: TemplateVersionHist
   // For now, we'll create mock version data since we don't have versioning implemented yet
   const mockVersions: TemplateVersion[] = [
     {
-      id: template.id,
-      template_id: template.id,
+      id: template?.id || 0,
+      template_id: template?.id || 0,
       version_number: 1,
-      name: template.name,
-      description: template.description,
-      components: template.components,
-      created_at: template.created_at,
+      name: template?.name || 'Unknown Template',
+      description: template?.description || '',
+      components: template?.components || [],
+      created_at: template?.createdAt || new Date().toISOString(),
       created_by: 'Current User',
       change_summary: 'Initial version'
     }
   ];
 
   const { data: versions = mockVersions, isLoading } = useQuery<TemplateVersion[]>({
-    queryKey: ['/api/templates', template.id, 'versions'],
+    queryKey: ['/api/templates', template?.id, 'versions'],
     enabled: false // Disable for now since we don't have the API endpoint
   });
 
   const handleEditVersion = (version: TemplateVersion) => {
-    setLocation(`/builder?templateId=${template.id}&versionId=${version.id}`);
+    setLocation(`/builder?templateId=${template?.id}&versionId=${version.id}`);
   };
 
   const handlePreviewVersion = (version: TemplateVersion) => {
@@ -107,7 +107,7 @@ export function TemplateVersionHistory({ template, onBack }: TemplateVersionHist
           </div>
           <div>
             <p className="text-sm font-medium text-gray-700">Last Updated</p>
-            <p className="text-sm text-gray-500">{formatDate(template.updated_at)}</p>
+            <p className="text-sm text-gray-500">{formatDate(template?.updatedAt || new Date().toISOString())}</p>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ export function TemplateVersionHistory({ template, onBack }: TemplateVersionHist
               </TableHeader>
               <TableBody>
                 {versions.map((version) => (
-                  <TableRow key={version.id}>
+                  <TableRow key={`version-${version.id}`}>
                     <TableCell>
                       <Badge variant={version.version_number === 1 ? 'default' : 'secondary'}>
                         v{version.version_number}

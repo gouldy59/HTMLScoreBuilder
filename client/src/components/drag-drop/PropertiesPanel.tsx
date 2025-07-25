@@ -626,6 +626,39 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
+      case 'lollipop-chart':
+      case 'nightingale-chart':
+      case 'icon-chart':
+      case 'word-cloud':
+      case 'table-chart':
+      case 'bubble-chart':
+      case 'stacked-column-chart':
+      case 'donut-chart':
+      case 'venn-diagram':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Input
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter chart title..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartData">Chart Data</Label>
+              <Textarea
+                id="chartData"
+                value={selectedComponent.content.data || ''}
+                onChange={(e) => updateContent('data', e.target.value)}
+                placeholder="{{chartData}} or custom data..."
+                className="min-h-20"
+              />
+            </div>
+          </div>
+        );
+
       default:
         return (
           <p className="text-sm text-gray-500">

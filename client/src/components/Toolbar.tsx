@@ -61,7 +61,6 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
           Home
         </Button>
         <div className="h-6 w-px bg-gray-300"></div>
-        <h2 className="font-semibold text-gray-900">Score Report Template</h2>
         <div className="flex items-center gap-2 text-sm">
           {isEditing ? (
             <Input

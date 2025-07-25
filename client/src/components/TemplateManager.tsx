@@ -11,12 +11,29 @@ import { TemplateVersionHistory } from './TemplateVersionHistory';
 import { AuditHistoryDialog } from './AuditHistoryDialog';
 import { TemplateFamilyVersionsDialog } from './TemplateFamilyVersionsDialog';
 
+interface Template {
+  id: number;
+  name: string;
+  description: string;
+  components: any[];
+  variables: any;
+  styles: any;
+  version: number;
+  isLatest: boolean;
+  parentId: number | null;
+  changeDescription: string;
+  isPublished: boolean;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface TemplateFamily {
   familyId: number;
   name: string;
   description: string;
   totalVersions: number;
-  latestVersion: any;
+  latestVersion: Template;
   createdAt: string;
   updatedAt: string;
   isPublished: boolean;
@@ -33,11 +50,24 @@ export function TemplateManager() {
   const [, setLocation] = useLocation();
   const itemsPerPage = 10;
 
-  const { data: templateFamilies = [], isLoading, error, refetch } = useQuery<TemplateFamily[]>({
+  const { data: rawTemplates = [], isLoading, error, refetch } = useQuery<Template[]>({
     queryKey: ['/api/template-families'],
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
   });
+
+  // Transform raw templates into template families
+  const templateFamilies: TemplateFamily[] = rawTemplates.map(template => ({
+    familyId: template.id,
+    name: template.name,
+    description: template.description,
+    totalVersions: 1, // Since we're only getting latest versions
+    latestVersion: template,
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt,
+    isPublished: template.isPublished,
+    publishedAt: template.publishedAt || undefined
+  }));
 
   // Force a refetch when component mounts
   useEffect(() => {
@@ -46,6 +76,7 @@ export function TemplateManager() {
 
   // Debug logging
   console.log('TemplateManager render:', { 
+    rawTemplates,
     templateFamilies, 
     isLoading, 
     error,
@@ -173,7 +204,7 @@ export function TemplateManager() {
               <TableBody>
                 {paginatedFamilies.map((family) => (
                   <TableRow 
-                    key={family.familyId} 
+                    key={`family-${family.familyId}`} 
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleViewVersions(family)}
                   >

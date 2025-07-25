@@ -22,10 +22,11 @@ This is a full-stack web application for creating score report templates using a
 - **Development**: Hot module replacement with Vite middleware
 
 ## Data Storage
-- **Primary Database**: PostgreSQL via Neon serverless
+- **Primary Database**: PostgreSQL via Neon serverless (live and persistent)
 - **ORM**: Drizzle ORM with code-first schema definition
-- **Schema**: Templates and users tables with JSON fields for flexible component storage
-- **Migrations**: Drizzle Kit for schema management
+- **Schema**: Templates, users, and audit log tables with JSON fields for flexible component storage
+- **Migrations**: Drizzle Kit for schema management and database operations
+- **Storage Implementation**: DatabaseStorage class with full CRUD operations and versioning support
 
 # Key Components
 
@@ -251,6 +252,13 @@ Changelog:
   * Home screen "Start Building" button now goes to wizard first, then main builder
   * Direct /builder access and ?templateId= loading still bypasses wizard for existing templates
   * Improved card layout with responsive button positioning and proper container constraints
+- July 25, 2025: Migrated from in-memory to persistent PostgreSQL database storage:
+  * Replaced MemStorage with DatabaseStorage implementation using Drizzle ORM
+  * All templates, versions, audit logs, and user data now persist across server restarts
+  * Added comprehensive database operations with proper query optimization
+  * Maintained full compatibility with existing template versioning and publish/unpublish functionality
+  * Enhanced data integrity with proper foreign key relationships and constraints
+  * Successfully pushed database schema with templates, users, and audit log tables
 ```
 
 # User Preferences

@@ -109,7 +109,7 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
-      case 'vertical-bar-chart':
+      case 'column-chart':
         const defaultBarColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
         const barColors = selectedComponent.content.barColors || defaultBarColors;
         
@@ -368,7 +368,7 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
-      case 'horizontal-bar-chart':
+      case 'bar-chart':
         const chartData = selectedComponent.content.chartData || [];
         
         const addCategory = () => {

@@ -50,9 +50,9 @@ export function ContainerComponent({ component, isSelected, onSelect, onUpdate, 
         return <ScoreTableComponent {...commonProps} />;
       case 'text-block':
         return <TextBlockComponent {...commonProps} />;
-      case 'horizontal-bar-chart':
+      case 'bar-chart':
         return <HorizontalBarChartComponent {...commonProps} />;
-      case 'vertical-bar-chart':
+      case 'column-chart':
         return <VerticalBarChartComponent {...commonProps} />;
       case 'line-chart':
         return <LineChartComponent {...commonProps} />;

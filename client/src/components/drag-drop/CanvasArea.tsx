@@ -75,9 +75,9 @@ export function CanvasArea({
         return <TextBlockComponent key={component.id} {...commonProps} />;
       case 'container':
         return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
-      case 'horizontal-bar-chart':
+      case 'bar-chart':
         return <HorizontalBarChartComponent key={component.id} {...commonProps} />;
-      case 'vertical-bar-chart':
+      case 'column-chart':
         return <VerticalBarChartComponent key={component.id} {...commonProps} />;
       case 'line-chart':
         return <LineChartComponent key={component.id} {...commonProps} />;

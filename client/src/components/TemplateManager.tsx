@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Calendar, FileText, Eye, Edit, History, Globe, EyeOff, Clock, FolderOpen, Trash2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -50,6 +51,8 @@ export function TemplateManager() {
   const [showVersionsDialog, setShowVersionsDialog] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showAuditHistory, setShowAuditHistory] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<TemplateFamily | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -139,9 +142,21 @@ export function TemplateManager() {
 
   const handleDelete = (family: TemplateFamily, event: any) => {
     event.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${family.name}"? This action cannot be undone.`)) {
-      deleteMutation.mutate(family.latestVersion.id);
+    setTemplateToDelete(family);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (templateToDelete) {
+      deleteMutation.mutate(templateToDelete.latestVersion.id);
+      setShowDeleteDialog(false);
+      setTemplateToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteDialog(false);
+    setTemplateToDelete(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -371,6 +386,65 @@ export function TemplateManager() {
         onClose={() => setShowAuditHistory(false)}
         templateId={selectedFamily?.latestVersion?.id || null}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-red-600" />
+              Delete Template
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>"{templateToDelete?.name}"</strong>?
+              This action cannot be undone and will permanently remove the template and all its versions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <div className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
+                <div className="w-1.5 h-1.5 bg-red-600 rounded-full" />
+              </div>
+              <div className="text-sm text-red-800">
+                <p className="font-medium">This will permanently delete:</p>
+                <ul className="mt-1 space-y-1 text-red-700">
+                  <li>• Template "{templateToDelete?.name}"</li>
+                  <li>• All {templateToDelete?.totalVersions} version(s)</li>
+                  <li>• {templateToDelete?.latestVersion?.components?.length || 0} component(s)</li>
+                  <li>• Template configuration and settings</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Template
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

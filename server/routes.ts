@@ -286,6 +286,92 @@ export function setupRoutes(app: express.Application) {
     }
   });
 
+  // Template-specific PDF generation endpoint
+  app.post("/api/templates/:id/generate-pdf", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const templateData = req.body?.data || {};
+      const html = generateHTMLFromTemplate(template, templateData);
+      
+      // Generate PDF using html-pdf-node
+      const pdf = require('html-pdf-node');
+      const options = { 
+        format: 'A4',
+        border: {
+          top: '0.5in',
+          right: '0.5in',
+          bottom: '0.5in',
+          left: '0.5in'
+        }
+      };
+
+      const file = { content: html };
+      const pdfBuffer = await pdf.generatePdf(file, options);
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="template_${id}.pdf"`);
+      res.end(pdfBuffer);
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      res.status(500).json({ message: "Failed to generate PDF" });
+    }
+  });
+
+  // Template-specific image generation endpoint
+  app.post("/api/templates/:id/generate-image", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const templateData = req.body?.data || {};
+      const html = generateHTMLFromTemplate(template, templateData);
+      
+      // Generate image using Puppeteer
+      const puppeteer = require('puppeteer');
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setViewport({ width: 1200, height: 1600 });
+      
+      // Wait for charts to render
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const imageBuffer = await page.screenshot({ 
+        type: 'png',
+        fullPage: true 
+      });
+      
+      await browser.close();
+      
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Content-Disposition', `attachment; filename="template_${id}.png"`);
+      res.end(imageBuffer);
+    } catch (error) {
+      console.error('Image generation error:', error);
+      res.status(500).json({ message: "Failed to generate image" });
+    }
+  });
+
   // Export HTML endpoint
   app.post("/api/export-html", async (req, res) => {
     try {

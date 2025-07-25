@@ -433,4 +433,185 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { db } from "./db";
+import { eq, desc, and, or } from "drizzle-orm";
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getTemplate(id: number): Promise<Template | undefined> {
+    const [template] = await db.select().from(templates).where(eq(templates.id, id));
+    return template || undefined;
+  }
+
+  async getAllTemplates(): Promise<Template[]> {
+    return await db.select().from(templates).orderBy(desc(templates.updatedAt));
+  }
+
+  async createTemplate(template: InsertTemplate): Promise<Template> {
+    const [newTemplate] = await db
+      .insert(templates)
+      .values(template)
+      .returning();
+    return newTemplate;
+  }
+
+  async updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined> {
+    const [updatedTemplate] = await db
+      .update(templates)
+      .set({ ...template, updatedAt: new Date() })
+      .where(eq(templates.id, id))
+      .returning();
+    return updatedTemplate || undefined;
+  }
+
+  async deleteTemplate(id: number): Promise<boolean> {
+    const result = await db.delete(templates).where(eq(templates.id, id));
+    return result.rowCount > 0;
+  }
+
+  async createTemplateVersion(templateId: number, version: CreateVersion): Promise<Template> {
+    // Get the original template
+    const [originalTemplate] = await db.select().from(templates).where(eq(templates.id, templateId));
+    if (!originalTemplate) {
+      throw new Error(`Template with id ${templateId} not found`);
+    }
+
+    // Mark original as not latest
+    await db
+      .update(templates)
+      .set({ isLatest: false })
+      .where(eq(templates.id, templateId));
+
+    // Create new version
+    const [newVersion] = await db
+      .insert(templates)
+      .values({
+        ...version,
+        parentId: originalTemplate.parentId || templateId,
+        version: originalTemplate.version + 1,
+        isLatest: true,
+        isPublished: false,
+      })
+      .returning();
+
+    return newVersion;
+  }
+
+  async getTemplateVersions(templateId: number): Promise<Template[]> {
+    const template = await this.getTemplate(templateId);
+    if (!template) return [];
+
+    const parentId = template.parentId || templateId;
+    return await db
+      .select()
+      .from(templates)
+      .where(or(eq(templates.parentId, parentId), eq(templates.id, parentId)))
+      .orderBy(desc(templates.version));
+  }
+
+  async getTemplateHistory(templateId: number): Promise<Template[]> {
+    return this.getTemplateVersions(templateId);
+  }
+
+  async revertToVersion(templateId: number, targetVersionId: number): Promise<Template | undefined> {
+    const [targetVersion] = await db.select().from(templates).where(eq(templates.id, targetVersionId));
+    if (!targetVersion) return undefined;
+
+    // Mark all versions as not latest
+    const parentId = targetVersion.parentId || targetVersionId;
+    await db
+      .update(templates)
+      .set({ isLatest: false })
+      .where(or(eq(templates.parentId, parentId), eq(templates.id, parentId)));
+
+    // Mark target version as latest
+    const [revertedTemplate] = await db
+      .update(templates)
+      .set({ isLatest: true })
+      .where(eq(templates.id, targetVersionId))
+      .returning();
+
+    return revertedTemplate || undefined;
+  }
+
+  async getLatestVersion(templateId: number): Promise<Template | undefined> {
+    const template = await this.getTemplate(templateId);
+    if (!template) return undefined;
+
+    const parentId = template.parentId || templateId;
+    const [latestVersion] = await db
+      .select()
+      .from(templates)
+      .where(
+        and(
+          or(eq(templates.parentId, parentId), eq(templates.id, parentId)),
+          eq(templates.isLatest, true)
+        )
+      );
+
+    return latestVersion || undefined;
+  }
+
+  async publishTemplate(templateId: number): Promise<Template | undefined> {
+    const [publishedTemplate] = await db
+      .update(templates)
+      .set({ 
+        isPublished: true, 
+        publishedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(templates.id, templateId))
+      .returning();
+
+    return publishedTemplate || undefined;
+  }
+
+  async unpublishTemplate(templateId: number): Promise<Template | undefined> {
+    const [unpublishedTemplate] = await db
+      .update(templates)
+      .set({ 
+        isPublished: false, 
+        publishedAt: null,
+        updatedAt: new Date()
+      })
+      .where(eq(templates.id, templateId))
+      .returning();
+
+    return unpublishedTemplate || undefined;
+  }
+
+  async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> {
+    const [newAuditLog] = await db
+      .insert(templateAuditLog)
+      .values(auditLog)
+      .returning();
+    return newAuditLog;
+  }
+
+  async getTemplateAuditHistory(templateId: number): Promise<AuditLog[]> {
+    return await db
+      .select()
+      .from(templateAuditLog)
+      .where(eq(templateAuditLog.templateId, templateId))
+      .orderBy(desc(templateAuditLog.timestamp));
+  }
+}
+
+export const storage = new DatabaseStorage();

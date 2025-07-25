@@ -304,19 +304,40 @@ export function setupRoutes(app: express.Application) {
       const templateData = req.body?.data || {};
       const html = generateHTMLFromTemplate(template, templateData);
       
-      // Generate PDF using html-pdf-node
-      const options = { 
+      // Generate PDF using Puppeteer directly (more reliable than html-pdf-node)
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
+        args: [
+          '--no-sandbox', 
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu'
+        ]
+      });
+      
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setViewport({ width: 1200, height: 1600 });
+      
+      // Wait for charts to render
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const pdfBuffer = await page.pdf({ 
         format: 'A4',
-        border: {
+        margin: {
           top: '0.5in',
           right: '0.5in',
           bottom: '0.5in',
           left: '0.5in'
         }
-      };
-
-      const file = { content: html };
-      const pdfBuffer = await pdf.generatePdf(file, options);
+      });
+      
+      await browser.close();
       
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="template_${id}.pdf"`);
@@ -346,7 +367,7 @@ export function setupRoutes(app: express.Application) {
       // Generate image using Puppeteer
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath: 'chromium',
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
         args: [
           '--no-sandbox', 
           '--disable-setuid-sandbox',
@@ -423,19 +444,40 @@ export function setupRoutes(app: express.Application) {
 
       const html = generateHTMLFromTemplate(template, data);
       
-      // Generate PDF using html-pdf-node
-      const options = { 
+      // Generate PDF using Puppeteer directly (more reliable than html-pdf-node)
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
+        args: [
+          '--no-sandbox', 
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu'
+        ]
+      });
+      
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setViewport({ width: 1200, height: 1600 });
+      
+      // Wait for charts to render
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const pdfBuffer = await page.pdf({ 
         format: 'A4',
-        border: {
+        margin: {
           top: '0.5in',
           right: '0.5in',
           bottom: '0.5in',
           left: '0.5in'
         }
-      };
-
-      const file = { content: html };
-      const pdfBuffer = await pdf.generatePdf(file, options);
+      });
+      
+      await browser.close();
       
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="template_${templateId}.pdf"`);
@@ -465,7 +507,7 @@ export function setupRoutes(app: express.Application) {
       // Generate image using Puppeteer
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath: 'chromium',
+        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
         args: [
           '--no-sandbox', 
           '--disable-setuid-sandbox',

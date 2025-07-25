@@ -177,6 +177,141 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
+    id: 'lollipop-chart',
+    name: 'Lollipop Chart',
+    icon: 'fas fa-circle-dot',
+    category: 'report',
+    description: 'Lollipop chart with dots and stems',
+    defaultContent: {
+      title: 'Performance Metrics',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'nightingale-chart',
+    name: 'Nightingale Chart',
+    icon: 'fas fa-dharmachakra',
+    category: 'report',
+    description: 'Radial area chart (Rose diagram)',
+    defaultContent: {
+      title: 'Radial Analysis',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'icon-chart',
+    name: 'Icon Chart',
+    icon: 'fas fa-icons',
+    category: 'report',
+    description: 'Data visualization using icons',
+    defaultContent: {
+      title: 'Icon-based Metrics',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'word-cloud',
+    name: 'Word Cloud',
+    icon: 'fas fa-cloud',
+    category: 'report',
+    description: 'Word frequency visualization',
+    defaultContent: {
+      title: 'Key Terms',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'table-chart',
+    name: 'Table Chart',
+    icon: 'fas fa-table',
+    category: 'report',
+    description: 'Enhanced data table with sorting',
+    defaultContent: {
+      title: 'Data Summary',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'bubble-chart',
+    name: 'Bubble Chart',
+    icon: 'fas fa-circle',
+    category: 'report',
+    description: 'Multi-dimensional bubble visualization',
+    defaultContent: {
+      title: 'Bubble Analysis',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'stacked-column-chart',
+    name: 'Stacked Column Chart',
+    icon: 'fas fa-chart-column',
+    category: 'report',
+    description: 'Vertical stacked bar chart',
+    defaultContent: {
+      title: 'Stacked Performance',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'donut-chart',
+    name: 'Donut Chart',
+    icon: 'far fa-circle',
+    category: 'report',
+    description: 'Donut chart with center space',
+    defaultContent: {
+      title: 'Distribution Overview',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
+    id: 'venn-diagram',
+    name: 'Venn Diagram',
+    icon: 'fas fa-circle-notch',
+    category: 'report',
+    description: 'Set relationships visualization',
+    defaultContent: {
+      title: 'Set Analysis',
+      data: '{{chartData}}'
+    },
+    defaultStyle: {
+      backgroundColor: '#F8FAFC',
+      height: '300px'
+    }
+  },
+  {
     id: 'text-block',
     name: 'Text Block',
     icon: 'fas fa-paragraph',

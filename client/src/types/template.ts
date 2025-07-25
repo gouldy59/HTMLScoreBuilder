@@ -45,8 +45,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
-    id: 'horizontal-bar-chart',
-    name: 'Horizontal Bar Chart',
+    id: 'bar-chart',
+    name: 'Bar Chart',
     icon: 'fas fa-chart-bar',
     category: 'report',
     description: 'Segmented horizontal bar chart with multiple data series',
@@ -132,8 +132,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
-    id: 'vertical-bar-chart',
-    name: 'Vertical Bar Chart',
+    id: 'column-chart',
+    name: 'Column Chart',
     icon: 'fas fa-chart-bar',
     category: 'report',
     description: 'Vertical bar chart visualization',

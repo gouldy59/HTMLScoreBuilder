@@ -132,7 +132,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       tableHTML += '</tbody></table></div></div>';
       return tableHTML;
 
-    case 'horizontal-bar-chart':
+    case 'bar-chart':
       const horizontalChartData = component.content.chartData || [];
       const title = replaceVariables(component.content.title || '主要领域', variables);
       const subtitle = replaceVariables(component.content.subtitle || '您在各个主要领域的表现', variables);
@@ -221,7 +221,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         </div>
       `;
 
-    case 'vertical-bar-chart':
+    case 'column-chart':
       // Handle chart data - check component's own data first, then variables
       let verticalChartData = null;
       

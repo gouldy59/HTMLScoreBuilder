@@ -312,6 +312,12 @@ Changelog:
   * Created missing template-specific endpoints /api/templates/:id/generate-pdf and /api/templates/:id/generate-image
   * Fixed data extraction from request body structure (req.body.data vs req.body)
   * All PDF and image generation endpoints now work with proper binary file responses
+- July 25, 2025: Fixed Puppeteer Chrome dependency issues for image generation:
+  * Installed system Chromium browser dependency for Puppeteer rendering
+  * Added proper executable path configuration for Puppeteer to use system Chromium
+  * Enhanced browser launch arguments for headless operation in container environment
+  * Fixed "Failed to launch browser process" and Chrome dependency errors
+  * Both PDF and PNG image generation now work correctly with all chart components
 ```
 
 # User Preferences

@@ -300,6 +300,12 @@ Changelog:
   * Added Donut Chart with center space and detailed legends
   * Added Venn Diagram for set relationships and overlap analysis
   * All new charts include sample data, interactive previews, and consistent styling
+- July 25, 2025: Fixed PDF/image generation for new chart components:
+  * Updated server-side HTML generation to recognize all 9 new chart types
+  * Added proper server-side rendering cases for lollipop-chart, nightingale-chart, icon-chart, word-cloud, table-chart, bubble-chart, stacked-column-chart, donut-chart, and venn-diagram
+  * Fixed "Does not support the file format" and "Failed to load pdf" errors for new chart types
+  * PDF and PNG exports now work correctly with all chart components including new visualization types
+  * Enhanced server-side chart rendering with SVG support for complex visualizations
 ```
 
 # User Preferences

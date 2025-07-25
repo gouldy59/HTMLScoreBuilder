@@ -120,7 +120,7 @@ export function TemplateManager() {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (templateId: number) => apiRequest(`/api/templates/${templateId}`, 'DELETE'),
+    mutationFn: (templateId: number) => apiRequest('DELETE', `/api/templates/${templateId}`),
     onSuccess: () => {
       toast({
         title: "Template deleted",

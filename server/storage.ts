@@ -8,6 +8,7 @@ export interface IStorage {
   // Template CRUD operations
   getTemplate(id: number): Promise<Template | undefined>;
   getAllTemplates(): Promise<Template[]>;
+  getTemplateFamilies(): Promise<Template[]>;
   createTemplate(template: InsertTemplate): Promise<Template>;
   updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined>;
   deleteTemplate(id: number): Promise<boolean>;
@@ -462,6 +463,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAllTemplates(): Promise<Template[]> {
     return await db.select().from(templates).orderBy(desc(templates.updatedAt));
+  }
+
+  async getTemplateFamilies(): Promise<Template[]> {
+    // Return only the latest version of each template family
+    return await db.select().from(templates).where(eq(templates.isLatest, true)).orderBy(desc(templates.updatedAt));
   }
 
   async createTemplate(template: InsertTemplate): Promise<Template> {

@@ -1,0 +1,85 @@
+# Docker Compose for Local Development and Testing
+version: '3.8'
+
+services:
+  # Development Database
+  postgres-dev:
+    image: postgres:16-alpine
+    container_name: score-reports-postgres-dev
+    environment:
+      POSTGRES_DB: score_reports_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - score-reports-network
+
+  # QC/Testing Database
+  postgres-qc:
+    image: postgres:16-alpine
+    container_name: score-reports-postgres-qc
+    environment:
+      POSTGRES_DB: score_reports_qc
+      POSTGRES_USER: qc_user
+      POSTGRES_PASSWORD: qc_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_qc_data:/var/lib/postgresql/data
+    networks:
+      - score-reports-network
+
+  # Redis for session storage (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: score-reports-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - score-reports-network
+
+  # MailHog for development email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: score-reports-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web interface
+    networks:
+      - score-reports-network
+
+  # Development Application
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: score-reports-app-dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres-dev:5432/score_reports_dev
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres-dev
+      - redis
+    networks:
+      - score-reports-network
+
+volumes:
+  postgres_dev_data:
+  postgres_qc_data:
+  redis_data:
+
+networks:
+  score-reports-network:
+    driver: bridge

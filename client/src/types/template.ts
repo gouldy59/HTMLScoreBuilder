@@ -46,7 +46,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
   },
   {
     id: 'bar-chart',
-    name: 'Bar Chart',
+    name: 'Stacked Bar Chart',
     icon: 'fas fa-chart-bar',
     category: 'report',
     description: 'Segmented horizontal bar chart with multiple data series',

@@ -2,6 +2,8 @@ import express from 'express';
 import { createInsertSchema } from 'drizzle-zod';
 import { templates } from '@shared/schema';
 import { storage } from './storage';
+import pdf from 'html-pdf-node';
+import puppeteer from 'puppeteer';
 
 const createTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true, updatedAt: true });
 const createVersionSchema = createInsertSchema(templates).pick({ 
@@ -303,7 +305,6 @@ export function setupRoutes(app: express.Application) {
       const html = generateHTMLFromTemplate(template, templateData);
       
       // Generate PDF using html-pdf-node
-      const pdf = require('html-pdf-node');
       const options = { 
         format: 'A4',
         border: {
@@ -343,7 +344,6 @@ export function setupRoutes(app: express.Application) {
       const html = generateHTMLFromTemplate(template, templateData);
       
       // Generate image using Puppeteer
-      const puppeteer = require('puppeteer');
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -414,7 +414,6 @@ export function setupRoutes(app: express.Application) {
       const html = generateHTMLFromTemplate(template, data);
       
       // Generate PDF using html-pdf-node
-      const pdf = require('html-pdf-node');
       const options = { 
         format: 'A4',
         border: {
@@ -454,7 +453,6 @@ export function setupRoutes(app: express.Application) {
       const html = generateHTMLFromTemplate(template, data);
       
       // Generate image using Puppeteer
-      const puppeteer = require('puppeteer');
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']

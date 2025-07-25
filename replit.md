@@ -306,6 +306,12 @@ Changelog:
   * Fixed "Does not support the file format" and "Failed to load pdf" errors for new chart types
   * PDF and PNG exports now work correctly with all chart components including new visualization types
   * Enhanced server-side chart rendering with SVG support for complex visualizations
+- July 25, 2025: Resolved ES module import issues for PDF/image generation:
+  * Fixed "ReferenceError: require is not defined" errors by converting require() calls to ES6 imports
+  * Added proper import statements for html-pdf-node and puppeteer modules  
+  * Created missing template-specific endpoints /api/templates/:id/generate-pdf and /api/templates/:id/generate-image
+  * Fixed data extraction from request body structure (req.body.data vs req.body)
+  * All PDF and image generation endpoints now work with proper binary file responses
 ```
 
 # User Preferences

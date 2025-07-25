@@ -438,6 +438,124 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       containerHTML += `</div>`;
       return containerHTML;
 
+    case 'lollipop-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Lollipop Chart', variables)}</h3>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-20 text-sm font-medium text-gray-700">Math</div>
+            <div class="flex-1 flex items-center">
+              <div class="h-0.5 bg-blue-400" style="width: 170px;"></div>
+              <div class="w-3 h-3 rounded-full bg-blue-600 -ml-1.5" title="85%"></div>
+              <span class="ml-2 text-sm text-gray-600">85%</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    case 'nightingale-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Nightingale Chart', variables)}</h3>
+        <div class="flex items-center justify-center h-48">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="1" />
+            <path d="M 100 100 L 100 20 A 80 80 0 0 1 156.57 56.57 Z" fill="#3B82F6" opacity="0.8" />
+            <path d="M 100 100 L 156.57 56.57 A 80 80 0 0 1 180 100 Z" fill="#10B981" opacity="0.8" />
+          </svg>
+        </div>
+      </div>`;
+
+    case 'icon-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Icon Chart', variables)}</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center">
+            <div class="text-2xl mb-2">👨‍🎓</div>
+            <div class="text-lg font-semibold text-gray-800">85</div>
+            <div class="text-sm text-gray-600">Students</div>
+          </div>
+        </div>
+      </div>`;
+
+    case 'word-cloud':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Word Cloud', variables)}</h3>
+        <div class="flex flex-wrap items-center justify-center gap-2 h-48">
+          <span style="font-size: 24px; color: #3B82F6; font-weight: bold;">Excellence</span>
+          <span style="font-size: 20px; color: #10B981; font-weight: bold;">Achievement</span>
+          <span style="font-size: 18px; color: #F59E0B; font-weight: bold;">Performance</span>
+        </div>
+      </div>`;
+
+    case 'table-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Performance Table', variables)}</h3>
+        <table class="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="border border-gray-300 px-4 py-2 text-left">Subject</th>
+              <th class="border border-gray-300 px-4 py-2 text-center">Score</th>
+              <th class="border border-gray-300 px-4 py-2 text-center">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="border border-gray-300 px-4 py-2">Mathematics</td><td class="border border-gray-300 px-4 py-2 text-center">85</td><td class="border border-gray-300 px-4 py-2 text-center">A</td></tr>
+          </tbody>
+        </table>
+      </div>`;
+
+    case 'bubble-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Bubble Chart', variables)}</h3>
+        <div class="relative h-48 bg-gray-50 rounded-lg">
+          <svg width="100%" height="100%" viewBox="0 0 100 100">
+            <circle cx="20" cy="30" r="5" fill="#3B82F6" opacity="0.7" />
+            <circle cx="60" cy="20" r="6" fill="#10B981" opacity="0.7" />
+          </svg>
+        </div>
+      </div>`;
+
+    case 'stacked-column-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Stacked Column Chart', variables)}</h3>
+        <div class="h-48 flex items-end justify-center gap-4">
+          <div class="flex flex-col items-center">
+            <div class="w-12 flex flex-col" style="height: 120px;">
+              <div style="height: 30px; background-color: #3B82F6;"></div>
+              <div style="height: 40px; background-color: #10B981;"></div>
+              <div style="height: 50px; background-color: #F59E0B;"></div>
+            </div>
+            <div class="text-xs text-gray-600 mt-2">Q1</div>
+          </div>
+        </div>
+      </div>`;
+
+    case 'donut-chart':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Donut Chart', variables)}</h3>
+        <div class="flex items-center justify-center">
+          <svg width="200" height="160" viewBox="0 0 200 160">
+            <path d="M 100 80 L 100 10 A 70 70 0 0 1 170 80 L 135 80 A 35 35 0 0 0 100 45 Z" fill="#3B82F6" opacity="0.8" />
+            <text x="100" y="75" text-anchor="middle" class="text-sm font-semibold fill-gray-700">Total</text>
+            <text x="100" y="90" text-anchor="middle" class="text-lg font-bold fill-gray-800">100%</text>
+          </svg>
+        </div>
+      </div>`;
+
+    case 'venn-diagram':
+      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Venn Diagram', variables)}</h3>
+        <div class="flex items-center justify-center h-48">
+          <svg width="240" height="180" viewBox="0 0 240 180">
+            <circle cx="80" cy="90" r="50" fill="#3B82F6" opacity="0.6" stroke="#3B82F6" stroke-width="2" />
+            <circle cx="160" cy="90" r="50" fill="#10B981" opacity="0.6" stroke="#10B981" stroke-width="2" />
+            <text x="60" y="95" text-anchor="middle" class="text-xs font-medium fill-white">25</text>
+            <text x="120" y="95" text-anchor="middle" class="text-xs font-medium fill-white">15</text>
+            <text x="180" y="95" text-anchor="middle" class="text-xs font-medium fill-white">30</text>
+          </svg>
+        </div>
+      </div>`;
+
     default:
       return `
         <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">

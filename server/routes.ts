@@ -601,13 +601,15 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
               let currentWidth = 0;
-              item.segments.forEach((segment: any) => {
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segment.value || 0}%; height: 100%; background-color: ${segment.color || '#e5e7eb'}; transition: none;"></div>`;
+              item.segments.forEach((segment: any, index: number) => {
+                const segmentColor = segment.color || '#e5e7eb';
+                console.log(`Segment ${index}: color=${segmentColor}, width=${segment.value}%, left=${currentWidth}%`);
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segment.value || 0}%; height: 100%; background: ${segmentColor} !important; background-color: ${segmentColor} !important; border: none; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
                 currentWidth += segment.value || 0;
               });
             } else {
               // Fallback: create a simple progress bar
-              htmlContent += `<div style="position: absolute; left: 0%; width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%);"></div>`;
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${percentage}%; height: 100%; background: #3B82F6 !important; background-color: #3B82F6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
             }
             
             // Add score pointer with enhanced visibility
@@ -771,15 +773,27 @@ function generateHTMLFromTemplate(template: any, data: any): string {
     <head>
       <title>${template.name}</title>
       <style>
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
         body { 
           font-family: Arial, sans-serif; 
           margin: 0; 
           padding: 20px; 
           background-color: ${styles.reportBackground || '#ffffff'};
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
         .header { border-radius: 8px; margin-bottom: 20px; }
         .student-info { border-radius: 8px; }
-        .chart-container { border-radius: 8px; background: white; }
+        .chart-container { 
+          border-radius: 8px; 
+          background: white; 
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
       </style>
     </head>
     <body>

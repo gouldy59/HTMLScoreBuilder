@@ -1,4 +1,5 @@
 import { useDrag } from 'react-dnd';
+import { useState } from 'react';
 import { COMPONENT_TYPES, ComponentType } from '@/types/template';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,11 +41,24 @@ interface ComponentLibraryProps {
 
 export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLibraryProps) {
   const [, setLocation] = useLocation();
+  const [expandedSections, setExpandedSections] = useState({
+    report: true,
+    charts: true,
+    layout: true
+  });
 
   const handleLoadTemplate = () => {
     // Navigate to home screen's template manager tab
     setLocation('/?tab=templates');
   };
+
+  const toggleSection = (section: 'report' | 'charts' | 'layout') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const reportComponents = COMPONENT_TYPES.filter(c => c.category === 'report');
   const chartComponents = COMPONENT_TYPES.filter(c => c.category === 'charts');
   const layoutComponents = COMPONENT_TYPES.filter(c => c.category === 'layout');
@@ -67,49 +81,84 @@ export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLi
       {/* Component Categories */}
       <div className="flex-1 overflow-y-auto p-4">
         {/* Report Elements Category */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">
-            Report Elements
-          </h3>
-          <div className="space-y-2">
-            {reportComponents.map((componentType) => (
-              <DraggableComponent
-                key={componentType.id}
-                componentType={componentType}
-              />
-            ))}
-          </div>
+        <div className="mb-4">
+          <button
+            onClick={() => toggleSection('report')}
+            className="w-full flex items-center justify-between p-2 text-sm font-medium text-gray-700 uppercase tracking-wide hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <i className="fas fa-file-alt text-blue-600"></i>
+              <span>Report Elements</span>
+              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                {reportComponents.length}
+              </span>
+            </div>
+            <i className={`fas fa-chevron-${expandedSections.report ? 'up' : 'down'} text-gray-400`}></i>
+          </button>
+          {expandedSections.report && (
+            <div className="space-y-2 mt-3 pl-2">
+              {reportComponents.map((componentType) => (
+                <DraggableComponent
+                  key={componentType.id}
+                  componentType={componentType}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Charts Category */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
-            <i className="fas fa-chart-bar text-blue-600"></i>
-            Charts & Visualizations
-          </h3>
-          <div className="space-y-2">
-            {chartComponents.map((componentType) => (
-              <DraggableComponent
-                key={componentType.id}
-                componentType={componentType}
-              />
-            ))}
-          </div>
+        <div className="mb-4">
+          <button
+            onClick={() => toggleSection('charts')}
+            className="w-full flex items-center justify-between p-2 text-sm font-medium text-gray-700 uppercase tracking-wide hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <i className="fas fa-chart-bar text-blue-600"></i>
+              <span>Chart Elements</span>
+              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                {chartComponents.length}
+              </span>
+            </div>
+            <i className={`fas fa-chevron-${expandedSections.charts ? 'up' : 'down'} text-gray-400`}></i>
+          </button>
+          {expandedSections.charts && (
+            <div className="space-y-2 mt-3 pl-2">
+              {chartComponents.map((componentType) => (
+                <DraggableComponent
+                  key={componentType.id}
+                  componentType={componentType}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Layout Elements Category */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">
-            Layout Elements
-          </h3>
-          <div className="space-y-2">
-            {layoutComponents.map((componentType) => (
-              <DraggableComponent
-                key={componentType.id}
-                componentType={componentType}
-              />
-            ))}
-          </div>
+        <div className="mb-4">
+          <button
+            onClick={() => toggleSection('layout')}
+            className="w-full flex items-center justify-between p-2 text-sm font-medium text-gray-700 uppercase tracking-wide hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <i className="fas fa-th-large text-blue-600"></i>
+              <span>Layout Elements</span>
+              <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                {layoutComponents.length}
+              </span>
+            </div>
+            <i className={`fas fa-chevron-${expandedSections.layout ? 'up' : 'down'} text-gray-400`}></i>
+          </button>
+          {expandedSections.layout && (
+            <div className="space-y-2 mt-3 pl-2">
+              {layoutComponents.map((componentType) => (
+                <DraggableComponent
+                  key={componentType.id}
+                  componentType={componentType}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

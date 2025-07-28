@@ -1,5 +1,6 @@
 import { useDrop } from 'react-dnd';
 import { TemplateComponent, ComponentType } from '@/types/template';
+import { DraggableResizableWrapper } from './DraggableResizableWrapper';
 import { HeaderComponent } from '../template-components/HeaderComponent';
 import { StudentInfoComponent } from '../template-components/StudentInfoComponent';
 import { ScoreTableComponent } from '../template-components/ScoreTableComponent';
@@ -71,61 +72,94 @@ export function CanvasArea({
     const commonProps = {
       component,
       isSelected,
-      onSelect: () => onSelectComponent(component.id),
-      onUpdate: (updates: Partial<TemplateComponent>) => onUpdateComponent(component.id, updates),
-      onDelete: () => onDeleteComponent(component.id),
+      onClick: () => onSelectComponent(component.id),
       templateData,
     };
 
+    let componentElement;
     switch (component.type) {
       case 'header':
-        return <HeaderComponent key={component.id} {...commonProps} />;
+        componentElement = <HeaderComponent {...commonProps} />;
+        break;
       case 'student-info':
-        return <StudentInfoComponent key={component.id} {...commonProps} />;
+        componentElement = <StudentInfoComponent {...commonProps} />;
+        break;
       case 'score-table':
-        return <ScoreTableComponent key={component.id} {...commonProps} />;
+        componentElement = <ScoreTableComponent {...commonProps} />;
+        break;
       case 'text-block':
-        return <TextBlockComponent key={component.id} {...commonProps} />;
+        componentElement = <TextBlockComponent {...commonProps} />;
+        break;
       case 'image':
-        return <ImageComponent key={component.id} {...commonProps} />;
+        componentElement = <ImageComponent {...commonProps} />;
+        break;
       case 'qr-code':
-        return <QRCodeComponent key={component.id} {...commonProps} />;
+        componentElement = <QRCodeComponent {...commonProps} />;
+        break;
       case 'container':
-        return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
+        componentElement = <ContainerComponent {...commonProps} onAddComponent={onAddComponent} />;
+        break;
       case 'bar-chart':
-        return <HorizontalBarChartComponent key={component.id} {...commonProps} />;
+        componentElement = <HorizontalBarChartComponent {...commonProps} />;
+        break;
       case 'column-chart':
-        return <VerticalBarChartComponent key={component.id} {...commonProps} />;
+        componentElement = <VerticalBarChartComponent {...commonProps} />;
+        break;
       case 'line-chart':
-        return <LineChartComponent key={component.id} {...commonProps} />;
+        componentElement = <LineChartComponent {...commonProps} />;
+        break;
       case 'pie-chart':
-        return <PieChartComponent key={component.id} {...commonProps} />;
+        componentElement = <PieChartComponent {...commonProps} />;
+        break;
       case 'lollipop-chart':
-        return <LollipopChartComponent key={component.id} {...commonProps} />;
+        componentElement = <LollipopChartComponent {...commonProps} />;
+        break;
       case 'nightingale-chart':
-        return <NightingaleChartComponent key={component.id} {...commonProps} />;
+        componentElement = <NightingaleChartComponent {...commonProps} />;
+        break;
       case 'icon-chart':
-        return <IconChartComponent key={component.id} {...commonProps} />;
+        componentElement = <IconChartComponent {...commonProps} />;
+        break;
       case 'word-cloud':
-        return <WordCloudComponent key={component.id} {...commonProps} />;
+        componentElement = <WordCloudComponent {...commonProps} />;
+        break;
       case 'table-chart':
-        return <TableChartComponent key={component.id} {...commonProps} />;
+        componentElement = <TableChartComponent {...commonProps} />;
+        break;
       case 'bubble-chart':
-        return <BubbleChartComponent key={component.id} {...commonProps} />;
+        componentElement = <BubbleChartComponent {...commonProps} />;
+        break;
       case 'stacked-column-chart':
-        return <StackedColumnChartComponent key={component.id} {...commonProps} />;
+        componentElement = <StackedColumnChartComponent {...commonProps} />;
+        break;
       case 'donut-chart':
-        return <DonutChartComponent key={component.id} {...commonProps} />;
+        componentElement = <DonutChartComponent {...commonProps} />;
+        break;
       case 'venn-diagram':
-        return <VennDiagramComponent key={component.id} {...commonProps} />;
+        componentElement = <VennDiagramComponent {...commonProps} />;
+        break;
       case 'divider':
-        return <DividerComponent key={component.id} {...commonProps} />;
+        componentElement = <DividerComponent {...commonProps} />;
+        break;
       case 'spacer':
-        return <SpacerComponent key={component.id} {...commonProps} />;
-
+        componentElement = <SpacerComponent {...commonProps} />;
+        break;
       default:
         return null;
     }
+
+    return (
+      <DraggableResizableWrapper
+        key={component.id}
+        component={component}
+        isSelected={isSelected}
+        onSelect={() => onSelectComponent(component.id)}
+        onUpdateComponent={(updates) => onUpdateComponent(component.id, updates)}
+        onDelete={() => onDeleteComponent(component.id)}
+      >
+        {componentElement}
+      </DraggableResizableWrapper>
+    );
   };
 
   return (
@@ -153,7 +187,9 @@ export function CanvasArea({
           }}
         >
           {components.length === 0 ? (
-            <div className="absolute inset-4 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div className="absolute inset-4 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300"
+              onClick={() => onSelectComponent('')}
+            >
               <div className="text-center text-gray-400">
                 <i className="fas fa-plus-circle text-4xl mb-4"></i>
                 <p className="text-lg font-medium">Drop components here to start building</p>
@@ -161,10 +197,15 @@ export function CanvasArea({
               </div>
             </div>
           ) : (
-            <div className="p-8 space-y-6">
-              {components
-                .sort((a, b) => a.position.y - b.position.y)
-                .map(renderComponent)}
+            <div 
+              className="w-full h-full min-h-[800px] relative"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  onSelectComponent('');
+                }
+              }}
+            >
+              {components.map(renderComponent)}
             </div>
           )}
         </div>

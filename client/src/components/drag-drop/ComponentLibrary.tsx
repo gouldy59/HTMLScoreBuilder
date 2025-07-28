@@ -46,6 +46,7 @@ export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLi
     setLocation('/?tab=templates');
   };
   const reportComponents = COMPONENT_TYPES.filter(c => c.category === 'report');
+  const chartComponents = COMPONENT_TYPES.filter(c => c.category === 'charts');
   const layoutComponents = COMPONENT_TYPES.filter(c => c.category === 'layout');
 
   return (
@@ -80,10 +81,26 @@ export function ComponentLibrary({ onSaveTemplate, onLoadTemplate }: ComponentLi
           </div>
         </div>
 
+        {/* Charts Category */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+            <i className="fas fa-chart-bar text-blue-600"></i>
+            Charts & Visualizations
+          </h3>
+          <div className="space-y-2">
+            {chartComponents.map((componentType) => (
+              <DraggableComponent
+                key={componentType.id}
+                componentType={componentType}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Layout Elements Category */}
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">
-            Layout
+            Layout Elements
           </h3>
           <div className="space-y-2">
             {layoutComponents.map((componentType) => (

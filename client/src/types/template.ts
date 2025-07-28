@@ -21,7 +21,7 @@ export interface ComponentType {
   id: string;
   name: string;
   icon: string;
-  category: 'report' | 'layout';
+  category: 'report' | 'layout' | 'charts';
   description: string;
   defaultContent: Record<string, any>;
   defaultStyle: Record<string, any>;
@@ -48,7 +48,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'bar-chart',
     name: 'Stacked Bar Chart',
     icon: 'fas fa-chart-bar',
-    category: 'report',
+    category: 'charts',
     description: 'Segmented horizontal bar chart with multiple data series',
     defaultContent: {
       title: 'Chart Title',
@@ -135,7 +135,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'column-chart',
     name: 'Column Chart',
     icon: 'fas fa-chart-bar',
-    category: 'report',
+    category: 'charts',
     description: 'Vertical bar chart visualization',
     defaultContent: {
       title: 'Performance Overview',
@@ -150,7 +150,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'line-chart',
     name: 'Line Chart',
     icon: 'fas fa-chart-line',
-    category: 'report',
+    category: 'charts',
     description: 'Line chart visualization',
     defaultContent: {
       title: 'Performance Trend',
@@ -165,7 +165,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'pie-chart',
     name: 'Pie Chart',
     icon: 'fas fa-chart-pie',
-    category: 'report',
+    category: 'charts',
     description: 'Pie chart visualization',
     defaultContent: {
       title: 'Performance Distribution',
@@ -180,7 +180,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'lollipop-chart',
     name: 'Lollipop Chart',
     icon: 'fas fa-circle-dot',
-    category: 'report',
+    category: 'charts',
     description: 'Lollipop chart with dots and stems',
     defaultContent: {
       title: 'Performance Metrics',
@@ -195,7 +195,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'nightingale-chart',
     name: 'Nightingale Chart',
     icon: 'fas fa-dharmachakra',
-    category: 'report',
+    category: 'charts',
     description: 'Radial area chart (Rose diagram)',
     defaultContent: {
       title: 'Radial Analysis',
@@ -210,7 +210,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'icon-chart',
     name: 'Icon Chart',
     icon: 'fas fa-icons',
-    category: 'report',
+    category: 'charts',
     description: 'Data visualization using icons',
     defaultContent: {
       title: 'Icon-based Metrics',
@@ -225,7 +225,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'word-cloud',
     name: 'Word Cloud',
     icon: 'fas fa-cloud',
-    category: 'report',
+    category: 'charts',
     description: 'Word frequency visualization',
     defaultContent: {
       title: 'Key Terms',
@@ -240,7 +240,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'table-chart',
     name: 'Table Chart',
     icon: 'fas fa-table',
-    category: 'report',
+    category: 'charts',
     description: 'Enhanced data table with sorting',
     defaultContent: {
       title: 'Data Summary',
@@ -255,7 +255,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'bubble-chart',
     name: 'Bubble Chart',
     icon: 'fas fa-circle',
-    category: 'report',
+    category: 'charts',
     description: 'Multi-dimensional bubble visualization',
     defaultContent: {
       title: 'Bubble Analysis',
@@ -270,7 +270,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'stacked-column-chart',
     name: 'Stacked Column Chart',
     icon: 'fas fa-chart-column',
-    category: 'report',
+    category: 'charts',
     description: 'Vertical stacked bar chart',
     defaultContent: {
       title: 'Stacked Performance',
@@ -285,7 +285,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'donut-chart',
     name: 'Donut Chart',
     icon: 'far fa-circle',
-    category: 'report',
+    category: 'charts',
     description: 'Donut chart with center space',
     defaultContent: {
       title: 'Distribution Overview',
@@ -300,7 +300,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     id: 'venn-diagram',
     name: 'Venn Diagram',
     icon: 'fas fa-circle-notch',
-    category: 'report',
+    category: 'charts',
     description: 'Set relationships visualization',
     defaultContent: {
       title: 'Set Analysis',

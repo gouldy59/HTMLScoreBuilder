@@ -41,7 +41,9 @@ export const COMPONENT_TYPES: ComponentType[] = [
     defaultStyle: {
       backgroundColor: '#DBEAFE',
       textColor: '#1F2937',
-      fontSize: 'large'
+      fontSize: 'large',
+      width: '400px',
+      height: '120px'
     }
   },
   {
@@ -90,7 +92,10 @@ export const COMPONENT_TYPES: ComponentType[] = [
     defaultStyle: {
       backgroundColor: '#ffffff',
       padding: '24px',
-      borderRadius: '8px'
+      borderRadius: '8px',
+      width: '500px',
+      width: '400px',
+      height: '300px'
     }
   },
   {
@@ -109,7 +114,9 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F0FDF4',
-      textColor: '#1F2937'
+      textColor: '#1F2937',
+      width: '350px',
+      height: '200px'
     }
   },
   {
@@ -128,7 +135,9 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#FFF7ED',
-      borderColor: '#D97706'
+      borderColor: '#D97706',
+      width: '400px',
+      height: '250px'
     }
   },
   {
@@ -143,6 +152,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -158,6 +168,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -173,6 +184,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -188,6 +200,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -203,6 +216,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -218,6 +232,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -233,6 +248,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -248,6 +264,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -263,6 +280,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -278,6 +296,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -293,6 +312,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },
@@ -308,6 +328,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     },
     defaultStyle: {
       backgroundColor: '#F8FAFC',
+      width: '400px',
       height: '300px'
     }
   },

@@ -312,6 +312,23 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
+    id: 'image',
+    name: 'Image',
+    icon: 'fas fa-image',
+    category: 'report',
+    description: 'Add images to your report',
+    defaultContent: {
+      src: '',
+      alt: 'Image description',
+      caption: ''
+    },
+    defaultStyle: {
+      width: '300px',
+      height: 'auto',
+      borderRadius: '8px'
+    }
+  },
+  {
     id: 'text-block',
     name: 'Text Block',
     icon: 'fas fa-paragraph',

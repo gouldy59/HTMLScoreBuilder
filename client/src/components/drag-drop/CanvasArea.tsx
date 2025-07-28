@@ -20,6 +20,7 @@ import { BubbleChartComponent } from '../template-components/BubbleChartComponen
 import { StackedColumnChartComponent } from '../template-components/StackedColumnChartComponent';
 import { DonutChartComponent } from '../template-components/DonutChartComponent';
 import { VennDiagramComponent } from '../template-components/VennDiagramComponent';
+import { ImageComponent } from '../template-components/ImageComponent';
 
 
 interface CanvasAreaProps {
@@ -82,6 +83,8 @@ export function CanvasArea({
         return <ScoreTableComponent key={component.id} {...commonProps} />;
       case 'text-block':
         return <TextBlockComponent key={component.id} {...commonProps} />;
+      case 'image':
+        return <ImageComponent key={component.id} {...commonProps} />;
       case 'container':
         return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
       case 'bar-chart':

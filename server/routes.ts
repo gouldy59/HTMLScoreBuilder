@@ -759,6 +759,29 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         htmlContent += `</div>`;
         htmlContent += `</div>`;
         break;
+
+      case 'image':
+        const imageSrc = replaceVariables(component.content?.src || '', data);
+        const imageAlt = replaceVariables(component.content?.alt || 'Report image', data);
+        const imageCaption = replaceVariables(component.content?.caption || '', data);
+        
+        htmlContent += `<div class="image-container" style="text-align: center; margin: 20px 0;">`;
+        
+        if (imageSrc) {
+          htmlContent += `<img src="${imageSrc}" alt="${imageAlt}" style="max-width: 100%; height: auto; border-radius: ${component.style?.borderRadius || '8px'}; width: ${component.style?.width || 'auto'}; ${component.style?.height ? `height: ${component.style.height};` : ''}" />`;
+          
+          if (imageCaption) {
+            htmlContent += `<p style="margin-top: 8px; font-size: 14px; color: ${component.style?.textColor || '#6B7280'}; font-style: italic;">${imageCaption}</p>`;
+          }
+        } else {
+          // Placeholder for missing image
+          htmlContent += `<div style="width: ${component.style?.width || '300px'}; height: ${component.style?.height || '200px'}; background-color: #F3F4F6; border: 2px dashed #D1D5DB; border-radius: ${component.style?.borderRadius || '8px'}; display: flex; align-items: center; justify-content: center; color: #6B7280;">`;
+          htmlContent += `<span>Image not available</span>`;
+          htmlContent += `</div>`;
+        }
+        
+        htmlContent += `</div>`;
+        break;
       
       default:
         htmlContent += `<div class="component" style="padding: 10px; margin: 10px 0; border: 1px dashed #ccc;">`;

@@ -109,6 +109,42 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
+      case 'image':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="imageSrc">Image URL</Label>
+              <Input
+                id="imageSrc"
+                value={selectedComponent.content.src || ''}
+                onChange={(e) => updateContent('src', e.target.value)}
+                placeholder="https://example.com/image.jpg or {{imageUrl}}"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter a direct image URL or use template variables like {{imageUrl}}
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="imageAlt">Alt Text</Label>
+              <Input
+                id="imageAlt"
+                value={selectedComponent.content.alt || ''}
+                onChange={(e) => updateContent('alt', e.target.value)}
+                placeholder="Describe the image for accessibility"
+              />
+            </div>
+            <div>
+              <Label htmlFor="imageCaption">Caption (Optional)</Label>
+              <Input
+                id="imageCaption"
+                value={selectedComponent.content.caption || ''}
+                onChange={(e) => updateContent('caption', e.target.value)}
+                placeholder="Image caption or description"
+              />
+            </div>
+          </div>
+        );
+
       case 'column-chart':
         const defaultBarColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
         const barColors = selectedComponent.content.barColors || defaultBarColors;

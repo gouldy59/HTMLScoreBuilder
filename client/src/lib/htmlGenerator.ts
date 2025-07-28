@@ -25,12 +25,10 @@ export function generateHTML(
         }
     </style>
 </head>
-<body class="p-8 max-w-4xl mx-auto" style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}">`;
+<body style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''} position: relative; min-height: 100vh; padding: 20px;">`;
 
-  // Sort components by position
-  const sortedComponents = [...components].sort((a, b) => a.position.y - b.position.y);
-
-  sortedComponents.forEach(component => {
+  // Use absolute positioning to match builder layout  
+  components.forEach(component => {
     html += generateComponentHTML(component, variables);
   });
 
@@ -87,18 +85,21 @@ function generateChartData(variables: Record<string, any>) {
 }
 
 function generateComponentHTML(component: TemplateComponent, variables: Record<string, any>): string {
-  const { type, content, style } = component;
+  const { type, content, style, position } = component;
+  
+  // Generate positioning and sizing styles
+  const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${style.width || 'auto'}; height: ${style.height || 'auto'};`;
 
   switch (type) {
     case 'header':
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#DBEAFE'}; color: ${style.textColor || '#1F2937'};">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#DBEAFE'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px;">
           <h1 class="text-3xl font-bold mb-2">${replaceVariables(content.title || 'Header', variables)}</h1>
           ${content.subtitle ? `<p class="text-lg opacity-80">${replaceVariables(content.subtitle, variables)}</p>` : ''}
         </div>`;
 
     case 'student-info':
-      let studentInfoHTML = `<div class="mb-6 p-6 rounded-lg grid grid-cols-2 gap-4" style="background-color: ${style.backgroundColor || '#F0FDF4'}; color: ${style.textColor || '#1F2937'};">`;
+      let studentInfoHTML = `<div style="${positionStyle} background-color: ${style.backgroundColor || '#F0FDF4'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">`;
       Object.entries(content.fields || {}).forEach(([key, value]) => {
         studentInfoHTML += `
           <div>
@@ -110,9 +111,9 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       return studentInfoHTML;
 
     case 'score-table':
-      let tableHTML = `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#FFF7ED'};">`;
-      tableHTML += '<div class="overflow-x-auto">';
-      tableHTML += '<table class="w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden">';
+      let tableHTML = `<div style="${positionStyle} background-color: ${style.backgroundColor || '#FFF7ED'}; padding: 24px; border-radius: 8px;">`;
+      tableHTML += '<div style="overflow-x: auto;">';
+      tableHTML += '<table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db; background-color: white; border-radius: 8px; overflow: hidden;">';
       
       // Headers
       tableHTML += '<thead><tr class="bg-gray-50">';
@@ -141,7 +142,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       const wrapLabels = component.content.wrapLabels === true;
       
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'}; max-width: 768px; margin-left: auto; margin-right: auto;">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
             <p class="text-sm text-gray-600">${subtitle}</p>

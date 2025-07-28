@@ -329,6 +329,23 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
+    id: 'qr-code',
+    name: 'QR Code',
+    icon: 'fas fa-qrcode',
+    category: 'report',
+    description: 'Generate QR codes for URLs or text',
+    defaultContent: {
+      data: 'https://example.com',
+      label: 'Scan QR Code',
+      size: 150
+    },
+    defaultStyle: {
+      textAlign: 'center',
+      backgroundColor: '#FFFFFF',
+      padding: '16px'
+    }
+  },
+  {
     id: 'text-block',
     name: 'Text Block',
     icon: 'fas fa-paragraph',

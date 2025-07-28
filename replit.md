@@ -318,6 +318,13 @@ Changelog:
   * Enhanced browser launch arguments for headless operation in container environment
   * Fixed "Failed to launch browser process" and Chrome dependency errors
   * Both PDF and PNG image generation now work correctly with all chart components
+- July 28, 2025: Added comprehensive Image and QR Code components:
+  * Created Image component with URL input, alt text, captions, and styling options
+  * Added QR Code component with dynamic QR generation using online API service
+  * Implemented template variable support for both components ({{imageUrl}}, {{websiteUrl}})
+  * Added comprehensive properties editors with size, alignment, and customization options
+  * Enhanced server-side PDF/image export support for both new component types
+  * QR codes support four size options and generate automatically from URLs or text data
 ```
 
 # User Preferences

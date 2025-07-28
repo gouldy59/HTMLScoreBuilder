@@ -21,6 +21,7 @@ import { StackedColumnChartComponent } from '../template-components/StackedColum
 import { DonutChartComponent } from '../template-components/DonutChartComponent';
 import { VennDiagramComponent } from '../template-components/VennDiagramComponent';
 import { ImageComponent } from '../template-components/ImageComponent';
+import { QRCodeComponent } from '../template-components/QRCodeComponent';
 
 
 interface CanvasAreaProps {
@@ -85,6 +86,8 @@ export function CanvasArea({
         return <TextBlockComponent key={component.id} {...commonProps} />;
       case 'image':
         return <ImageComponent key={component.id} {...commonProps} />;
+      case 'qr-code':
+        return <QRCodeComponent key={component.id} {...commonProps} />;
       case 'container':
         return <ContainerComponent key={component.id} {...commonProps} onAddComponent={onAddComponent} />;
       case 'bar-chart':

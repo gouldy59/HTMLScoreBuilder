@@ -178,10 +178,10 @@ export function PropertiesPanel({
                 id="imageSrc"
                 value={selectedComponent.content.src || ''}
                 onChange={(e) => updateContent('src', e.target.value)}
-                placeholder="https://example.com/image.jpg or {{imageUrl}}"
+                placeholder={`https://example.com/image.jpg or {{imageUrl}}`}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Enter a direct image URL or use template variables like {{imageUrl}}
+                Enter a direct image URL or use template variables like {`{{imageUrl}}`}
               </p>
             </div>
             <div>
@@ -214,10 +214,10 @@ export function PropertiesPanel({
                 id="qrData"
                 value={selectedComponent.content.data || ''}
                 onChange={(e) => updateContent('data', e.target.value)}
-                placeholder="https://example.com or {{websiteUrl}}"
+                placeholder={`https://example.com or {{websiteUrl}}`}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Enter URL, text, or template variables like {{studentPortal}}
+                Enter URL, text, or template variables like {`{{studentPortal}}`}
               </p>
             </div>
             <div>
@@ -291,7 +291,7 @@ export function PropertiesPanel({
                       setJsonError('');
                     }
                   }}
-                  placeholder="{{chartData}} or valid JSON chart data"
+                  placeholder={`{{chartData}} or valid JSON chart data`}
                   className="min-h-20 font-mono text-sm"
                 />
                 {jsonError && (
@@ -419,7 +419,7 @@ export function PropertiesPanel({
                       setJsonError('');
                     }
                   }}
-                  placeholder="{{chartData}} or valid JSON chart data"
+                  placeholder={`{{chartData}} or valid JSON chart data`}
                   className="min-h-20 font-mono text-sm"
                 />
                 {jsonError && (
@@ -496,7 +496,7 @@ export function PropertiesPanel({
             <Button
               onClick={() => {
                 const newFields = { ...selectedComponent.content.fields };
-                newFields[`Field ${Object.keys(newFields).length + 1}`] = '{{variable}}';
+                newFields[`Field ${Object.keys(newFields).length + 1}`] = `{{variable}}`;
                 updateContent('fields', newFields);
               }}
               variant="outline"
@@ -792,7 +792,7 @@ export function PropertiesPanel({
                 id="chartData"
                 value={selectedComponent.content.data || ''}
                 onChange={(e) => updateContent('data', e.target.value)}
-                placeholder="{{chartData}} or custom data..."
+                placeholder={`{{chartData}} or custom data...`}
                 className="min-h-20"
               />
             </div>

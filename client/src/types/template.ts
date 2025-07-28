@@ -94,7 +94,6 @@ export const COMPONENT_TYPES: ComponentType[] = [
       padding: '24px',
       borderRadius: '8px',
       width: '500px',
-      width: '400px',
       height: '300px'
     }
   },

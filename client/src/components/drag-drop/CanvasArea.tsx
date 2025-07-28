@@ -72,7 +72,9 @@ export function CanvasArea({
     const commonProps = {
       component,
       isSelected,
-      onClick: () => onSelectComponent(component.id),
+      onSelect: () => onSelectComponent(component.id),
+      onUpdate: (updates: Partial<TemplateComponent>) => onUpdateComponent(component.id, updates),
+      onDelete: () => onDeleteComponent(component.id),
       templateData,
     };
 

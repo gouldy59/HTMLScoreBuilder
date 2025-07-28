@@ -145,6 +145,50 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         );
 
+      case 'qr-code':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="qrData">QR Code Data</Label>
+              <Input
+                id="qrData"
+                value={selectedComponent.content.data || ''}
+                onChange={(e) => updateContent('data', e.target.value)}
+                placeholder="https://example.com or {{websiteUrl}}"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter URL, text, or template variables like {{studentPortal}}
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="qrLabel">Label (Optional)</Label>
+              <Input
+                id="qrLabel"
+                value={selectedComponent.content.label || ''}
+                onChange={(e) => updateContent('label', e.target.value)}
+                placeholder="Scan QR Code"
+              />
+            </div>
+            <div>
+              <Label htmlFor="qrSize">QR Code Size</Label>
+              <Select
+                value={selectedComponent.content.size?.toString() || '150'}
+                onValueChange={(value) => updateContent('size', parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="100">Small (100px)</SelectItem>
+                  <SelectItem value="150">Medium (150px)</SelectItem>
+                  <SelectItem value="200">Large (200px)</SelectItem>
+                  <SelectItem value="250">Extra Large (250px)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+
       case 'column-chart':
         const defaultBarColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
         const barColors = selectedComponent.content.barColors || defaultBarColors;

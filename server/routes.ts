@@ -760,6 +760,29 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         htmlContent += `</div>`;
         break;
 
+      case 'qr-code':
+        const qrData = replaceVariables(component.content?.data || 'https://example.com', data);
+        const qrLabel = replaceVariables(component.content?.label || '', data);
+        const qrSize = component.content?.size || 150;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrData)}&format=png&margin=10`;
+        
+        htmlContent += `<div class="qr-code-container" style="text-align: ${component.style?.textAlign || 'center'}; background-color: ${component.style?.backgroundColor || '#FFFFFF'}; padding: ${component.style?.padding || '16px'}; border-radius: 8px; margin: 20px 0;">`;
+        
+        if (qrLabel) {
+          htmlContent += `<h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: ${component.style?.textColor || '#1F2937'};">${qrLabel}</h4>`;
+        }
+        
+        htmlContent += `<div style="display: inline-block;">`;
+        htmlContent += `<img src="${qrCodeUrl}" alt="QR Code for ${qrData}" style="width: ${qrSize}px; height: ${qrSize}px; display: block; margin: 0 auto; background-color: #FFFFFF; padding: 4px; border-radius: 4px;" />`;
+        htmlContent += `</div>`;
+        
+        if (qrData && qrData !== 'https://example.com') {
+          htmlContent += `<p style="margin: 8px 0 0 0; font-size: 12px; color: ${component.style?.textColor || '#6B7280'}; word-break: break-all; max-width: ${qrSize + 20}px; margin-left: auto; margin-right: auto;">${qrData}</p>`;
+        }
+        
+        htmlContent += `</div>`;
+        break;
+
       case 'image':
         const imageSrc = replaceVariables(component.content?.src || '', data);
         const imageAlt = replaceVariables(component.content?.alt || 'Report image', data);

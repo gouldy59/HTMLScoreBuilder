@@ -829,6 +829,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           margin: 0; 
           padding: 20px; 
           background-color: ${styles.reportBackground || '#ffffff'};
+          ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }

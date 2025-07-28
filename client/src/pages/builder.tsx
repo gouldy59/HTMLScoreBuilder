@@ -32,6 +32,7 @@ export default function Builder() {
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
   const [templateData, setTemplateData] = useState<any>({});
   const [reportBackground, setReportBackground] = useState<string>('#ffffff');
+  const [reportBackgroundImage, setReportBackgroundImage] = useState<string>('');
   const { toast } = useToast();
 
   // Extract templateId from URL parameters using window.location
@@ -88,6 +89,7 @@ export default function Builder() {
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
         setReportBackground((templateToLoad.styles as any)?.reportBackground || '#ffffff');
+        setReportBackgroundImage((templateToLoad.styles as any)?.reportBackgroundImage || '');
         setIsPublished(templateToLoad.isPublished || false);
         setSelectedComponentId(null);
         toast({ 
@@ -107,6 +109,7 @@ export default function Builder() {
       setComponents([]);
       setTemplateName('Untitled Template');
       setReportBackground('#ffffff');
+      setReportBackgroundImage('');
       setIsPublished(false);
       setSelectedComponentId(null);
     } else if (templateId || location === '/builder') {
@@ -122,7 +125,7 @@ export default function Builder() {
         description: `Template with ${components.length} components`,
         components: components,
         variables: {},
-        styles: { reportBackground },
+        styles: { reportBackground, reportBackgroundImage },
         changeDescription: 'Template saved from builder',
       };
 
@@ -273,6 +276,7 @@ export default function Builder() {
     setTemplateName(template.name);
     setCurrentTemplateId(template.id);
     setReportBackground((template.styles as any)?.reportBackground || '#ffffff');
+    setReportBackgroundImage((template.styles as any)?.reportBackgroundImage || '');
     setSelectedComponentId(null);
     setIsVersionHistoryOpen(false);
   };
@@ -299,7 +303,7 @@ export default function Builder() {
     // Use imported data if available, otherwise use defaults
     const previewData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
     
-    const html = generateHTML(components, previewData, templateName, reportBackground);
+    const html = generateHTML(components, previewData, templateName, reportBackground, reportBackgroundImage);
 
     const previewWindow = window.open('', '_blank');
     if (previewWindow) {
@@ -343,7 +347,7 @@ export default function Builder() {
     // Use imported data if available, otherwise use defaults
     const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
     
-    const html = generateHTML(components, exportData, templateName, reportBackground);
+    const html = generateHTML(components, exportData, templateName, reportBackground, reportBackgroundImage);
     downloadHTML(html, `${templateName.replace(/\s+/g, '-').toLowerCase()}.html`);
     
     const dataSource = Object.keys(templateData).length > 0 ? 'with imported JSON data' : 'with sample data';
@@ -532,6 +536,7 @@ export default function Builder() {
               onUpdateComponent={handleUpdateComponent}
               onDeleteComponent={handleDeleteComponent}
               reportBackground={reportBackground}
+              reportBackgroundImage={reportBackgroundImage}
               templateData={templateData}
             />
 
@@ -544,6 +549,8 @@ export default function Builder() {
               }}
               reportBackground={reportBackground}
               onUpdateReportBackground={setReportBackground}
+              reportBackgroundImage={reportBackgroundImage}
+              onUpdateReportBackgroundImage={setReportBackgroundImage}
             />
           </div>
         </div>

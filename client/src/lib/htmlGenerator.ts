@@ -5,7 +5,8 @@ export function generateHTML(
   components: TemplateComponent[],
   variables: Record<string, any> = {},
   templateName: string = 'Generated Report',
-  reportBackground: string = '#ffffff'
+  reportBackground: string = '#ffffff',
+  reportBackgroundImage: string = ''
 ): string {
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -24,7 +25,7 @@ export function generateHTML(
         }
     </style>
 </head>
-<body class="p-8 max-w-4xl mx-auto" style="background-color: ${reportBackground};">`;
+<body class="p-8 max-w-4xl mx-auto" style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}">`;
 
   // Sort components by position
   const sortedComponents = [...components].sort((a, b) => a.position.y - b.position.y);

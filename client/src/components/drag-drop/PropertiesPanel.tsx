@@ -14,9 +14,18 @@ interface PropertiesPanelProps {
   onUpdateComponent: (updates: Partial<TemplateComponent>) => void;
   reportBackground?: string;
   onUpdateReportBackground?: (color: string) => void;
+  reportBackgroundImage?: string;
+  onUpdateReportBackgroundImage?: (imageUrl: string) => void;
 }
 
-export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBackground, onUpdateReportBackground }: PropertiesPanelProps) {
+export function PropertiesPanel({ 
+  selectedComponent, 
+  onUpdateComponent, 
+  reportBackground, 
+  onUpdateReportBackground,
+  reportBackgroundImage,
+  onUpdateReportBackgroundImage 
+}: PropertiesPanelProps) {
   const [jsonInput, setJsonInput] = useState('');
   const [jsonError, setJsonError] = useState('');
   const { toast } = useToast();
@@ -36,6 +45,57 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, reportBa
           </div>
         </div>
         <div className="border-t border-gray-200 p-4">
+          <h4 className="font-medium text-gray-900 mb-3">Report Background</h4>
+          <div className="space-y-3 mb-4">
+            {onUpdateReportBackground && (
+              <div>
+                <Label htmlFor="reportBackgroundColor">Background Color</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    id="reportBackgroundColor"
+                    value={reportBackground || '#ffffff'}
+                    onChange={(e) => onUpdateReportBackground(e.target.value)}
+                    className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <Input
+                    value={reportBackground || '#ffffff'}
+                    onChange={(e) => onUpdateReportBackground?.(e.target.value)}
+                    placeholder="#ffffff"
+                    className="flex-1 text-sm"
+                  />
+                </div>
+              </div>
+            )}
+            {onUpdateReportBackgroundImage && (
+              <div>
+                <Label htmlFor="reportBackgroundImage">Background Image URL</Label>
+                <Input
+                  id="reportBackgroundImage"
+                  value={reportBackgroundImage || ''}
+                  onChange={(e) => onUpdateReportBackgroundImage(e.target.value)}
+                  placeholder="https://example.com/background.jpg"
+                  className="text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to use solid color background
+                </p>
+                {reportBackgroundImage && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onUpdateReportBackgroundImage('')}
+                    className="mt-2 text-xs"
+                  >
+                    <i className="fas fa-times mr-1"></i>
+                    Remove Background Image
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          
           <h4 className="font-medium text-gray-900 mb-3">Available Variables</h4>
           <div className="space-y-1 max-h-32 overflow-y-auto">
             {DEFAULT_VARIABLES.map((variable) => (

@@ -414,5 +414,8 @@ export const DEFAULT_VARIABLES: TemplateVariable[] = [
   { name: 'englishGrade', type: 'string', description: 'English grade letter' },
   { name: 'overallGrade', type: 'string', description: 'Overall grade' },
   { name: 'gpa', type: 'number', description: 'Grade Point Average' },
-  { name: 'rank', type: 'number', description: 'Class rank' }
+  { name: 'rank', type: 'number', description: 'Class rank' },
+  { name: 'imageUrl', type: 'string', description: 'Image URL for dynamic images' },
+  { name: 'websiteUrl', type: 'string', description: 'Website URL for QR codes' },
+  { name: 'studentPortal', type: 'string', description: 'Student portal URL' }
 ];

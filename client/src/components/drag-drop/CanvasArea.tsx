@@ -32,6 +32,7 @@ interface CanvasAreaProps {
   onUpdateComponent: (componentId: string, updates: Partial<TemplateComponent>) => void;
   onDeleteComponent: (componentId: string) => void;
   reportBackground?: string;
+  reportBackgroundImage?: string;
   templateData?: any;
 }
 
@@ -43,6 +44,7 @@ export function CanvasArea({
   onUpdateComponent,
   onDeleteComponent,
   reportBackground = '#ffffff',
+  reportBackgroundImage,
   templateData = {},
 }: CanvasAreaProps) {
 
@@ -136,8 +138,18 @@ export function CanvasArea({
           }`}
           style={{
             backgroundColor: reportBackground,
-            backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
+            backgroundImage: reportBackgroundImage 
+              ? `url("${reportBackgroundImage}"), linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
+              : 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
+            backgroundSize: reportBackgroundImage 
+              ? 'cover, 20px 20px, 20px 20px'
+              : '20px 20px',
+            backgroundRepeat: reportBackgroundImage 
+              ? 'no-repeat, repeat, repeat'
+              : 'repeat',
+            backgroundPosition: reportBackgroundImage 
+              ? 'center, 0 0, 0 0'
+              : '0 0'
           }}
         >
           {components.length === 0 ? (

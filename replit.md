@@ -321,7 +321,9 @@ Changelog:
 - July 29, 2025: Enhanced text block component with rich text formatting capabilities:
    * Added inline rich text editor with contentEditable functionality
    * Implemented formatting toolbar with bold, italic, and font size options (Small, Medium, Large)  
+   * Added text color options with color picker (Black, Red, Blue, Green)
    * Added double-click to edit functionality with visual formatting controls
+   * Fixed text selection and highlighting issues for proper rich text editing
    * Enhanced text component to preserve HTML formatting in exports
    * Updated HTML generator to support rich text formatting in PDF/image generation
    * Text components now support both plain text and HTML content seamlessly

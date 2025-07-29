@@ -106,6 +106,7 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
               e.preventDefault();
               handleFormatCommand('bold');
             }}
+            title="Bold"
           >
             <i className="fas fa-bold text-xs"></i>
           </Button>
@@ -117,45 +118,102 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
               e.preventDefault();
               handleFormatCommand('italic');
             }}
+            title="Italic"
           >
             <i className="fas fa-italic text-xs"></i>
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-8 h-8 p-0"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleFormatCommand('fontSize', '12px');
-            }}
-            title="Small"
-          >
-            <span className="text-xs">S</span>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-8 h-8 p-0"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleFormatCommand('fontSize', '16px');
-            }}
-            title="Medium"
-          >
-            <span className="text-sm">M</span>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-8 h-8 p-0"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleFormatCommand('fontSize', '20px');
-            }}
-            title="Large"
-          >
-            <span className="text-base">L</span>
-          </Button>
+          
+          {/* Text color options */}
+          <div className="flex gap-1 border-l border-gray-300 pl-1 ml-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('foreColor', '#000000');
+              }}
+              title="Black"
+            >
+              <div className="w-3 h-3 bg-black rounded-full"></div>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('foreColor', '#dc2626');
+              }}
+              title="Red"
+            >
+              <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('foreColor', '#2563eb');
+              }}
+              title="Blue"
+            >
+              <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('foreColor', '#16a34a');
+              }}
+              title="Green"
+            >
+              <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+            </Button>
+          </div>
+          
+          {/* Font size options */}
+          <div className="flex gap-1 border-l border-gray-300 pl-1 ml-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('fontSize', '12px');
+              }}
+              title="Small"
+            >
+              <span className="text-xs">S</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('fontSize', '16px');
+              }}
+              title="Medium"
+            >
+              <span className="text-sm">M</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-8 h-8 p-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleFormatCommand('fontSize', '20px');
+              }}
+              title="Large"
+            >
+              <span className="text-base">L</span>
+            </Button>
+          </div>
         </div>
       )}
 

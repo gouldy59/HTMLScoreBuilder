@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import { TemplateComponent, ComponentType } from '@/types/template';
 import { DraggableResizableWrapper } from './DraggableResizableWrapper';
@@ -49,16 +50,22 @@ export function CanvasArea({
   templateData = {},
 }: CanvasAreaProps) {
 
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
     drop: (item: { componentType: ComponentType }, monitor) => {
-      const offset = monitor.getDropResult();
       const clientOffset = monitor.getClientOffset();
+      const canvasElement = canvasRef.current;
       
-      if (clientOffset) {
+      if (clientOffset && canvasElement) {
+        const canvasRect = canvasElement.getBoundingClientRect();
+        const relativeX = Math.max(20, Math.min(clientOffset.x - canvasRect.left, canvasRect.width - 320));
+        const relativeY = Math.max(20, Math.min(clientOffset.y - canvasRect.top, canvasRect.height - 200));
+        
         onAddComponent(item.componentType, {
-          x: clientOffset.x,
-          y: clientOffset.y,
+          x: relativeX,
+          y: relativeY,
         });
       }
     },
@@ -168,8 +175,11 @@ export function CanvasArea({
     <div className="flex-1 p-6 overflow-auto">
       <div className="max-w-4xl mx-auto">
         <div
-          ref={drop}
-          className={`rounded-lg shadow-sm border border-gray-200 min-h-[800px] relative ${
+          ref={(el) => {
+            drop(el);
+            canvasRef.current = el;
+          }}
+          className={`rounded-lg shadow-sm border border-gray-200 min-h-[800px] relative overflow-hidden ${
             isOver ? 'border-blue-400 bg-blue-50' : ''
           }`}
           style={{

@@ -58,10 +58,15 @@ export function DraggableResizableWrapper({
         const newX = e.clientX - dragStart.x;
         const newY = e.clientY - dragStart.y;
         
+        // Get canvas bounds - find the actual canvas container  
+        const canvas = document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
+        const maxX = canvas ? canvas.clientWidth - 320 : 800;
+        const maxY = canvas ? canvas.clientHeight - 200 : 600;
+        
         onUpdateComponent({
           position: {
-            x: Math.max(0, newX),
-            y: Math.max(0, newY)
+            x: Math.max(20, Math.min(newX, maxX)),
+            y: Math.max(20, Math.min(newY, maxY))
           }
         });
       } else if (isResizing) {

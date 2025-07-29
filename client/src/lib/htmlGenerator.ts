@@ -372,10 +372,15 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         </div>`;
 
     case 'text-block':
+      const textContent = content.html || content.text || 'Add your text content here...';
+      const displayHtml = content.html 
+        ? replaceVariables(textContent, variables)
+        : replaceVariables(textContent, variables).split('\n').map(line => `<p style="margin: 0 0 8px 0;">${line}</p>`).join('');
+      
       return `
-        <div style="${positionStyle} background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px;">
-          <div class="prose max-w-none">
-            ${replaceVariables(content.text || '', variables).split('\n').map(line => `<p>${line}</p>`).join('')}
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'}; font-size: ${style.fontSize || '16px'}; padding: 24px; border-radius: 8px;">
+          <div style="max-width: none;">
+            ${displayHtml}
           </div>
         </div>`;
 

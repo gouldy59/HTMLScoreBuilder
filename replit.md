@@ -318,6 +318,13 @@ Changelog:
   * Enhanced browser launch arguments for headless operation in container environment
   * Fixed "Failed to launch browser process" and Chrome dependency errors
   * Both PDF and PNG image generation now work correctly with all chart components
+- July 29, 2025: Enhanced text block component with rich text formatting capabilities:
+   * Added inline rich text editor with contentEditable functionality
+   * Implemented formatting toolbar with bold, italic, and font size options (Small, Medium, Large)  
+   * Added double-click to edit functionality with visual formatting controls
+   * Enhanced text component to preserve HTML formatting in exports
+   * Updated HTML generator to support rich text formatting in PDF/image generation
+   * Text components now support both plain text and HTML content seamlessly
 - July 28, 2025: Added comprehensive Image and QR Code components:
   * Created Image component with URL input, alt text, captions, and styling options
   * Added QR Code component with dynamic QR generation using online API service

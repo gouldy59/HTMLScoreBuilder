@@ -17,8 +17,10 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
   const editorRef = useRef<HTMLDivElement>(null);
 
   const handleFormatCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
+    // Ensure the editor has focus before applying formatting
     if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand(command, false, value);
       const newHtml = editorRef.current.innerHTML;
       onUpdate({
         content: { ...content, html: newHtml }
@@ -44,13 +46,31 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
     setTimeout(() => {
       if (editorRef.current) {
         editorRef.current.focus();
+        // Place cursor at the end of content
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(editorRef.current);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
       }
     }, 0);
   };
 
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (isEditing) {
+      e.stopPropagation();
+      return;
+    }
+    onSelect();
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isFormattingToolbar = (event.target as Element)?.closest('.formatting-toolbar');
+      
+      if (editorRef.current && !editorRef.current.contains(target) && !isFormattingToolbar) {
         handleTextSave();
       }
     };
@@ -73,16 +93,19 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
         color: style.textColor || '#1F2937',
         fontSize: style.fontSize || '16px',
       }}
-      onClick={onSelect}
+      onClick={handleContainerClick}
     >
       {/* Formatting toolbar */}
       {showFormatting && (
-        <div className="absolute -top-12 left-0 bg-white border border-gray-300 rounded-md shadow-lg p-2 flex gap-1 z-20">
+        <div className="formatting-toolbar absolute -top-12 left-0 bg-white border border-gray-300 rounded-md shadow-lg p-2 flex gap-1 z-20">
           <Button
             size="sm"
             variant="outline"
             className="w-8 h-8 p-0"
-            onClick={() => handleFormatCommand('bold')}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleFormatCommand('bold');
+            }}
           >
             <i className="fas fa-bold text-xs"></i>
           </Button>
@@ -90,7 +113,10 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
             size="sm"
             variant="outline"
             className="w-8 h-8 p-0"
-            onClick={() => handleFormatCommand('italic')}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleFormatCommand('italic');
+            }}
           >
             <i className="fas fa-italic text-xs"></i>
           </Button>
@@ -98,7 +124,10 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
             size="sm"
             variant="outline"
             className="w-8 h-8 p-0"
-            onClick={() => handleFormatCommand('fontSize', '12px')}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleFormatCommand('fontSize', '12px');
+            }}
             title="Small"
           >
             <span className="text-xs">S</span>
@@ -107,7 +136,10 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
             size="sm"
             variant="outline"
             className="w-8 h-8 p-0"
-            onClick={() => handleFormatCommand('fontSize', '16px')}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleFormatCommand('fontSize', '16px');
+            }}
             title="Medium"
           >
             <span className="text-sm">M</span>
@@ -116,7 +148,10 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
             size="sm"
             variant="outline"
             className="w-8 h-8 p-0"
-            onClick={() => handleFormatCommand('fontSize', '20px')}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleFormatCommand('fontSize', '20px');
+            }}
             title="Large"
           >
             <span className="text-base">L</span>
@@ -159,9 +194,23 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
         contentEditable={isEditing}
         dangerouslySetInnerHTML={{ __html: displayContent }}
         onDoubleClick={handleDoubleClick}
+        onMouseDown={(e) => {
+          if (isEditing) {
+            e.stopPropagation();
+          }
+        }}
+        onInput={(e) => {
+          if (isEditing && editorRef.current) {
+            const newHtml = editorRef.current.innerHTML;
+            onUpdate({
+              content: { ...content, html: newHtml }
+            });
+          }
+        }}
         suppressContentEditableWarning={true}
         style={{
-          cursor: isEditing ? 'text' : 'pointer'
+          cursor: isEditing ? 'text' : 'pointer',
+          userSelect: isEditing ? 'text' : 'none'
         }}
       />
       

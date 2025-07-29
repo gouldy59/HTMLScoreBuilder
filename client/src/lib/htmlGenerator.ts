@@ -247,7 +247,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
         verticalChartData = generateChartData(variables);
       }
       
-      let verticalChartHTML = `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">`;
+      let verticalChartHTML = `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">`;
       verticalChartHTML += `<h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>`;
       
       // Chart container with axes
@@ -316,7 +316,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
     case 'line-chart':
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
           <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Line Chart', variables)}</h3>
           <div style="height: 300px;">
             <canvas id="${lineChartId}" width="400" height="200"></canvas>
@@ -347,7 +347,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
     case 'pie-chart':
       const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#F8FAFC'};">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
           <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Pie Chart', variables)}</h3>
           <div style="height: 300px;">
             <canvas id="${pieChartId}" width="400" height="200"></canvas>
@@ -371,7 +371,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
 
     case 'text-block':
       return `
-        <div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'};">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px;">
           <div class="prose max-w-none">
             ${replaceVariables(content.text || '', variables).split('\n').map(line => `<p>${line}</p>`).join('')}
           </div>
@@ -379,19 +379,19 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
 
     case 'divider':
       return `
-        <div class="mb-6" style="height: ${style.height || '1px'}; background-color: ${style.backgroundColor || '#E5E7EB'}; margin: ${style.margin || '16px 0'};"></div>`;
+        <div style="${positionStyle} height: ${style.height || '1px'}; background-color: ${style.backgroundColor || '#E5E7EB'};"></div>`;
 
     case 'spacer':
       return `
-        <div style="height: ${style.height || '32px'};"></div>`;
+        <div style="${positionStyle}"></div>`;
 
     case 'container':
       const containerStyle = `
+        ${positionStyle}
         background-color: ${style.backgroundColor || '#F9FAFB'};
         padding: ${style.padding || '16px'};
         border-radius: ${style.borderRadius || '8px'};
         color: ${style.textColor || '#374151'};
-        margin-bottom: 24px;
         border: 1px solid #E5E7EB;
       `;
       
@@ -441,7 +441,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       return containerHTML;
 
     case 'lollipop-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Lollipop Chart', variables)}</h3>
         <div class="space-y-3">
           <div class="flex items-center gap-3">
@@ -456,7 +456,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'nightingale-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Nightingale Chart', variables)}</h3>
         <div class="flex items-center justify-center h-48">
           <svg width="200" height="200" viewBox="0 0 200 200">
@@ -468,7 +468,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'icon-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Icon Chart', variables)}</h3>
         <div class="grid grid-cols-2 gap-4">
           <div class="text-center">
@@ -480,7 +480,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'word-cloud':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Word Cloud', variables)}</h3>
         <div class="flex flex-wrap items-center justify-center gap-2 h-48">
           <span style="font-size: 24px; color: #3B82F6; font-weight: bold;">Excellence</span>
@@ -490,7 +490,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'table-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Performance Table', variables)}</h3>
         <table class="w-full border-collapse border border-gray-300">
           <thead>
@@ -507,7 +507,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'bubble-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Bubble Chart', variables)}</h3>
         <div class="relative h-48 bg-gray-50 rounded-lg">
           <svg width="100%" height="100%" viewBox="0 0 100 100">
@@ -518,7 +518,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'stacked-column-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Stacked Column Chart', variables)}</h3>
         <div class="h-48 flex items-end justify-center gap-4">
           <div class="flex flex-col items-center">
@@ -533,7 +533,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'donut-chart':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Donut Chart', variables)}</h3>
         <div class="flex items-center justify-center">
           <svg width="200" height="160" viewBox="0 0 200 160">
@@ -545,7 +545,7 @@ function generateComponentHTML(component: TemplateComponent, variables: Record<s
       </div>`;
 
     case 'venn-diagram':
-      return `<div class="mb-6 p-6 rounded-lg" style="background-color: ${style.backgroundColor || '#ffffff'};">
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
         <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Venn Diagram', variables)}</h3>
         <div class="flex items-center justify-center h-48">
           <svg width="240" height="180" viewBox="0 0 240 180">

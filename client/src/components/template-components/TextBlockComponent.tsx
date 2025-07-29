@@ -123,56 +123,25 @@ export function TextBlockComponent({ component, isSelected, onSelect, onUpdate, 
             <i className="fas fa-italic text-xs"></i>
           </Button>
           
-          {/* Text color options */}
+          {/* Text color picker */}
           <div className="flex gap-1 border-l border-gray-300 pl-1 ml-1">
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-8 h-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleFormatCommand('foreColor', '#000000');
-              }}
-              title="Black"
-            >
-              <div className="w-3 h-3 bg-black rounded-full"></div>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-8 h-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleFormatCommand('foreColor', '#dc2626');
-              }}
-              title="Red"
-            >
-              <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-8 h-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleFormatCommand('foreColor', '#2563eb');
-              }}
-              title="Blue"
-            >
-              <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-8 h-8 p-0"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleFormatCommand('foreColor', '#16a34a');
-              }}
-              title="Green"
-            >
-              <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-            </Button>
+            <div className="relative">
+              <input
+                type="color"
+                className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                defaultValue="#000000"
+                title="Text Color"
+                onChange={(e) => {
+                  if (editorRef.current) {
+                    editorRef.current.focus();
+                    handleFormatCommand('foreColor', e.target.value);
+                  }
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                }}
+              />
+            </div>
           </div>
           
           {/* Font size options */}

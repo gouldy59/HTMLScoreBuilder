@@ -25,7 +25,8 @@ export function generateHTML(
         }
     </style>
 </head>
-<body style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''} position: relative; min-height: 100vh; padding: 20px;">`;
+<body style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''} margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start;">
+<div style="position: relative; width: 210mm; min-height: 297mm; background: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">`;
 
   // Use absolute positioning to match builder layout  
   components.forEach(component => {
@@ -33,6 +34,7 @@ export function generateHTML(
   });
 
   html += `
+</div>
 </body>
 </html>`;
 

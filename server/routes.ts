@@ -662,7 +662,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         htmlContent += `<span style="width: 80px; font-size: 14px; font-weight: 500;">Math</span>`;
         htmlContent += `<div style="flex: 1; display: flex; align-items: center;">`;
         htmlContent += `<div style="height: 2px; width: 170px; background-color: #60A5FA;"></div>`;
-        htmlContent += `<div style="width: 12px; height: 12px; border-radius: 50%; background-color: #2563EB; margin-left: -6px;"></div>`;
+        htmlContent += `<div style="width: 16px; height: 16px; border-radius: 50%; background-color: #2563EB; margin-left: -6px;"></div>`;
         htmlContent += `<span style="margin-left: 8px; font-size: 14px; color: #666;">85%</span>`;
         htmlContent += `</div>`;
         htmlContent += `</div>`;
@@ -889,29 +889,24 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           color-adjust: exact !important;
         }
         @page {
-          margin: 0;
-          size: 1200px 800px;
+          size: A4;
+          margin: 0.5in;
         }
         
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
-          padding: 0; 
+          padding: 20px; 
           background-color: ${styles.reportBackground || '#ffffff'};
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-          width: 1200px;
-          height: 800px;
-          overflow: visible;
-          zoom: 1;
-          transform-origin: 0 0;
+          min-height: 100vh;
         }
         .report-container {
           position: relative; 
-          width: 1200px; 
-          height: 800px; 
+          width: 100%; 
+          min-height: 800px; 
           background: ${styles.reportBackground || '#ffffff'}; 
           overflow: visible;
-          transform: scale(1);
         }
         
         /* Enhanced styling for chart components */

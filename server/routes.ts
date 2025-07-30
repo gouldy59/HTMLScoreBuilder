@@ -546,27 +546,32 @@ export function setupRoutes(app: express.Application) {
 
 // Helper function to generate HTML from template
 function generateHTMLFromTemplate(template: any, data: any): string {
-  // This is a simplified version - you'd want to implement the full HTML generation logic
   const components = template.components || [];
   const styles = template.styles || {};
   
   let htmlContent = '';
   
   components.forEach((component: any) => {
+    // Generate position style for absolute positioning like the client-side version
+    const position = component.position || { x: 0, y: 0 };
+    const size = component.size || { width: 200, height: 100 };
+    const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${size.width}px; height: ${size.height}px;`;
+    
+    const style = component.style || {};
     switch (component.type) {
       case 'header':
-        htmlContent += `<div class="header" style="background-color: ${component.style?.backgroundColor || '#f0f0f0'}; color: ${component.style?.textColor || '#000'}; padding: 20px;">`;
-        htmlContent += `<h1>${replaceVariables(component.content?.title || '', data)}</h1>`;
-        htmlContent += `<h2>${replaceVariables(component.content?.subtitle || '', data)}</h2>`;
+        htmlContent += `<div class="header" style="${positionStyle} background-color: ${style.backgroundColor || '#f0f0f0'}; color: ${style.textColor || '#000'}; padding: 20px; border-radius: 8px;">`;
+        htmlContent += `<h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: bold;">${replaceVariables(component.content?.title || '', data)}</h1>`;
+        htmlContent += `<h2 style="margin: 0; font-size: 18px; font-weight: normal; opacity: 0.8;">${replaceVariables(component.content?.subtitle || '', data)}</h2>`;
         htmlContent += `</div>`;
         break;
       
       case 'student-info':
-        htmlContent += `<div class="student-info" style="padding: 15px; border: 1px solid #ddd; margin: 10px 0;">`;
-        htmlContent += `<h3>Student Information</h3>`;
-        htmlContent += `<p><strong>Name:</strong> ${data.studentName || 'N/A'}</p>`;
-        htmlContent += `<p><strong>ID:</strong> ${data.studentId || 'N/A'}</p>`;
-        htmlContent += `<p><strong>Class:</strong> ${data.className || 'N/A'}</p>`;
+        htmlContent += `<div class="student-info" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">`;
+        htmlContent += `<h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: bold; color: ${style.textColor || '#1f2937'};">Student Information</h3>`;
+        htmlContent += `<p style="margin: 4px 0; color: ${style.textColor || '#374151'};"><strong>Name:</strong> ${replaceVariables('{{studentName}}', data) || data.studentName || 'N/A'}</p>`;
+        htmlContent += `<p style="margin: 4px 0; color: ${style.textColor || '#374151'};"><strong>ID:</strong> ${replaceVariables('{{studentId}}', data) || data.studentId || 'N/A'}</p>`;
+        htmlContent += `<p style="margin: 4px 0; color: ${style.textColor || '#374151'};"><strong>Class:</strong> ${replaceVariables('{{className}}', data) || data.className || 'N/A'}</p>`;
         htmlContent += `</div>`;
         break;
       
@@ -577,7 +582,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        htmlContent += `<div class="chart-container" style="padding: 20px; margin: 20px 0; background: white;">`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: hidden;">`;
         htmlContent += `<h3>${component.content?.title || 'Chart'}</h3>`;
         htmlContent += `<p>${component.content?.subtitle || ''}</p>`;
         
@@ -806,48 +811,92 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         htmlContent += `</div>`;
         break;
       
+      case 'text-block':
+        const textContent = replaceVariables(component.content?.text || 'Text content', data);
+        htmlContent += `<div class="text-block" style="${positionStyle} padding: ${style.padding || '12px'}; color: ${style.textColor || '#000000'}; font-size: ${style.fontSize || '16px'}; text-align: ${style.textAlign || 'left'}; background-color: ${style.backgroundColor || 'transparent'}; border-radius: ${style.borderRadius || '8px'}; line-height: 1.5;">`;
+        htmlContent += textContent;
+        htmlContent += `</div>`;
+        break;
+
+      case 'container':
+        const containerChildren = component.children || [];
+        const containerLayout = component.content?.layout || 'vertical';
+        const containerGap = component.content?.gap || '16px';
+        
+        htmlContent += `<div class="container" style="padding: ${component.style?.padding || '20px'}; margin: ${component.style?.margin || '10px 0'}; background-color: ${component.style?.backgroundColor || '#f8f9fa'}; border-radius: ${component.style?.borderRadius || '8px'}; border: ${component.style?.border || '1px solid #e9ecef'};">`;
+        
+        if (containerChildren.length > 0) {
+          let layoutStyle = '';
+          switch (containerLayout) {
+            case 'horizontal':
+              layoutStyle = `display: flex; flex-direction: row; gap: ${containerGap};`;
+              break;
+            case 'grid':
+              layoutStyle = `display: grid; grid-template-columns: 1fr 1fr; gap: ${containerGap};`;
+              break;
+            case 'vertical':
+            default:
+              layoutStyle = `display: flex; flex-direction: column; gap: ${containerGap};`;
+          }
+          
+          htmlContent += `<div style="${layoutStyle}">`;
+          containerChildren.forEach((child: any) => {
+            htmlContent += generateHTMLFromTemplate({ components: [child] }, data).replace(/<!DOCTYPE html>[\s\S]*<body[^>]*>|<\/body>[\s\S]*<\/html>/g, '');
+          });
+          htmlContent += `</div>`;
+        } else {
+          htmlContent += `<div style="min-height: 96px; display: flex; align-items: center; justify-content: center; border: 2px dashed #D1D5DB; border-radius: 4px; color: #9CA3AF;">`;
+          htmlContent += `<p style="text-align: center; font-size: 14px;">Container Content Area</p>`;
+          htmlContent += `</div>`;
+        }
+        
+        htmlContent += `</div>`;
+        break;
+
       default:
-        htmlContent += `<div class="component" style="padding: 10px; margin: 10px 0; border: 1px dashed #ccc;">`;
-        htmlContent += `<p>Component type: ${component.type}</p>`;
+        htmlContent += `<div class="component" style="padding: 10px; margin: 10px 0; border: 1px dashed #ccc; background-color: #f8f9fa; border-radius: 4px;">`;
+        htmlContent += `<p style="color: #6c757d; font-style: italic;">Unsupported component type: ${component.type}</p>`;
         htmlContent += `</div>`;
     }
   });
   
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${template.name}</title>
-      <style>
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${template.name}</title>
+    <style>
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
         body { 
-          font-family: Arial, sans-serif; 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
           padding: 20px; 
           background-color: ${styles.reportBackground || '#ffffff'};
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          display: flex; 
+          justify-content: center; 
+          align-items: flex-start;
         }
-        .header { border-radius: 8px; margin-bottom: 20px; }
-        .student-info { border-radius: 8px; }
-        .chart-container { 
-          border-radius: 8px; 
+        .report-container {
+          position: relative; 
+          width: 210mm; 
+          min-height: 297mm; 
           background: white; 
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-      </style>
-    </head>
-    <body>
-      ${htmlContent}
-    </body>
-    </html>
-  `;
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        ${htmlContent}
+    </div>
+</body>
+</html>`;
 }
 
 function replaceVariables(text: string, data: any): string {

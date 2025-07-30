@@ -889,19 +889,21 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
-          padding: 20px; 
+          padding: 0; 
           background-color: ${styles.reportBackground || '#ffffff'};
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-          display: flex; 
-          justify-content: center; 
-          align-items: flex-start;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
         }
         .report-container {
           position: relative; 
-          width: 210mm; 
-          min-height: 297mm; 
-          background: white; 
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          width: 1200px; 
+          height: 800px; 
+          min-width: 1200px;
+          min-height: 800px;
+          background: ${styles.reportBackground || '#ffffff'}; 
+          overflow: hidden;
         }
         
         /* Enhanced styling for chart components */

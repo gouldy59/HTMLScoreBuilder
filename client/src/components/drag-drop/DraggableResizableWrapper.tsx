@@ -59,9 +59,13 @@ export function DraggableResizableWrapper({
         const newY = e.clientY - dragStart.y;
         
         // Get canvas bounds - find the actual canvas container  
-        const canvas = document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
-        const maxX = canvas ? canvas.clientWidth - 320 : 800;
-        const maxY = canvas ? canvas.clientHeight - 200 : 600;
+        const canvas = document.querySelector('[data-canvas="true"]') || document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
+        
+        const componentWidth = parseInt(component.style?.width?.toString() || '300');
+        const componentHeight = parseInt(component.style?.height?.toString() || '200');
+        
+        const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
+        const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;
         
         onUpdateComponent({
           position: {
@@ -73,8 +77,17 @@ export function DraggableResizableWrapper({
         const deltaX = e.clientX - resizeStart.mouseX;
         const deltaY = e.clientY - resizeStart.mouseY;
         
-        const newWidth = Math.max(100, resizeStart.width + deltaX);
-        const newHeight = Math.max(50, resizeStart.height + deltaY);
+        // Get canvas bounds for resize constraints
+        const canvas = document.querySelector('[data-canvas="true"]') || document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
+        const canvasWidth = canvas ? canvas.clientWidth : 1200;
+        const canvasHeight = canvas ? canvas.clientHeight : 800;
+        
+        // Calculate maximum allowed dimensions based on current position
+        const maxAllowedWidth = canvasWidth - component.position.x - 40; // 40px buffer
+        const maxAllowedHeight = canvasHeight - component.position.y - 40; // 40px buffer
+        
+        const newWidth = Math.max(100, Math.min(resizeStart.width + deltaX, maxAllowedWidth));
+        const newHeight = Math.max(50, Math.min(resizeStart.height + deltaY, maxAllowedHeight));
         
         onUpdateComponent({
           style: {

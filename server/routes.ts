@@ -389,7 +389,8 @@ export function setupRoutes(app: express.Application) {
       
       const imageBuffer = await page.screenshot({ 
         type: 'png',
-        fullPage: true 
+        fullPage: false,
+        clip: { x: 0, y: 0, width: 1200, height: 800 } 
       });
       
       await browser.close();
@@ -522,14 +523,15 @@ export function setupRoutes(app: express.Application) {
       
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 1200, height: 1600 });
+      await page.setViewport({ width: 1200, height: 800 });
       
       // Wait for charts to render
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const imageBuffer = await page.screenshot({ 
         type: 'png',
-        fullPage: true 
+        fullPage: false,
+        clip: { x: 0, y: 0, width: 1200, height: 800 } 
       });
       
       await browser.close();
@@ -886,24 +888,30 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
+        @page {
+          margin: 0;
+          size: 1200px 800px;
+        }
+        
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
           padding: 0; 
           background-color: ${styles.reportBackground || '#ffffff'};
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-          width: 100vw;
-          height: 100vh;
-          overflow: hidden;
+          width: 1200px;
+          height: 800px;
+          overflow: visible;
+          zoom: 1;
+          transform-origin: 0 0;
         }
         .report-container {
           position: relative; 
           width: 1200px; 
           height: 800px; 
-          min-width: 1200px;
-          min-height: 800px;
           background: ${styles.reportBackground || '#ffffff'}; 
-          overflow: hidden;
+          overflow: visible;
+          transform: scale(1);
         }
         
         /* Enhanced styling for chart components */

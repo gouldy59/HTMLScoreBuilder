@@ -582,9 +582,9 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: hidden;">`;
-        htmlContent += `<h3>${component.content?.title || 'Chart'}</h3>`;
-        htmlContent += `<p>${component.content?.subtitle || ''}</p>`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px; overflow: visible; box-sizing: border-box;">`;
+        htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
+        htmlContent += `<p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
         
         // If no chart data, show placeholder
         if (chartData.length === 0) {
@@ -592,16 +592,18 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           htmlContent += `<p style="color: #6c757d; margin: 0;">No chart data available</p>`;
           htmlContent += `</div>`;
         } else {
-          chartData.forEach((item: any) => {
+          chartData.forEach((item: any, itemIndex: number) => {
             const percentage = item.scoreValue || 0;
-            htmlContent += `<div style="margin: 15px 0;">`;
-            htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">`;
-            htmlContent += `<span style="font-weight: 500; color: #374151;">${item.label}</span>`;
-            htmlContent += `<span style="font-weight: 600; color: #1f2937;">${percentage}%</span>`;
+            htmlContent += `<div style="margin: ${itemIndex > 0 ? '12px' : '0'} 0 12px 0;">`;
+            
+            // Label and percentage row
+            htmlContent += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">`;
+            htmlContent += `<span style="font-size: 14px; font-weight: 500; color: #374151;">${item.label}</span>`;
+            htmlContent += `<span style="font-size: 14px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container with enhanced styling for PDF generation
-            htmlContent += `<div style="background-color: #f3f4f6; height: 32px; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">`;
+            // Create the bar container with fixed dimensions for consistent rendering
+            htmlContent += `<div style="width: 100%; height: 24px; background-color: #f3f4f6; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid #e5e7eb;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
@@ -611,29 +613,23 @@ function generateHTMLFromTemplate(template: any, data: any): string {
                 const segmentWidth = segment.value || 0;
                 console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
                 
-                // Use inline styles that work better with PDF generation
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background: ${segmentColor}; background-color: ${segmentColor}; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;`;
-                
-                // Add border between segments for better visibility
-                if (index > 0) {
-                  htmlContent += ` border-left: 2px solid white;`;
-                }
-                
-                htmlContent += `"></div>`;
+                // Create segment div with solid background colors
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '12px 0 0 12px' : (index === item.segments.length - 1 ? '0 12px 12px 0' : '0')};">`;
+                htmlContent += `</div>`;
                 currentWidth += segmentWidth;
               });
             } else {
               // Fallback: create a simple progress bar if no segments
-              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;"></div>`;
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 12px;"></div>`;
             }
             
-            // Add score pointer with enhanced visibility and PDF-friendly styling
+            // Add score pointer with enhanced visibility
             if (percentage >= 0 && percentage <= 100) {
-              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,0.3); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
+              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
             }
             
-            htmlContent += `</div>`;
-            htmlContent += `</div>`;
+            htmlContent += `</div>`;  // Close bar container
+            htmlContent += `</div>`;  // Close item container
           });
         }
         
@@ -912,6 +908,13 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         
         /* Ensure all colored elements render in PDF */
         div[style*="background"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        /* Force color rendering for chart segments */
+        .chart-container div {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;

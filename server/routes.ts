@@ -600,25 +600,38 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `<span style="font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container with enhanced styling
-            htmlContent += `<div style="background: #f3f4f6; height: 32px; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb;">`;
+            // Create the bar container with enhanced styling for PDF generation
+            htmlContent += `<div style="background-color: #f3f4f6; height: 32px; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact; print-color-adjust: exact;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
               let currentWidth = 0;
               item.segments.forEach((segment: any, index: number) => {
                 const segmentColor = segment.color || '#e5e7eb';
-                console.log(`Segment ${index}: color=${segmentColor}, width=${segment.value}%, left=${currentWidth}%`);
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segment.value || 0}%; height: 100%; background: ${segmentColor} !important; background-color: ${segmentColor} !important; border: none; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
-                currentWidth += segment.value || 0;
+                const segmentWidth = segment.value || 0;
+                console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
+                
+                // Use inline styles that work better with PDF generation
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background: ${segmentColor}; background-color: ${segmentColor}; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;`;
+                
+                // Add border between segments for better visibility
+                if (index > 0) {
+                  htmlContent += ` border-left: 2px solid white;`;
+                }
+                
+                htmlContent += `"></div>`;
+                currentWidth += segmentWidth;
               });
             } else {
-              // Fallback: create a simple progress bar
-              htmlContent += `<div style="position: absolute; left: 0%; width: ${percentage}%; height: 100%; background: #3B82F6 !important; background-color: #3B82F6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
+              // Fallback: create a simple progress bar if no segments
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;"></div>`;
             }
             
-            // Add score pointer with enhanced visibility
-            htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background: #1f2937; border-radius: 50%; border: 3px solid white; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`;
+            // Add score pointer with enhanced visibility and PDF-friendly styling
+            if (percentage >= 0 && percentage <= 100) {
+              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,0.3); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
+            }
+            
             htmlContent += `</div>`;
             htmlContent += `</div>`;
           });
@@ -888,6 +901,20 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           min-height: 297mm; 
           background: white; 
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Enhanced styling for chart components */
+        .chart-container {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        /* Ensure all colored elements render in PDF */
+        div[style*="background"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
     </style>
 </head>

@@ -322,7 +322,7 @@ export function setupRoutes(app: express.Application) {
       
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 1200, height: 1600 });
+      await page.setViewport({ width: 794, height: 1123 });
       
       // Wait for charts to render
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -382,7 +382,7 @@ export function setupRoutes(app: express.Application) {
       
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 1200, height: 1600 });
+      await page.setViewport({ width: 794, height: 1123 });
       
       // Wait for charts to render
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -390,7 +390,7 @@ export function setupRoutes(app: express.Application) {
       const imageBuffer = await page.screenshot({ 
         type: 'png',
         fullPage: false,
-        clip: { x: 0, y: 0, width: 1200, height: 800 } 
+        clip: { x: 0, y: 0, width: 794, height: 1123 } 
       });
       
       await browser.close();
@@ -463,7 +463,7 @@ export function setupRoutes(app: express.Application) {
       
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 1200, height: 1600 });
+      await page.setViewport({ width: 794, height: 1123 });
       
       // Wait for charts to render
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -531,7 +531,7 @@ export function setupRoutes(app: express.Application) {
       const imageBuffer = await page.screenshot({ 
         type: 'png',
         fullPage: false,
-        clip: { x: 0, y: 0, width: 1200, height: 800 } 
+        clip: { x: 0, y: 0, width: 794, height: 1123 } 
       });
       
       await browser.close();

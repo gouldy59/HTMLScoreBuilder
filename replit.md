@@ -334,6 +334,13 @@ Changelog:
   * Added comprehensive properties editors with size, alignment, and customization options
   * Enhanced server-side PDF/image export support for both new component types
   * QR codes support four size options and generate automatically from URLs or text data
+- July 30, 2025: Fixed critical PDF/image export and boundary constraint issues:
+  * Resolved chart rendering problems in PDF/PNG exports - all colored segments now display correctly
+  * Enhanced stacked bar chart visualization with proper color preservation and segment borders
+  * Fixed boundary constraints for drag-and-drop system - elements can no longer be moved or resized past grid boundaries
+  * Improved server-side HTML generation with better CSS support for PDF rendering (@page rules, proper dimensions)
+  * Updated chart container sizing and positioning to prevent squashing in exports (ongoing refinement)
+  * Enhanced drag-and-drop wrapper with proper canvas boundary detection and constraint enforcement
 ```
 
 # User Preferences

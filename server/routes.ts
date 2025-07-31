@@ -4,6 +4,7 @@ import { templates } from '@shared/schema';
 import { storage } from './storage';
 import pdf from 'html-pdf-node';
 import puppeteer from 'puppeteer';
+import { generateImage } from './openai';
 
 const createTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true, updatedAt: true });
 const createVersionSchema = createInsertSchema(templates).pick({ 
@@ -979,5 +980,30 @@ function generateHTMLFromTemplate(template: any, data: any): string {
 function replaceVariables(text: string, data: any): string {
   return text.replace(/\{\{(\w+)\}\}/g, (match, key) => {
     return data[key] || match;
+  });
+}
+
+// AI Image generation endpoint
+export function setupImageRoutes(app: express.Application) {
+  app.post("/api/generate-image", async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({ message: "Text prompt is required" });
+      }
+
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(400).json({ message: "OpenAI API key not configured. Please add your API key to enable image generation." });
+      }
+
+      const result = await generateImage(prompt);
+      res.json(result);
+    } catch (error) {
+      console.error('Image generation error:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to generate image" 
+      });
+    }
   });
 }

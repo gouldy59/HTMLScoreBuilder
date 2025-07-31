@@ -25,13 +25,35 @@ export function generateHTML(
     (a.position?.y || 0) - (b.position?.y || 0)
   );
   
-  // Split components into pages based on A4 height limits
+  // Split components into pages based on A4 height limits and manual page breaks
   const pagedComponents: PagedComponent[] = [];
   let currentPage = 1;
   let currentPageHeight = 0;
+  let manualPageBreakProcessed = false;
   
   sortedComponents.forEach((component) => {
     const position = component.position || { x: 0, y: 0 };
+    
+    // Scale from canvas dimensions to preview dimensions
+    const scaleX = A4_WIDTH / 1152;
+    const scaleY = A4_HEIGHT / 1632;
+    const scaledY = position.y * scaleY;
+    
+    // Handle manual page breaks
+    if (component.type === 'page-break') {
+      // Add the page break component to the current page as a visual separator
+      pagedComponents.push({
+        ...component,
+        pageNumber: currentPage,
+        adjustedPosition: { x: 20, y: Math.max(20, scaledY - ((currentPage - 1) * USABLE_HEIGHT)) }
+      });
+      
+      // Force next component to start on new page
+      currentPage++;
+      currentPageHeight = 0;
+      manualPageBreakProcessed = true;
+      return;
+    }
     
     // Get component height with better fallbacks for different component types
     let actualHeight = 100; // default fallback
@@ -70,23 +92,15 @@ export function generateHTML(
         case 'container':
           actualHeight = 200;
           break;
-        case 'page-break':
-          actualHeight = 12;
-          break;
         default:
           actualHeight = 100;
       }
     }
     
-    // Scale from canvas dimensions to preview dimensions
-    const scaleX = A4_WIDTH / 1152;
-    const scaleY = A4_HEIGHT / 1632;
-    
     const scaledX = Math.max(20, Math.min(position.x * scaleX, USABLE_WIDTH - 20));
-    const scaledY = position.y * scaleY;
     const scaledHeight = actualHeight * scaleY;
     
-    // Improved page splitting logic
+    // Improved page splitting logic for auto-splitter
     const componentAbsoluteY = scaledY;
     const componentBottomY = componentAbsoluteY + scaledHeight;
     const currentPageBottomY = currentPage * USABLE_HEIGHT;
@@ -191,12 +205,30 @@ export function generateHTML(
           .report-page {
             width: 794px;
             min-height: 1123px;
-            margin: 20px auto;
+            margin: 0 auto 40px auto; /* 40px gap between pages */
+            background-color: ${reportBackground};
+            ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             page-break-after: always;
+            position: relative;
+            padding: 20px;
           }
           
           .report-page:last-child {
             page-break-after: auto;
+            margin-bottom: 20px;
+          }
+          
+          .page-separator {
+            height: 40px;
+            background: linear-gradient(to bottom, #f5f5f5 0%, #e5e5e5 50%, #f5f5f5 100%);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
           }
         }
         
@@ -230,7 +262,7 @@ export function generateHTML(
     const pageComponents = pagedComponents.filter(comp => comp.pageNumber === pageNum);
     
     html += `
-<div class="report-page" style="position: relative; width: 210mm; min-height: 297mm; height: auto; background-color: ${reportBackground} !important; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''} overflow: visible; padding: 20px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
+<div class="report-page" style="position: relative; width: 794px; min-height: 1123px; height: auto; background-color: ${reportBackground} !important; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''} overflow: visible; padding: 20px; margin: 0 auto ${pageNum < totalPages ? '40px' : '20px'} auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
     
     pageComponents.forEach(component => {
       html += generatePagedComponentHTML(component, variables);
@@ -242,6 +274,13 @@ export function generateHTML(
     }
     
     html += `</div>`;
+    
+    // Add visual page separator (except after last page)
+    if (pageNum < totalPages) {
+      html += `<div class="page-separator no-print" style="height: 20px; background: linear-gradient(to right, transparent 0%, #ddd 20%, #ddd 80%, transparent 100%); margin: 0 auto; width: 794px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 11px; font-weight: 500;">
+        <span style="background: #f5f5f5; padding: 2px 12px; border-radius: 10px; border: 1px solid #ddd;">Page ${pageNum + 1}</span>
+      </div>`;
+    }
   }
 
   html += `
@@ -259,8 +298,8 @@ function generateChartData(variables: Record<string, any>) {
   
   // Generate data from individual score fields
   const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
-  const labels = [];
-  const data = [];
+  const labels: string[] = [];
+  const data: number[] = [];
   
   scoreFields.forEach(field => {
     if (variables[field] && typeof variables[field] === 'number') {
@@ -379,7 +418,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
                   wrapLabels ? 
                     'width: 120px; word-wrap: break-word; white-space: normal; line-height: 1.2;' :
                     `width: ${horizontalChartData.length > 0 ? 
-                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
                         const labelLength = (item.label || 'Category').length * 7;
                         return labelLength > longest ? labelLength : longest;
                       }, 80))) + 'px' : '80px'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
@@ -387,7 +426,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
                 <div style="position: relative; width: ${
                   wrapLabels ? 'calc(100% - 132px - 48px)' :
                     `calc(100% - ${horizontalChartData.length > 0 ? 
-                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest, item) => {
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
                         const labelLength = (item.label || 'Category').length * 7;
                         return labelLength > longest ? labelLength : longest;
                       }, 80))) + 12 : 92}px - 48px)`
@@ -629,7 +668,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       }
       
       // Render child components if they exist
-      if ((component as any).children && (component as any).children.length > 0) {
+      if ((pagedComponent as any).children && (pagedComponent as any).children.length > 0) {
         const layoutDirection = content.layoutDirection || 'vertical';
         const spacing = content.itemSpacing || 'medium';
         
@@ -650,7 +689,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
         
         containerHTML += `<div style="${layoutStyle}">`;
-        (component as any).children.forEach((child: any) => {
+        (pagedComponent as any).children.forEach((child: any) => {
           containerHTML += generatePagedComponentHTML(child, variables);
         });
         containerHTML += `</div>`;

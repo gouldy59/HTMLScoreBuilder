@@ -355,6 +355,12 @@ Changelog:
   * Chart components (bar-chart, chart, horizontal-bar-chart) now enforce 397px minimum width constraint
   * Server-side export already enforced 50% page width minimum, now client-side builder matches this constraint
   * Users can no longer create charts smaller than 50% page width in the drag-and-drop interface
+- July 31, 2025: Fixed extra white space at bottom of template previews:
+  * Updated both server-side and client-side HTML generation to use dynamic height calculation
+  * Container height now calculated from actual component positions instead of fixed dimensions
+  * Removed min-height: 297mm constraint and replaced with content-based height
+  * Preview windows now show tight fit around content without excessive bottom padding
+  * Both browser preview and exported images/PDFs now match actual content boundaries
 ```
 
 # User Preferences

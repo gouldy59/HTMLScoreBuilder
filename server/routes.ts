@@ -584,13 +584,13 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - ensure minimum space for content
-        const chartWidth = Math.max(size.width - 32, 300); // Minimum 300px width minus padding
-        const chartHeight = Math.max(size.height - 80, 150); // Minimum 150px height minus header space
+        // Calculate proper chart dimensions - use full available space
+        const chartWidth = Math.max(size.width - 48, 400); // Use most of the width with padding
+        const chartHeight = Math.max(size.height - 100, 200); // Use most of the height with header space
         
-        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px; overflow: visible; box-sizing: border-box; min-width: 332px; min-height: 230px;">`;
-        htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
-        htmlContent += `<p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
+        htmlContent += `<h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
+        htmlContent += `<p style="margin: 0 0 24px 0; font-size: 16px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
         
         // If no chart data, show placeholder
         if (chartData.length === 0) {
@@ -608,9 +608,9 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `<span style="font-size: 16px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container with proper dimensions that scale with chart size
-            const barWidth = Math.max(chartWidth - 32, 200); // Ensure minimum bar width
-            htmlContent += `<div style="width: ${barWidth}px; height: 56px; background-color: #f3f4f6; border-radius: 28px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0 auto;">`;
+            // Create the bar container that uses full available width
+            const barWidth = Math.max(chartWidth - 48, 300); // Use most available width
+            htmlContent += `<div style="width: ${barWidth}px; height: 56px; background-color: #f3f4f6; border-radius: 28px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {

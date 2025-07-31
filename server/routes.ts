@@ -528,10 +528,18 @@ export function setupRoutes(app: express.Application) {
       // Wait for charts to render
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Get actual content height from the generated HTML
+      const actualContentHeight = await page.evaluate(() => {
+        const container = document.querySelector('.report-container');
+        return container ? container.scrollHeight : 1123;
+      });
+      
+      console.log(`Screenshot dimensions: actualContentHeight=${actualContentHeight}px, using clip height=${Math.min(actualContentHeight + 40, 1123)}px`);
+      
       const imageBuffer = await page.screenshot({ 
         type: 'png',
         fullPage: false,
-        clip: { x: 0, y: 0, width: 794, height: 1123 } 
+        clip: { x: 0, y: 0, width: 794, height: Math.min(actualContentHeight + 40, 1123) } 
       });
       
       await browser.close();
@@ -557,11 +565,14 @@ function generateHTMLFromTemplate(template: any, data: any): string {
     const position = component.position || { x: 0, y: 0 };
     const actualHeight = component.style?.height ? parseInt(component.style.height.replace('px', '')) : 100;
     const componentBottomY = position.y + actualHeight;
+    console.log(`Component at Y=${position.y}, height=${actualHeight}, bottom=${componentBottomY}`);
     maxHeight = Math.max(maxHeight, componentBottomY);
   });
   
-  // Add some padding to the calculated height
-  const contentHeight = Math.max(maxHeight + 40, 400); // At least 400px, but expand as needed
+  // Add some padding to the calculated height, use smaller minimum for tighter fit
+  const contentHeight = Math.max(maxHeight + 60, 300); // Add 60px padding, minimum 300px
+  
+  console.log(`DYNAMIC CONTAINER HEIGHT: maxHeight=${maxHeight}px, final contentHeight=${contentHeight}px`);
   
   let htmlContent = '';
   
@@ -925,7 +936,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           padding: 20px; 
           background-color: ${styles.reportBackground || '#ffffff'};
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-          min-height: 100vh;
+          height: auto;
         }
         .report-container {
           position: relative; 

@@ -8,6 +8,18 @@ export function generateHTML(
   reportBackground: string = '#ffffff',
   reportBackgroundImage: string = ''
 ): string {
+  // Calculate actual content height based on component positions
+  let maxHeight = 0;
+  components.forEach((component) => {
+    const position = component.position || { x: 0, y: 0 };
+    const actualHeight = component.style?.height ? parseInt(component.style.height.toString().replace('px', '')) : 100;
+    const componentBottomY = position.y + actualHeight;
+    maxHeight = Math.max(maxHeight, componentBottomY);
+  });
+  
+  // Convert pixels to mm (roughly 3.78 pixels per mm) and add padding
+  const contentHeightMM = Math.max((maxHeight + 60) / 3.78, 150); // minimum 150mm
+  
   let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +38,7 @@ export function generateHTML(
     </style>
 </head>
 <body style="background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''} margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start;">
-<div style="position: relative; width: 210mm; min-height: 297mm; background: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">`;
+<div style="position: relative; width: 210mm; height: ${contentHeightMM}mm; background: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">`;
 
   // Use absolute positioning to match builder layout  
   components.forEach(component => {

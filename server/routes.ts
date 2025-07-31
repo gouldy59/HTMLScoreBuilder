@@ -588,14 +588,14 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
         // Calculate proper chart dimensions - use actual component dimensions
-        const chartWidth = Math.max(actualWidth - 48, 500); // Use actual component width
-        const chartHeight = Math.max(actualHeight - 100, 200); // Use actual component height
+        const chartWidth = Math.max(actualWidth - 24, 400); // Use most of component width with minimal padding
+        const chartHeight = Math.max(actualHeight - 80, 150); // Use most of component height
         
         console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, originalSize=${size.width}x${size.height}`);
         
-        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
-        htmlContent += `<h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
-        htmlContent += `<p style="margin: 0 0 24px 0; font-size: 16px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 12px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
+        htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
+        htmlContent += `<p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
         
         // If no chart data, show placeholder
         if (chartData.length === 0) {

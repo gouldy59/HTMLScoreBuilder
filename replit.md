@@ -341,6 +341,13 @@ Changelog:
   * Improved server-side HTML generation with better CSS support for PDF rendering (@page rules, proper dimensions)
   * Updated chart container sizing and positioning to prevent squashing in exports (ongoing refinement)
   * Enhanced drag-and-drop wrapper with proper canvas boundary detection and constraint enforcement
+- July 31, 2025: Completely resolved chart squashing and width issues in PDF/PNG exports:
+  * Fixed chart container to use full available width instead of fixed narrow dimensions
+  * Enhanced chart bar width calculation to utilize maximum available space in export images
+  * Updated chart padding and margins for better space utilization in A4 format exports
+  * Increased bar heights from 28px to 56px with proper 24px spacing for professional appearance
+  * Fixed chart responsiveness to match component dimensions in exported files
+  * Charts now render with proper proportions and full width utilization in both PDF and PNG formats
 ```
 
 # User Preferences

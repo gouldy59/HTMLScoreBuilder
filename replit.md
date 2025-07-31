@@ -348,6 +348,8 @@ Changelog:
   * Increased bar heights from 28px to 56px with proper 24px spacing for professional appearance
   * Fixed chart responsiveness to match component dimensions in exported files
   * Charts now render with proper proportions and full width utilization in both PDF and PNG formats
+  * Resolved server-side dimension calculation to use actual component.style dimensions (833x313px) instead of default fallback values
+  * Chart bars now properly extend to use the full available chart width with optimized spacing and proportions
 ```
 
 # User Preferences

@@ -613,10 +613,10 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `<span style="font-size: 16px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container that uses full available width
-            const barWidth = Math.max(chartWidth - 0, 400); // Use full chart width, minimum 400px
+            // Create the bar container that uses maximum available width
+            const barWidth = chartWidth; // Use full chart width
             console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px)`);
-            htmlContent += `<div style="width: 100%; max-width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
+            htmlContent += `<div style="width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {

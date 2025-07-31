@@ -372,6 +372,14 @@ Changelog:
   * Body background set to neutral gray (#f5f5f5) to provide contrast around the report
   * Report container properly displays background images and colors as intended
   * Both client-side preview and server-side exports now consistently apply backgrounds to the report area
+- July 31, 2025: Implemented AI image generation with OpenAI DALL-E integration:
+  * Added AI image generation capabilities to Image components using OpenAI DALL-E 3
+  * Created new API endpoint `/api/generate-image` for text-to-image generation
+  * Enhanced Image properties panel with AI generation section including text prompt input
+  * Added proper error handling for missing OpenAI API keys with user-friendly messages
+  * Users can now generate custom images by describing them in text prompts
+  * Generated images automatically populate the Image component's src field
+  * Supports both manual image URLs and AI-generated images in the same component
 ```
 
 # User Preferences

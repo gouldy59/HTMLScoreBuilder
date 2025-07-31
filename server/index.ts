@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
-import { setupRoutes } from "./routes";
+import { setupRoutes, setupImageRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -39,6 +39,7 @@ app.use((req, res, next) => {
 
 (async () => {
   setupRoutes(app);
+  setupImageRoutes(app);
   const server = createServer(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

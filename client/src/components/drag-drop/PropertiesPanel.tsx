@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { validateJSON, validateChartData, getExampleJSON } from '@/lib/jsonValidator';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { Loader2, Wand2 } from 'lucide-react';
 
 interface PropertiesPanelProps {
   selectedComponent: TemplateComponent | null;
@@ -28,6 +30,8 @@ export function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [jsonInput, setJsonInput] = useState('');
   const [jsonError, setJsonError] = useState('');
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { toast } = useToast();
 
   if (!selectedComponent) {
@@ -129,6 +133,46 @@ export function PropertiesPanel({
     });
   };
 
+  const generateAIImage = async () => {
+    if (!imagePrompt.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a text prompt for image generation",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    try {
+      const response = await apiRequest('/api/generate-image', {
+        method: 'POST',
+        body: JSON.stringify({ prompt: imagePrompt }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.url) {
+        updateContent('src', response.url);
+        setImagePrompt('');
+        toast({
+          title: "Success",
+          description: "AI image generated and applied to component",
+        });
+      }
+    } catch (error: any) {
+      console.error('AI image generation failed:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate image. Please check your OpenAI API key.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const renderContentEditor = () => {
     switch (selectedComponent.type) {
       case 'header':
@@ -171,7 +215,7 @@ export function PropertiesPanel({
 
       case 'image':
         return (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="imageSrc">Image URL</Label>
               <Input
@@ -184,6 +228,44 @@ export function PropertiesPanel({
                 Enter a direct image URL or use template variables like {`{{imageUrl}}`}
               </p>
             </div>
+
+            <div className="border-t pt-4">
+              <Label htmlFor="imagePrompt" className="flex items-center gap-2">
+                <Wand2 className="w-4 h-4" />
+                AI Image Generation
+              </Label>
+              <div className="space-y-2 mt-2">
+                <Textarea
+                  id="imagePrompt"
+                  value={imagePrompt}
+                  onChange={(e) => setImagePrompt(e.target.value)}
+                  placeholder="Describe the image you want to generate..."
+                  className="min-h-20"
+                />
+                <Button
+                  onClick={generateAIImage}
+                  disabled={isGeneratingImage || !imagePrompt.trim()}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {isGeneratingImage ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      Generate Image
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-gray-500">
+                  Uses OpenAI DALL-E to create custom images from text descriptions
+                </p>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="imageAlt">Alt Text</Label>
               <Input

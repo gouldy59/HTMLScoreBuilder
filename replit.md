@@ -350,6 +350,11 @@ Changelog:
   * Charts now render with proper proportions and full width utilization in both PDF and PNG formats
   * Resolved server-side dimension calculation to use actual component.style dimensions (833x313px) instead of default fallback values
   * Chart bars now properly extend to use the full available chart width with optimized spacing and proportions
+- July 31, 2025: Implemented chart minimum width enforcement in page builder:
+  * Added client-side validation to prevent charts from being resized smaller than 50% of canvas width
+  * Chart components (bar-chart, chart, horizontal-bar-chart) now enforce 397px minimum width constraint
+  * Server-side export already enforced 50% page width minimum, now client-side builder matches this constraint
+  * Users can no longer create charts smaller than 50% page width in the drag-and-drop interface
 ```
 
 # User Preferences

@@ -86,7 +86,11 @@ export function DraggableResizableWrapper({
         const maxAllowedWidth = canvasWidth - component.position.x - 40; // 40px buffer
         const maxAllowedHeight = canvasHeight - component.position.y - 40; // 40px buffer
         
-        const newWidth = Math.max(100, Math.min(resizeStart.width + deltaX, maxAllowedWidth));
+        // Set minimum width based on component type - charts need 50% of canvas width
+        const isChartComponent = component.type === 'bar-chart' || component.type === 'chart' || component.type === 'horizontal-bar-chart';
+        const minWidth = isChartComponent ? Math.max(canvasWidth * 0.5, 100) : 100; // 50% canvas width for charts, 100px for others
+        
+        const newWidth = Math.max(minWidth, Math.min(resizeStart.width + deltaX, maxAllowedWidth));
         const newHeight = Math.max(50, Math.min(resizeStart.height + deltaY, maxAllowedHeight));
         
         onUpdateComponent({

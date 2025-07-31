@@ -172,8 +172,20 @@ function generateChartData(variables: Record<string, any>) {
 function generateComponentHTML(component: TemplateComponent, variables: Record<string, any>): string {
   const { type, content, style, position } = component;
   
-  // Generate positioning and sizing styles
-  const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${style.width || 'auto'}; height: ${style.height || 'auto'};`;
+  // Scale positions from canvas dimensions (1152px) to preview dimensions (794px)
+  // Canvas: 1152px × 1632px, Preview: 794px × 1123px (A4 aspect ratio)
+  const scaleX = 794 / 1152; // ~0.689
+  const scaleY = 1123 / 1632; // ~0.688
+  
+  const scaledX = Math.max(20, Math.min(position.x * scaleX, 774)); // Keep within bounds with 20px margin
+  const scaledY = Math.max(20, position.y * scaleY);
+  
+  // Scale width and height if they exist
+  const scaledWidth = style.width ? `${parseInt(style.width.toString().replace('px', '')) * scaleX}px` : 'auto';
+  const scaledHeight = style.height ? `${parseInt(style.height.toString().replace('px', '')) * scaleY}px` : 'auto';
+  
+  // Generate positioning and sizing styles with scaled values
+  const positionStyle = `position: absolute; left: ${scaledX}px; top: ${scaledY}px; width: ${scaledWidth}; height: ${scaledHeight};`;
 
   switch (type) {
     case 'header':

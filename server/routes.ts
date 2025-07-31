@@ -636,9 +636,11 @@ function generateHTMLFromTemplate(template: any, data: any): string {
               htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 16px;"></div>`;
             }
             
-            // Add score pointer with enhanced visibility
+            // Add score pointer with enhanced visibility - positioned relative to actual bar width
             if (percentage >= 0 && percentage <= 100) {
-              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
+              // Calculate actual pixel position based on bar width instead of percentage
+              const pointerPosition = (percentage / 100) * barWidth;
+              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
             }
             
             htmlContent += `</div>`;  // Close bar container

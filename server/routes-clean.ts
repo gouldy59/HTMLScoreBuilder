@@ -554,28 +554,4 @@ export function setupRoutes(app: express.Application) {
     }
   });
 }
-
-// AI Image generation endpoint
-export function setupImageRoutes(app: express.Application) {
-  app.post("/api/generate-image", async (req, res) => {
-    try {
-      const { prompt } = req.body;
-      
-      if (!prompt || typeof prompt !== 'string') {
-        return res.status(400).json({ message: "Text prompt is required" });
-      }
-
-      if (!process.env.OPENAI_API_KEY) {
-        return res.status(400).json({ message: "OpenAI API key not configured. Please add your API key to enable image generation." });
-      }
-
-      const result = await generateImage(prompt);
-      res.json(result);
-    } catch (error) {
-      console.error('Image generation error:', error);
-      res.status(500).json({ 
-        message: error instanceof Error ? error.message : "Failed to generate image" 
-      });
-    }
-  });
 }

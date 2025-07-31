@@ -551,6 +551,18 @@ function generateHTMLFromTemplate(template: any, data: any): string {
   const components = template.components || [];
   const styles = template.styles || {};
   
+  // Calculate actual content height based on component positions
+  let maxHeight = 0;
+  components.forEach((component: any) => {
+    const position = component.position || { x: 0, y: 0 };
+    const actualHeight = component.style?.height ? parseInt(component.style.height.replace('px', '')) : 100;
+    const componentBottomY = position.y + actualHeight;
+    maxHeight = Math.max(maxHeight, componentBottomY);
+  });
+  
+  // Add some padding to the calculated height
+  const contentHeight = Math.max(maxHeight + 40, 400); // At least 400px, but expand as needed
+  
   let htmlContent = '';
   
   components.forEach((component: any) => {
@@ -918,7 +930,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         .report-container {
           position: relative; 
           width: 100%; 
-          min-height: 800px; 
+          height: ${contentHeight}px; 
           background: ${styles.reportBackground || '#ffffff'}; 
           overflow: visible;
         }

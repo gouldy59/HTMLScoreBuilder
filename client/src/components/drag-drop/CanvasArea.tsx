@@ -173,7 +173,7 @@ export function CanvasArea({
 
   return (
     <div className="flex-1 p-6 overflow-auto">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div
           ref={(el) => {
             drop(el);

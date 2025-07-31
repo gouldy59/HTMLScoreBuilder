@@ -361,6 +361,12 @@ Changelog:
   * Removed min-height: 297mm constraint and replaced with content-based height
   * Preview windows now show tight fit around content without excessive bottom padding
   * Both browser preview and exported images/PDFs now match actual content boundaries
+- July 31, 2025: Expanded page builder grid width for better component layout:
+  * Increased canvas container from max-w-4xl (896px) to max-w-6xl (1152px) for more horizontal space
+  * Expanded client-side HTML export width from 210mm to 280mm for wider preview display
+  * Updated server-side export width from 794px to 1058px for better chart rendering space
+  * Chart minimum width requirement now 529px (50% of 1058px) instead of 397px
+  * Provides more comfortable workspace for placing multiple components side-by-side
 ```
 
 # User Preferences

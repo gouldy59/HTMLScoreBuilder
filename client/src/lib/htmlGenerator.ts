@@ -32,8 +32,51 @@ export function generateHTML(
   
   sortedComponents.forEach((component) => {
     const position = component.position || { x: 0, y: 0 };
-    const actualHeight = component.style?.height ? 
-      parseInt(component.style.height.toString().replace('px', '')) : 100;
+    
+    // Get component height with better fallbacks for different component types
+    let actualHeight = 100; // default fallback
+    if (component.style?.height) {
+      actualHeight = parseInt(component.style.height.toString().replace('px', ''));
+    } else {
+      // Set default heights based on component type for better auto-splitting
+      switch(component.type) {
+        case 'bar-chart':
+        case 'column-chart':
+        case 'line-chart':
+        case 'pie-chart':
+        case 'lollipop-chart':
+        case 'nightingale-chart':
+        case 'icon-chart':
+        case 'word-cloud':
+        case 'table-chart':
+        case 'bubble-chart':
+        case 'stacked-column-chart':
+        case 'donut-chart':
+        case 'venn-diagram':
+          actualHeight = 300; // Standard chart height
+          break;
+        case 'header':
+          actualHeight = 120;
+          break;
+        case 'student-info':
+          actualHeight = 200;
+          break;
+        case 'score-table':
+          actualHeight = 250;
+          break;
+        case 'text-block':
+          actualHeight = 80;
+          break;
+        case 'container':
+          actualHeight = 200;
+          break;
+        case 'page-break':
+          actualHeight = 12;
+          break;
+        default:
+          actualHeight = 100;
+      }
+    }
     
     // Scale from canvas dimensions to preview dimensions
     const scaleX = A4_WIDTH / 1152;
@@ -43,15 +86,23 @@ export function generateHTML(
     const scaledY = position.y * scaleY;
     const scaledHeight = actualHeight * scaleY;
     
-    // Check if component fits on current page
-    const componentBottomY = currentPageHeight + scaledHeight;
+    // Improved page splitting logic
+    const componentAbsoluteY = scaledY;
+    const componentBottomY = componentAbsoluteY + scaledHeight;
+    const currentPageBottomY = currentPage * USABLE_HEIGHT;
     
-    if (componentBottomY > USABLE_HEIGHT && currentPageHeight > 0) {
-      // Move to next page
+    // Check if component extends beyond current page boundary
+    if (componentBottomY > currentPageBottomY && componentAbsoluteY < currentPageBottomY) {
+      // Component overflows current page, move to next page
       currentPage++;
       currentPageHeight = scaledHeight;
+    } else if (componentAbsoluteY >= currentPageBottomY) {
+      // Component starts on or after next page
+      currentPage = Math.ceil(componentAbsoluteY / USABLE_HEIGHT) || 1;
+      currentPageHeight = scaledHeight;
     } else {
-      currentPageHeight = Math.max(currentPageHeight, scaledY + scaledHeight - ((currentPage - 1) * USABLE_HEIGHT));
+      // Component fits on current page
+      currentPageHeight = Math.max(currentPageHeight, componentBottomY - ((currentPage - 1) * USABLE_HEIGHT));
     }
     
     // Calculate adjusted position for the current page
@@ -731,8 +782,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       </div>`;
 
     case 'page-break':
-      return `<div style="${positionStyle} page-break-before: always; height: 2px; background-color: ${style.backgroundColor || '#EF4444'}; border: 2px dashed ${style.backgroundColor || '#EF4444'}; margin: ${style.margin || '8px 0'}; display: flex; align-items: center; justify-content: center; position: relative;">
-        <span style="background-color: white; padding: 4px 8px; font-size: 12px; color: ${style.backgroundColor || '#EF4444'}; font-weight: bold; position: absolute;">
+      return `<div style="${positionStyle} page-break-before: always; height: 12px; background-color: ${style.backgroundColor || '#EF4444'}; border: 2px dashed ${style.backgroundColor || '#EF4444'}; margin: ${style.margin || '8px 0'}; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;">
+        <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: ${style.backgroundColor || '#EF4444'}; font-weight: bold; position: absolute; border-radius: 4px;">
           ${replaceVariables(content.label || 'Page Break', variables)}
         </span>
       </div>`;

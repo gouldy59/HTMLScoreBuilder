@@ -587,15 +587,15 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - use actual component dimensions
-        const chartWidth = Math.max(actualWidth - 24, 400); // Use most of component width with minimal padding
-        const chartHeight = Math.max(actualHeight - 80, 150); // Use most of component height
+        // Calculate proper chart dimensions - use maximum available space
+        const chartWidth = Math.max(actualWidth - 12, 600); // Use nearly all component width, minimum 600px
+        const chartHeight = Math.max(actualHeight - 60, 200); // Use most of component height
         
         console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, originalSize=${size.width}x${size.height}`);
         
-        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 12px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
-        htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
-        htmlContent += `<p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 6px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
+        htmlContent += `<h3 style="margin: 0 0 6px 0; font-size: 16px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
+        htmlContent += `<p style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
         
         // If no chart data, show placeholder
         if (chartData.length === 0) {
@@ -605,12 +605,12 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         } else {
           chartData.forEach((item: any, itemIndex: number) => {
             const percentage = item.scoreValue || 0;
-            htmlContent += `<div style="margin: ${itemIndex > 0 ? '18px' : '0'} 0 18px 0;">`;
+            htmlContent += `<div style="margin: ${itemIndex > 0 ? '12px' : '0'} 0 12px 0;">`;
             
             // Label and percentage row
-            htmlContent += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">`;
-            htmlContent += `<span style="font-size: 16px; font-weight: 500; color: #374151;">${item.label}</span>`;
-            htmlContent += `<span style="font-size: 16px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
+            htmlContent += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">`;
+            htmlContent += `<span style="font-size: 14px; font-weight: 500; color: #374151;">${item.label}</span>`;
+            htmlContent += `<span style="font-size: 14px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
             // Create the bar container that uses maximum available width

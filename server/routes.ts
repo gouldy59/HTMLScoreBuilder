@@ -585,8 +585,10 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
         // Calculate proper chart dimensions - use full available space
-        const chartWidth = Math.max(size.width - 48, 400); // Use most of the width with padding
+        const chartWidth = Math.max(size.width - 48, 500); // Ensure minimum width for full bars
         const chartHeight = Math.max(size.height - 100, 200); // Use most of the height with header space
+        
+        console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, componentSize=${size.width}x${size.height}`);
         
         htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
         htmlContent += `<h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
@@ -609,8 +611,9 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `</div>`;
             
             // Create the bar container that uses full available width
-            const barWidth = chartWidth - 24; // Use nearly full chart width minus small margins
-            htmlContent += `<div style="width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
+            const barWidth = Math.max(chartWidth - 0, 400); // Use full chart width, minimum 400px
+            console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px)`);
+            htmlContent += `<div style="width: 100%; max-width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {

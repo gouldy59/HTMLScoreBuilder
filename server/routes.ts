@@ -557,10 +557,13 @@ function generateHTMLFromTemplate(template: any, data: any): string {
     // Generate position style for absolute positioning like the client-side version
     const position = component.position || { x: 0, y: 0 };
     const size = component.size || { width: 200, height: 100 };
-    // Use component style dimensions if available for better sizing
-    const actualWidth = component.style?.width ? parseInt(component.style.width) : size.width;
-    const actualHeight = component.style?.height ? parseInt(component.style.height) : size.height;
-    const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${actualWidth}px; height: ${actualHeight}px;`;
+    // Use exact component style dimensions from page builder
+    const actualWidth = component.style?.width ? parseInt(component.style.width.replace('px', '')) : size.width;
+    const actualHeight = component.style?.height ? parseInt(component.style.height.replace('px', '')) : size.height;
+    
+    console.log(`Component dimensions from builder: ${component.style?.width} x ${component.style?.height} -> ${actualWidth}px x ${actualHeight}px`);
+    // Use exact dimensions from component style to match page builder display
+    const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${actualWidth}px; height: ${actualHeight}px; max-width: ${actualWidth}px; max-height: ${actualHeight}px;`;
     
     const style = component.style || {};
     switch (component.type) {

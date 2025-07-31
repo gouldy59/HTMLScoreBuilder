@@ -645,7 +645,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             // Create the bar container that fits within chart width with minimum 50% page width
             const barWidth = Math.min(chartWidth - 20, chartWidth * 0.85); // Use 85% of chart width with proper margins
             console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px, componentWidth: ${actualWidth}px)`);
-            htmlContent += `<div style="width: ${barWidth}px; height: 28px; background-color: #f3f4f6; border-radius: 14px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0 auto;">`;
+            htmlContent += `<div style="width: ${barWidth}px; height: 28px; background-color: #f3f4f6 !important; border-radius: 14px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0 auto; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
@@ -655,8 +655,8 @@ function generateHTMLFromTemplate(template: any, data: any): string {
                 const segmentWidth = segment.value || 0;
                 console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
                 
-                // Create segment div with solid background colors
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '14px 0 0 14px' : (index === item.segments.length - 1 ? '0 14px 14px 0' : '0')};">`;
+                // Create segment div with solid background colors and forced color rendering
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor} !important; border-radius: ${index === 0 ? '14px 0 0 14px' : (index === item.segments.length - 1 ? '0 14px 14px 0' : '0')}; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
                 htmlContent += `</div>`;
                 currentWidth += segmentWidth;
               });
@@ -670,7 +670,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
               // Calculate actual pixel position based on bar width instead of percentage
               const pointerPosition = (percentage / 100) * barWidth;
               console.log(`Pointer for ${item.label}: ${percentage}% = ${pointerPosition}px (barWidth: ${barWidth}px)`);
-              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
+              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #ef4444 !important; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;"></div>`;
             }
             
             htmlContent += `</div>`;  // Close bar container
@@ -925,44 +925,83 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
+          box-sizing: border-box;
         }
+        
         @page {
           size: A4;
           margin: 0.5in;
         }
         
-        body { 
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          
+          body {
+            height: 100vh;
+            min-height: 100vh;
+          }
+          
+          .report-container {
+            min-height: calc(100vh - 40px);
+            page-break-inside: avoid;
+          }
+        }
+        
+        html, body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
-          padding: 20px; 
+          padding: 0;
+          height: 100%;
+          min-height: 100vh;
           background-color: #f5f5f5;
-          height: auto;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
+        
         .report-container {
           position: relative; 
           width: 100%; 
-          height: ${contentHeight}px; 
-          background-color: ${styles.reportBackground || '#ffffff'};
-          ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
+          min-height: calc(100vh - 40px);
+          height: auto;
+          background-color: ${styles.reportBackground || '#ffffff'} !important;
+          ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''}
           overflow: visible;
+          padding: 20px;
+          margin: 20px auto;
+          max-width: 1200px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
         
-        /* Enhanced styling for chart components */
+        /* Force all background colors to render */
+        div, span, p, h1, h2, h3, h4, h5, h6 {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        /* Enhanced chart styling with forced color rendering */
         .chart-container {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
         
-        /* Ensure all colored elements render in PDF */
-        div[style*="background"] {
+        .chart-container * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
         
-        /* Force color rendering for chart segments */
-        .chart-container div {
+        /* Force segment colors to appear */
+        div[style*="background-color"] {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;

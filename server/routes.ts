@@ -539,7 +539,7 @@ export function setupRoutes(app: express.Application) {
       const imageBuffer = await page.screenshot({ 
         type: 'png',
         fullPage: false,
-        clip: { x: 0, y: 0, width: 794, height: Math.min(actualContentHeight + 40, 1123) } 
+        clip: { x: 0, y: 0, width: 1058, height: Math.min(actualContentHeight + 40, 1123) } 
       });
       
       await browser.close();
@@ -613,9 +613,9 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - ensure minimum 50% page width
-        const pageWidth = 794; // Standard A4 page width in pixels
-        const minChartWidth = pageWidth * 0.5; // 50% of page width = 397px
+        // Calculate proper chart dimensions - ensure minimum 50% page width  
+        const pageWidth = 1058; // Wider page width for better chart display
+        const minChartWidth = pageWidth * 0.5; // 50% of page width = 529px
         const chartWidth = Math.max(actualWidth - 20, minChartWidth); // Use component width or 50% page minimum
         const chartHeight = Math.max(actualHeight - 60, 150); // Use most of component height
         

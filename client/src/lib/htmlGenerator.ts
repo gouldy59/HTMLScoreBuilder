@@ -1,6 +1,11 @@
 import { TemplateComponent } from '@/types/template';
 import { replaceVariables } from './templateEngine';
 
+interface PagedComponent extends TemplateComponent {
+  pageNumber: number;
+  adjustedPosition: { x: number; y: number };
+}
+
 export function generateHTML(
   components: TemplateComponent[],
   variables: Record<string, any> = {},
@@ -8,17 +13,58 @@ export function generateHTML(
   reportBackground: string = '#ffffff',
   reportBackgroundImage: string = ''
 ): string {
-  // Calculate actual content height based on component positions
-  let maxHeight = 0;
-  components.forEach((component) => {
+  // A4 dimensions in pixels (at 96 DPI): 794px × 1123px (with margins: ~754px × 1043px usable)
+  const A4_WIDTH = 794;
+  const A4_HEIGHT = 1123;
+  const PAGE_MARGIN = 40; // 20px margin on each side
+  const USABLE_WIDTH = A4_WIDTH - (PAGE_MARGIN * 2);
+  const USABLE_HEIGHT = A4_HEIGHT - (PAGE_MARGIN * 2);
+  
+  // Sort components by Y position to process them top to bottom
+  const sortedComponents = [...components].sort((a, b) => 
+    (a.position?.y || 0) - (b.position?.y || 0)
+  );
+  
+  // Split components into pages based on A4 height limits
+  const pagedComponents: PagedComponent[] = [];
+  let currentPage = 1;
+  let currentPageHeight = 0;
+  
+  sortedComponents.forEach((component) => {
     const position = component.position || { x: 0, y: 0 };
-    const actualHeight = component.style?.height ? parseInt(component.style.height.toString().replace('px', '')) : 100;
-    const componentBottomY = position.y + actualHeight;
-    maxHeight = Math.max(maxHeight, componentBottomY);
+    const actualHeight = component.style?.height ? 
+      parseInt(component.style.height.toString().replace('px', '')) : 100;
+    
+    // Scale from canvas dimensions to preview dimensions
+    const scaleX = A4_WIDTH / 1152;
+    const scaleY = A4_HEIGHT / 1632;
+    
+    const scaledX = Math.max(20, Math.min(position.x * scaleX, USABLE_WIDTH - 20));
+    const scaledY = position.y * scaleY;
+    const scaledHeight = actualHeight * scaleY;
+    
+    // Check if component fits on current page
+    const componentBottomY = currentPageHeight + scaledHeight;
+    
+    if (componentBottomY > USABLE_HEIGHT && currentPageHeight > 0) {
+      // Move to next page
+      currentPage++;
+      currentPageHeight = scaledHeight;
+    } else {
+      currentPageHeight = Math.max(currentPageHeight, scaledY + scaledHeight - ((currentPage - 1) * USABLE_HEIGHT));
+    }
+    
+    // Calculate adjusted position for the current page
+    const adjustedY = scaledY - ((currentPage - 1) * USABLE_HEIGHT);
+    
+    pagedComponents.push({
+      ...component,
+      pageNumber: currentPage,
+      adjustedPosition: { x: scaledX, y: Math.max(20, adjustedY) }
+    });
   });
   
-  // Convert pixels to mm (roughly 3.78 pixels per mm) and add padding
-  const contentHeightMM = Math.max((maxHeight + 60) / 3.78, 150); // minimum 150mm
+  const totalPages = Math.max(1, currentPage);
   
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -91,10 +137,28 @@ export function generateHTML(
         }
         
         @media screen {
-          .report-container {
+          .report-page {
             width: 794px;
             min-height: 1123px;
             margin: 20px auto;
+            page-break-after: always;
+          }
+          
+          .report-page:last-child {
+            page-break-after: auto;
+          }
+        }
+        
+        @media print {
+          .report-page {
+            width: 210mm;
+            min-height: 297mm;
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
+          
+          .report-page:last-child {
+            page-break-after: auto;
           }
         }
         
@@ -108,16 +172,28 @@ export function generateHTML(
         }
     </style>
 </head>
-<body>
-<div class="report-container">`;
+<body>`;
 
-  // Use absolute positioning to match builder layout  
-  components.forEach(component => {
-    html += generateComponentHTML(component, variables);
-  });
+  // Generate pages with components
+  for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+    const pageComponents = pagedComponents.filter(comp => comp.pageNumber === pageNum);
+    
+    html += `
+<div class="report-page" style="position: relative; width: 210mm; min-height: 297mm; height: auto; background-color: ${reportBackground} !important; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''} overflow: visible; padding: 20px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
+    
+    pageComponents.forEach(component => {
+      html += generatePagedComponentHTML(component, variables);
+    });
+    
+    // Add page number footer
+    if (totalPages > 1) {
+      html += `<div style="position: absolute; bottom: 10px; right: 20px; font-size: 12px; color: #666;">Page ${pageNum} of ${totalPages}</div>`;
+    }
+    
+    html += `</div>`;
+  }
 
   html += `
-</div>
 </body>
 </html>`;
 
@@ -169,23 +245,17 @@ function generateChartData(variables: Record<string, any>) {
   };
 }
 
-function generateComponentHTML(component: TemplateComponent, variables: Record<string, any>): string {
-  const { type, content, style, position } = component;
+function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: Record<string, any>): string {
+  const { type, content, style, adjustedPosition } = pagedComponent;
   
-  // Scale positions from canvas dimensions (1152px) to preview dimensions (794px)
-  // Canvas: 1152px × 1632px, Preview: 794px × 1123px (A4 aspect ratio)
-  const scaleX = 794 / 1152; // ~0.689
-  const scaleY = 1123 / 1632; // ~0.688
+  // Use the pre-calculated adjusted position for this page
+  const scaledWidth = style?.width ? 
+    `${parseInt(style.width.toString().replace('px', '')) * (794 / 1152)}px` : 'auto';
+  const scaledHeight = style?.height ? 
+    `${parseInt(style.height.toString().replace('px', '')) * (1123 / 1632)}px` : 'auto';
   
-  const scaledX = Math.max(20, Math.min(position.x * scaleX, 774)); // Keep within bounds with 20px margin
-  const scaledY = Math.max(20, position.y * scaleY);
-  
-  // Scale width and height if they exist
-  const scaledWidth = style.width ? `${parseInt(style.width.toString().replace('px', '')) * scaleX}px` : 'auto';
-  const scaledHeight = style.height ? `${parseInt(style.height.toString().replace('px', '')) * scaleY}px` : 'auto';
-  
-  // Generate positioning and sizing styles with scaled values
-  const positionStyle = `position: absolute; left: ${scaledX}px; top: ${scaledY}px; width: ${scaledWidth}; height: ${scaledHeight};`;
+  // Generate positioning and sizing styles with page-adjusted values
+  const positionStyle = `position: absolute; left: ${adjustedPosition.x}px; top: ${adjustedPosition.y}px; width: ${scaledWidth}; height: ${scaledHeight};`;
 
   switch (type) {
     case 'header':

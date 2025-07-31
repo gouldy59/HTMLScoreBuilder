@@ -590,11 +590,13 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - use actual component dimensions
-        const chartWidth = Math.max(actualWidth - 20, 200); // Use component width with small padding
+        // Calculate proper chart dimensions - ensure minimum 50% page width
+        const pageWidth = 794; // Standard A4 page width in pixels
+        const minChartWidth = pageWidth * 0.5; // 50% of page width = 397px
+        const chartWidth = Math.max(actualWidth - 20, minChartWidth); // Use component width or 50% page minimum
         const chartHeight = Math.max(actualHeight - 60, 150); // Use most of component height
         
-        console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, originalSize=${size.width}x${size.height}`);
+        console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, minRequired=${minChartWidth}px (50% page)`);
         
         htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 10px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
         htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
@@ -616,8 +618,8 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `<span style="font-size: 14px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container that fits within chart width
-            const barWidth = Math.min(chartWidth - 10, chartWidth * 0.9); // Use 90% of chart width with margin
+            // Create the bar container that fits within chart width with minimum 50% page width
+            const barWidth = Math.min(chartWidth - 20, chartWidth * 0.85); // Use 85% of chart width with proper margins
             console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px, componentWidth: ${actualWidth}px)`);
             htmlContent += `<div style="width: ${barWidth}px; height: 28px; background-color: #f3f4f6; border-radius: 14px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0 auto;">`;
             

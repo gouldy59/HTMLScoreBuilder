@@ -557,7 +557,10 @@ function generateHTMLFromTemplate(template: any, data: any): string {
     // Generate position style for absolute positioning like the client-side version
     const position = component.position || { x: 0, y: 0 };
     const size = component.size || { width: 200, height: 100 };
-    const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${size.width}px; height: ${size.height}px;`;
+    // Use component style dimensions if available for better sizing
+    const actualWidth = component.style?.width ? parseInt(component.style.width) : size.width;
+    const actualHeight = component.style?.height ? parseInt(component.style.height) : size.height;
+    const positionStyle = `position: absolute; left: ${position.x}px; top: ${position.y}px; width: ${actualWidth}px; height: ${actualHeight}px;`;
     
     const style = component.style || {};
     switch (component.type) {
@@ -584,11 +587,11 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - use full available space
-        const chartWidth = Math.max(size.width - 48, 500); // Ensure minimum width for full bars
-        const chartHeight = Math.max(size.height - 100, 200); // Use most of the height with header space
+        // Calculate proper chart dimensions - use actual component dimensions
+        const chartWidth = Math.max(actualWidth - 48, 500); // Use actual component width
+        const chartHeight = Math.max(actualHeight - 100, 200); // Use actual component height
         
-        console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, componentSize=${size.width}x${size.height}`);
+        console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, originalSize=${size.width}x${size.height}`);
         
         htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
         htmlContent += `<h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;

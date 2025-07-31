@@ -24,6 +24,7 @@ import { DonutChartComponent } from '../template-components/DonutChartComponent'
 import { VennDiagramComponent } from '../template-components/VennDiagramComponent';
 import { ImageComponent } from '../template-components/ImageComponent';
 import { QRCodeComponent } from '../template-components/QRCodeComponent';
+import { PageBreakComponent } from '../template-components/PageBreakComponent';
 
 
 interface CanvasAreaProps {
@@ -152,6 +153,9 @@ export function CanvasArea({
         break;
       case 'spacer':
         componentElement = <SpacerComponent {...commonProps} />;
+        break;
+      case 'page-break':
+        componentElement = <PageBreakComponent {...commonProps} />;
         break;
       default:
         return null;

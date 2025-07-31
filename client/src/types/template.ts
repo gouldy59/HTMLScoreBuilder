@@ -416,6 +416,22 @@ export const COMPONENT_TYPES: ComponentType[] = [
     defaultStyle: {
       height: '32px'
     }
+  },
+  {
+    id: 'page-break',
+    name: 'Page Break',
+    icon: 'fas fa-file-contract',
+    category: 'layout',
+    description: 'Force a new page to start here',
+    defaultContent: {
+      label: 'Page Break'
+    },
+    defaultStyle: {
+      height: '2px',
+      backgroundColor: '#EF4444',
+      margin: '8px 0',
+      borderStyle: 'dashed'
+    }
   }
 ];
 

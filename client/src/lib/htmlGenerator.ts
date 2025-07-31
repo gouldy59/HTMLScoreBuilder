@@ -302,11 +302,11 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       return tableHTML;
 
     case 'bar-chart':
-      const horizontalChartData = component.content.chartData || [];
-      const title = replaceVariables(component.content.title || '主要领域', variables);
-      const subtitle = replaceVariables(component.content.subtitle || '您在各个主要领域的表现', variables);
-      const showPercentages = component.content.showPercentages !== false;
-      const wrapLabels = component.content.wrapLabels === true;
+      const horizontalChartData = content.chartData || [];
+      const title = replaceVariables(content.title || '主要领域', variables);
+      const subtitle = replaceVariables(content.subtitle || '您在各个主要领域的表现', variables);
+      const showPercentages = content.showPercentages !== false;
+      const wrapLabels = content.wrapLabels === true;
       
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
@@ -578,7 +578,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       }
       
       // Render child components if they exist
-      if (component.children && component.children.length > 0) {
+      if ((component as any).children && (component as any).children.length > 0) {
         const layoutDirection = content.layoutDirection || 'vertical';
         const spacing = content.itemSpacing || 'medium';
         
@@ -599,8 +599,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
         
         containerHTML += `<div style="${layoutStyle}">`;
-        component.children.forEach((child: any) => {
-          containerHTML += generateComponentHTML(child, variables);
+        (component as any).children.forEach((child: any) => {
+          containerHTML += generatePagedComponentHTML(child, variables);
         });
         containerHTML += `</div>`;
       } else {
@@ -614,7 +614,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'lollipop-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Lollipop Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Lollipop Chart', variables)}</h3>
         <div class="space-y-3">
           <div class="flex items-center gap-3">
             <div class="w-20 text-sm font-medium text-gray-700">Math</div>
@@ -629,7 +629,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'nightingale-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Nightingale Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Nightingale Chart', variables)}</h3>
         <div class="flex items-center justify-center h-48">
           <svg width="200" height="200" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="1" />
@@ -641,7 +641,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'icon-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Icon Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Icon Chart', variables)}</h3>
         <div class="grid grid-cols-2 gap-4">
           <div class="text-center">
             <div class="text-2xl mb-2">👨‍🎓</div>
@@ -653,7 +653,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'word-cloud':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Word Cloud', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Word Cloud', variables)}</h3>
         <div class="flex flex-wrap items-center justify-center gap-2 h-48">
           <span style="font-size: 24px; color: #3B82F6; font-weight: bold;">Excellence</span>
           <span style="font-size: 20px; color: #10B981; font-weight: bold;">Achievement</span>
@@ -663,7 +663,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'table-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Performance Table', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Performance Table', variables)}</h3>
         <table class="w-full border-collapse border border-gray-300">
           <thead>
             <tr class="bg-gray-50">
@@ -680,7 +680,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'bubble-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Bubble Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Bubble Chart', variables)}</h3>
         <div class="relative h-48 bg-gray-50 rounded-lg">
           <svg width="100%" height="100%" viewBox="0 0 100 100">
             <circle cx="20" cy="30" r="5" fill="#3B82F6" opacity="0.7" />
@@ -691,7 +691,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'stacked-column-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Stacked Column Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Stacked Column Chart', variables)}</h3>
         <div class="h-48 flex items-end justify-center gap-4">
           <div class="flex flex-col items-center">
             <div class="w-12 flex flex-col" style="height: 120px;">
@@ -706,7 +706,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'donut-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Donut Chart', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Donut Chart', variables)}</h3>
         <div class="flex items-center justify-center">
           <svg width="200" height="160" viewBox="0 0 200 160">
             <path d="M 100 80 L 100 10 A 70 70 0 0 1 170 80 L 135 80 A 35 35 0 0 0 100 45 Z" fill="#3B82F6" opacity="0.8" />
@@ -718,7 +718,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
     case 'venn-diagram':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(component.content.title || 'Venn Diagram', variables)}</h3>
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Venn Diagram', variables)}</h3>
         <div class="flex items-center justify-center h-48">
           <svg width="240" height="180" viewBox="0 0 240 180">
             <circle cx="80" cy="90" r="50" fill="#3B82F6" opacity="0.6" stroke="#3B82F6" stroke-width="2" />

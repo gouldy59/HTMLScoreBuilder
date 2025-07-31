@@ -600,7 +600,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         } else {
           chartData.forEach((item: any, itemIndex: number) => {
             const percentage = item.scoreValue || 0;
-            htmlContent += `<div style="margin: ${itemIndex > 0 ? '24px' : '0'} 0 24px 0;">`;
+            htmlContent += `<div style="margin: ${itemIndex > 0 ? '18px' : '0'} 0 18px 0;">`;
             
             // Label and percentage row
             htmlContent += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">`;
@@ -609,8 +609,8 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `</div>`;
             
             // Create the bar container that uses full available width
-            const barWidth = Math.max(chartWidth - 48, 300); // Use most available width
-            htmlContent += `<div style="width: ${barWidth}px; height: 56px; background-color: #f3f4f6; border-radius: 28px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
+            const barWidth = chartWidth - 24; // Use nearly full chart width minus small margins
+            htmlContent += `<div style="width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
@@ -621,18 +621,18 @@ function generateHTMLFromTemplate(template: any, data: any): string {
                 console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
                 
                 // Create segment div with solid background colors
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '28px 0 0 28px' : (index === item.segments.length - 1 ? '0 28px 28px 0' : '0')};">`;
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '16px 0 0 16px' : (index === item.segments.length - 1 ? '0 16px 16px 0' : '0')};">`;
                 htmlContent += `</div>`;
                 currentWidth += segmentWidth;
               });
             } else {
               // Fallback: create a simple progress bar if no segments
-              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 28px;"></div>`;
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 16px;"></div>`;
             }
             
             // Add score pointer with enhanced visibility
             if (percentage >= 0 && percentage <= 100) {
-              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 18px; height: 18px; background-color: #ef4444; border-radius: 50%; border: 3px solid white; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`;
+              htmlContent += `<div style="position: absolute; left: ${percentage}%; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
             }
             
             htmlContent += `</div>`;  // Close bar container

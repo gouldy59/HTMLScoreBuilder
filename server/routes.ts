@@ -556,6 +556,16 @@ export function setupRoutes(app: express.Application) {
 }
 
 // Helper function to generate HTML from template
+// Helper function to convert hex color to RGB
+function hexToRgb(hex: string): {r: number, g: number, b: number} | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
 function generateHTMLFromTemplate(template: any, data: any): string {
   const components = template.components || [];
   const styles = template.styles || {};
@@ -655,8 +665,10 @@ function generateHTMLFromTemplate(template: any, data: any): string {
                 const segmentWidth = segment.value || 0;
                 console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
                 
-                // Create segment div with solid background colors and forced color rendering
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor} !important; border-radius: ${index === 0 ? '14px 0 0 14px' : (index === item.segments.length - 1 ? '0 14px 14px 0' : '0')}; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
+                // Create segment div with background colors using both background-color and backup background-image
+                const rgbColor = hexToRgb(segmentColor);
+                const backgroundImage = `data:image/svg+xml;base64,${Buffer.from(`<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${segmentColor}"/></svg>`).toString('base64')}`;
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor} !important; background-image: url('${backgroundImage}'); background-size: cover; border-radius: ${index === 0 ? '14px 0 0 14px' : (index === item.segments.length - 1 ? '0 14px 14px 0' : '0')}; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
                 htmlContent += `</div>`;
                 currentWidth += segmentWidth;
               });
@@ -670,7 +682,8 @@ function generateHTMLFromTemplate(template: any, data: any): string {
               // Calculate actual pixel position based on bar width instead of percentage
               const pointerPosition = (percentage / 100) * barWidth;
               console.log(`Pointer for ${item.label}: ${percentage}% = ${pointerPosition}px (barWidth: ${barWidth}px)`);
-              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #ef4444 !important; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;"></div>`;
+              const redPointerImage = `data:image/svg+xml;base64,${Buffer.from(`<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="5" fill="#ef4444" stroke="white" stroke-width="2"/></svg>`).toString('base64')}`;
+              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #ef4444 !important; background-image: url('${redPointerImage}'); background-size: cover; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;"></div>`;
             }
             
             htmlContent += `</div>`;  // Close bar container
@@ -965,19 +978,26 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         
         .report-container {
           position: relative; 
-          width: 100%; 
-          min-height: calc(100vh - 40px);
+          width: 210mm;
+          min-height: 297mm;
           height: auto;
           background-color: ${styles.reportBackground || '#ffffff'} !important;
           ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''}
           overflow: visible;
           padding: 20px;
-          margin: 20px auto;
-          max-width: 1200px;
+          margin: 0 auto;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
+        }
+        
+        @media screen {
+          .report-container {
+            width: 794px;
+            min-height: 1123px;
+            margin: 20px auto;
+          }
         }
         
         /* Force all background colors to render */

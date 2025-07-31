@@ -934,15 +934,15 @@ function generateHTMLFromTemplate(template: any, data: any): string {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
           margin: 0; 
           padding: 20px; 
-          background-color: ${styles.reportBackground || '#ffffff'};
-          ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
+          background-color: #f5f5f5;
           height: auto;
         }
         .report-container {
           position: relative; 
           width: 100%; 
           height: ${contentHeight}px; 
-          background: ${styles.reportBackground || '#ffffff'}; 
+          background-color: ${styles.reportBackground || '#ffffff'};
+          ${styles.reportBackgroundImage ? `background-image: url('${styles.reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
           overflow: visible;
         }
         

@@ -367,6 +367,11 @@ Changelog:
   * Updated server-side export width from 794px to 1058px for better chart rendering space
   * Chart minimum width requirement now 529px (50% of 1058px) instead of 397px
   * Provides more comfortable workspace for placing multiple components side-by-side
+- July 31, 2025: Fixed background image application in HTML preview:
+  * Background images now apply to the report container instead of the HTML body
+  * Body background set to neutral gray (#f5f5f5) to provide contrast around the report
+  * Report container properly displays background images and colors as intended
+  * Both client-side preview and server-side exports now consistently apply backgrounds to the report area
 ```
 
 # User Preferences

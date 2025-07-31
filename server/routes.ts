@@ -587,15 +587,15 @@ function generateHTMLFromTemplate(template: any, data: any): string {
         const chartData = component.content?.chartData || [];
         console.log('Chart data for PDF generation:', JSON.stringify(chartData, null, 2));
         
-        // Calculate proper chart dimensions - use maximum available space
-        const chartWidth = Math.max(actualWidth - 12, 600); // Use nearly all component width, minimum 600px
-        const chartHeight = Math.max(actualHeight - 60, 200); // Use most of component height
+        // Calculate proper chart dimensions - use actual component dimensions
+        const chartWidth = Math.max(actualWidth - 20, 200); // Use component width with small padding
+        const chartHeight = Math.max(actualHeight - 60, 150); // Use most of component height
         
         console.log(`Chart dimensions: width=${chartWidth}, height=${chartHeight}, actualSize=${actualWidth}x${actualHeight}, originalSize=${size.width}x${size.height}`);
         
-        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 6px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
-        htmlContent += `<h3 style="margin: 0 0 6px 0; font-size: 16px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
-        htmlContent += `<p style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
+        htmlContent += `<div class="chart-container" style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 10px; border-radius: 8px; overflow: visible; box-sizing: border-box; width: 100%; height: 100%;">`;
+        htmlContent += `<h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">${component.content?.title || 'Chart'}</h3>`;
+        htmlContent += `<p style="margin: 0 0 12px 0; font-size: 13px; color: #6b7280;">${component.content?.subtitle || ''}</p>`;
         
         // If no chart data, show placeholder
         if (chartData.length === 0) {
@@ -613,10 +613,10 @@ function generateHTMLFromTemplate(template: any, data: any): string {
             htmlContent += `<span style="font-size: 14px; font-weight: 600; color: #1f2937;">${percentage}%</span>`;
             htmlContent += `</div>`;
             
-            // Create the bar container that uses maximum available width
-            const barWidth = chartWidth; // Use full chart width
-            console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px)`);
-            htmlContent += `<div style="width: ${barWidth}px; height: 32px; background-color: #f3f4f6; border-radius: 16px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0;">`;
+            // Create the bar container that fits within chart width
+            const barWidth = Math.min(chartWidth - 10, chartWidth * 0.9); // Use 90% of chart width with margin
+            console.log(`Bar width: ${barWidth}px (chartWidth: ${chartWidth}px, componentWidth: ${actualWidth}px)`);
+            htmlContent += `<div style="width: ${barWidth}px; height: 28px; background-color: #f3f4f6; border-radius: 14px; position: relative; overflow: hidden; border: 1px solid #e5e7eb; margin: 0 auto;">`;
             
             // Create segments if they exist
             if (item.segments && item.segments.length > 0) {
@@ -627,13 +627,13 @@ function generateHTMLFromTemplate(template: any, data: any): string {
                 console.log(`Segment ${index}: color=${segmentColor}, width=${segmentWidth}%, left=${currentWidth}%`);
                 
                 // Create segment div with solid background colors
-                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '16px 0 0 16px' : (index === item.segments.length - 1 ? '0 16px 16px 0' : '0')};">`;
+                htmlContent += `<div style="position: absolute; left: ${currentWidth}%; width: ${segmentWidth}%; height: 100%; background-color: ${segmentColor}; border-radius: ${index === 0 ? '14px 0 0 14px' : (index === item.segments.length - 1 ? '0 14px 14px 0' : '0')};">`;
                 htmlContent += `</div>`;
                 currentWidth += segmentWidth;
               });
             } else {
               // Fallback: create a simple progress bar if no segments
-              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 16px;"></div>`;
+              htmlContent += `<div style="position: absolute; left: 0%; width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #3B82F6; border-radius: 14px;"></div>`;
             }
             
             // Add score pointer with enhanced visibility - positioned relative to actual bar width
@@ -641,7 +641,7 @@ function generateHTMLFromTemplate(template: any, data: any): string {
               // Calculate actual pixel position based on bar width instead of percentage
               const pointerPosition = (percentage / 100) * barWidth;
               console.log(`Pointer for ${item.label}: ${percentage}% = ${pointerPosition}px (barWidth: ${barWidth}px)`);
-              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 14px; height: 14px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
+              htmlContent += `<div style="position: absolute; left: ${pointerPosition}px; top: 50%; transform: translateX(-50%) translateY(-50%); width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`;
             }
             
             htmlContent += `</div>`;  // Close bar container

@@ -29,16 +29,87 @@ export function generateHTML(
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .print-only { display: none; }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          box-sizing: border-box;
+        }
+        
+        @page {
+          size: A4;
+          margin: 0.5in;
+        }
+        
         @media print {
-            .no-print { display: none; }
-            .print-only { display: block; }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          
+          body {
+            height: 100vh;
+            min-height: 100vh;
+          }
+          
+          .report-container {
+            min-height: calc(100vh - 40px);
+            page-break-inside: avoid;
+          }
+          
+          .no-print { display: none; }
+          .print-only { display: block; }
+        }
+        
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+          margin: 0; 
+          padding: 0;
+          height: 100%;
+          min-height: 100vh;
+          background-color: #f5f5f5;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        .report-container {
+          position: relative; 
+          width: 210mm;
+          min-height: 297mm;
+          height: auto;
+          background-color: ${reportBackground} !important;
+          ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''}
+          overflow: visible;
+          padding: 20px;
+          margin: 0 auto;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        @media screen {
+          .report-container {
+            width: 794px;
+            min-height: 1123px;
+            margin: 20px auto;
+          }
+        }
+        
+        .print-only { display: none; }
+        
+        /* Force all background colors to render */
+        div, span, p, h1, h2, h3, h4, h5, h6 {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
     </style>
 </head>
-<body style="margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; background-color: #f5f5f5;">
-<div class="report-container" style="position: relative; width: 280mm; height: ${contentHeightMM}mm; background-color: ${reportBackground}; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''} box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">`;
+<body>
+<div class="report-container">`;
 
   // Use absolute positioning to match builder layout  
   components.forEach(component => {

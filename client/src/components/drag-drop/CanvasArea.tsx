@@ -173,16 +173,18 @@ export function CanvasArea({
 
   return (
     <div className="flex-1 p-6 overflow-auto">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div
           ref={(el) => {
             drop(el);
             canvasRef.current = el;
           }}
-          className={`rounded-lg shadow-sm border border-gray-200 min-h-[800px] relative overflow-hidden ${
+          className={`rounded-lg shadow-sm border border-gray-200 relative overflow-hidden mx-auto ${
             isOver ? 'border-blue-400 bg-blue-50' : ''
           }`}
           style={{
+            width: '1152px', // Increased canvas width for better workspace
+            height: '1632px', // A4 aspect ratio (√2 × width) for proper page preview
             backgroundColor: reportBackground,
             backgroundImage: reportBackgroundImage 
               ? `url("${reportBackgroundImage}"), linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
@@ -210,7 +212,8 @@ export function CanvasArea({
             </div>
           ) : (
             <div 
-              className="w-full h-full min-h-[800px] relative"
+              className="w-full h-full relative"
+              style={{ minHeight: '1632px' }}
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   onSelectComponent('');

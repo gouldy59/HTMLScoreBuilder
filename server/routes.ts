@@ -17,6 +17,13 @@ const createVersionSchema = createInsertSchema(templates).pick({
   changeDescription: true 
 });
 
+// Simple variable replacement function
+function replaceVariables(text: string, variables: Record<string, any>): string {
+  return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+    return variables[varName] !== undefined ? String(variables[varName]) : match;
+  });
+}
+
 // Simple HTML generator function for server-side use
 function generateTemplateHTML(components: any[], variables: Record<string, any> = {}, templateName: string = 'Generated Report', reportBackground: string = '#ffffff', reportBackgroundImage: string = ''): string {
   const A4_WIDTH = 794;
@@ -75,28 +82,47 @@ function generateTemplateHTML(components: any[], variables: Record<string, any> 
     
     switch (component.type) {
       case 'header':
+        const headerTitle = replaceVariables(content.title || 'Header', variables);
+        const headerSubtitle = content.subtitle ? replaceVariables(content.subtitle, variables) : '';
         html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#DBEAFE'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px;">
-          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">${content.title || 'Header'}</h1>
-          ${content.subtitle ? `<p style="font-size: 16px; opacity: 0.8;">${content.subtitle}</p>` : ''}
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">${headerTitle}</h1>
+          ${headerSubtitle ? `<p style="font-size: 16px; opacity: 0.8;">${headerSubtitle}</p>` : ''}
         </div>`;
         break;
       case 'text-block':
+        const textContent = replaceVariables(content.text || 'Text content', variables);
         html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'}; padding: 16px; border-radius: 4px;">
-          <p style="margin: 0;">${content.text || 'Text content'}</p>
+          <p style="margin: 0;">${textContent}</p>
         </div>`;
         break;
+      case 'student-info':
+        let studentInfoHtml = `<div style="${positionStyle} background-color: ${style.backgroundColor || '#F0FDF4'}; color: ${style.textColor || '#1F2937'}; padding: 16px; border-radius: 8px;">
+          <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Student Information</h3>`;
+        
+        if (content.fields) {
+          Object.entries(content.fields).forEach(([label, value]: [string, any]) => {
+            const processedValue = replaceVariables(String(value), variables);
+            studentInfoHtml += `<div style="margin-bottom: 8px;"><strong>${label}:</strong> ${processedValue}</div>`;
+          });
+        }
+        
+        studentInfoHtml += `</div>`;
+        html += studentInfoHtml;
+        break;
       case 'bar-chart':
+        const chartTitle = replaceVariables(content.title || 'Chart Title', variables);
         html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-          <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">${content.title || 'Chart Title'}</h3>
+          <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">${chartTitle}</h3>
           <div style="background-color: #f3f4f6; height: 200px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
             <p style="color: #6b7280;">Chart rendering placeholder</p>
           </div>
         </div>`;
         break;
       case 'page-break':
+        const pageBreakLabel = replaceVariables(content.label || 'Page Break', variables);
         html += `<div style="${positionStyle} page-break-before: always; height: 12px; background-color: #EF4444; border: 2px dashed #EF4444; margin: 8px 0; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;">
           <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: #EF4444; font-weight: bold; position: absolute; border-radius: 4px;">
-            ${content.label || 'Page Break'}
+            ${pageBreakLabel}
           </span>
         </div>`;
         break;

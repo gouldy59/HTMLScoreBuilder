@@ -122,7 +122,8 @@ export function setupRoutes(app: express.Application) {
       const templates = await storage.getAllTemplates();
       res.json(templates);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch templates" });
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ message: "Failed to fetch templates", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -167,10 +168,11 @@ export function setupRoutes(app: express.Application) {
       const template = await storage.createTemplate(validation.data);
       res.status(201).json(template);
     } catch (error: any) {
+      console.error("Error creating template:", error);
       if (error.message && error.message.includes('already exists')) {
         return res.status(409).json({ message: error.message });
       }
-      res.status(500).json({ message: "Failed to create template" });
+      res.status(500).json({ message: "Failed to create template", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 

@@ -642,4 +642,102 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Create storage instance with some sample data
+const memStorage = new MemStorage();
+
+// Add sample templates for demonstration
+(async () => {
+  try {
+    await memStorage.createTemplate({
+      name: "Student Score Report",
+      description: "Template for academic score reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "{{studentName}} - Academic Score Report",
+            subtitle: "Academic Year {{academicYear}} • Grade {{grade}}"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937",
+            fontSize: "large",
+            width: "400px",
+            height: "120px"
+          },
+          position: { x: 401.5, y: 34 }
+        },
+        {
+          id: "component-2",
+          type: "student-info",
+          content: {
+            fields: {
+              "Student Name": "{{studentName}}",
+              "Student ID": "{{studentId}}",
+              "Class": "{{className}}",
+              "Teacher": "{{teacherName}}"
+            }
+          },
+          style: {
+            backgroundColor: "#F0FDF4",
+            textColor: "#1F2937",
+            width: "350px",
+            height: "200px"
+          },
+          position: { x: 428.5, y: 237 }
+        },
+        {
+          id: "component-3",
+          type: "text-block",
+          content: {
+            text: "This report shows the academic performance for {{studentName}} in the {{academicYear}} academic year."
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+            textColor: "#1F2937"
+          },
+          position: { x: 50, y: 500 }
+        }
+      ],
+      variables: {
+        studentName: "Sample Student",
+        academicYear: "2024-2025",
+        grade: "10",
+        studentId: "12345",
+        className: "10A",
+        teacherName: "Ms. Smith"
+      },
+      styles: {
+        reportBackground: "#ffffff",
+        reportBackgroundImage: ""
+      }
+    });
+    
+    await memStorage.createTemplate({
+      name: "Simple Report Template",
+      description: "Basic template for reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "Report Title",
+            subtitle: "Report Subtitle"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937"
+          },
+          position: { x: 100, y: 50 }
+        }
+      ],
+      variables: {},
+      styles: {}
+    });
+  } catch (error) {
+    console.log("Sample data already exists or error creating:", error);
+  }
+})();
+
+export const storage = memStorage;

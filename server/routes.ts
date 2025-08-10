@@ -5,6 +5,7 @@ import { storage } from './storage';
 import pdf from 'html-pdf-node';
 import puppeteer from 'puppeteer';
 import { generateImage } from './openai';
+// We'll create a simple HTML generator function here instead of importing from client
 
 const createTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true, updatedAt: true });
 const createVersionSchema = createInsertSchema(templates).pick({ 
@@ -15,6 +16,104 @@ const createVersionSchema = createInsertSchema(templates).pick({
   styles: true,
   changeDescription: true 
 });
+
+// Simple HTML generator function for server-side use
+function generateTemplateHTML(components: any[], variables: Record<string, any> = {}, templateName: string = 'Generated Report', reportBackground: string = '#ffffff', reportBackgroundImage: string = ''): string {
+  const A4_WIDTH = 794;
+  const A4_HEIGHT = 1123;
+  
+  let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${templateName}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          box-sizing: border-box;
+        }
+        
+        @page {
+          size: A4;
+          margin: 0.5in;
+        }
+        
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+          margin: 0; 
+          padding: 0;
+          background-color: #f5f5f5;
+        }
+        
+        .report-page {
+          width: 794px;
+          min-height: 1123px;
+          margin: 0 auto 20px auto;
+          background-color: ${reportBackground};
+          ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          position: relative;
+          padding: 20px;
+        }
+    </style>
+</head>
+<body>
+  <div class="report-page">`;
+
+  // Render components
+  (components || []).forEach((component: any) => {
+    const position = component.position || { x: 0, y: 0 };
+    const style = component.style || {};
+    const content = component.content || {};
+    
+    const positionStyle = `position: absolute; left: ${position.x * 0.69}px; top: ${position.y * 0.69}px; width: ${style.width || 'auto'}; height: ${style.height || 'auto'};`;
+    
+    switch (component.type) {
+      case 'header':
+        html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#DBEAFE'}; color: ${style.textColor || '#1F2937'}; padding: 24px; border-radius: 8px;">
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">${content.title || 'Header'}</h1>
+          ${content.subtitle ? `<p style="font-size: 16px; opacity: 0.8;">${content.subtitle}</p>` : ''}
+        </div>`;
+        break;
+      case 'text-block':
+        html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#FFFFFF'}; color: ${style.textColor || '#1F2937'}; padding: 16px; border-radius: 4px;">
+          <p style="margin: 0;">${content.text || 'Text content'}</p>
+        </div>`;
+        break;
+      case 'bar-chart':
+        html += `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
+          <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">${content.title || 'Chart Title'}</h3>
+          <div style="background-color: #f3f4f6; height: 200px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+            <p style="color: #6b7280;">Chart rendering placeholder</p>
+          </div>
+        </div>`;
+        break;
+      case 'page-break':
+        html += `<div style="${positionStyle} page-break-before: always; height: 12px; background-color: #EF4444; border: 2px dashed #EF4444; margin: 8px 0; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;">
+          <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: #EF4444; font-weight: bold; position: absolute; border-radius: 4px;">
+            ${content.label || 'Page Break'}
+          </span>
+        </div>`;
+        break;
+      default:
+        html += `<div style="${positionStyle} padding: 16px; border: 2px dashed #d1d5db; border-radius: 8px;">
+          <p style="color: #9ca3af;">Component: ${component.type}</p>
+        </div>`;
+    }
+  });
+  
+  html += `
+  </div>
+</body>
+</html>`;
+  
+  return html;
+}
 
 export function setupRoutes(app: express.Application) {
   // Template CRUD routes
@@ -280,7 +379,13 @@ export function setupRoutes(app: express.Application) {
       const templateData = req.body || {};
       
       // Generate HTML using template components and provided data
-      const html = generateHTMLFromTemplate(template, templateData);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        templateData,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       res.setHeader('Content-Type', 'text/html');
       res.send(html);
@@ -303,7 +408,13 @@ export function setupRoutes(app: express.Application) {
       }
 
       const templateData = req.body?.data || {};
-      const html = generateHTMLFromTemplate(template, templateData);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        templateData,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       // Generate PDF using Puppeteer directly (more reliable than html-pdf-node)
       const browser = await puppeteer.launch({
@@ -363,7 +474,13 @@ export function setupRoutes(app: express.Application) {
       }
 
       const templateData = req.body?.data || {};
-      const html = generateHTMLFromTemplate(template, templateData);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        templateData,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       // Generate image using Puppeteer
       const browser = await puppeteer.launch({
@@ -420,7 +537,13 @@ export function setupRoutes(app: express.Application) {
       }
 
       // Generate HTML using template components and provided data
-      const html = generateHTMLFromTemplate(template, data);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        data,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       res.setHeader('Content-Type', 'text/html');
       res.setHeader('Content-Disposition', `attachment; filename="template_${templateId}.html"`);
@@ -444,7 +567,13 @@ export function setupRoutes(app: express.Application) {
         return res.status(404).json({ message: "Template not found" });
       }
 
-      const html = generateHTMLFromTemplate(template, data);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        data,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       // Generate PDF using Puppeteer directly (more reliable than html-pdf-node)
       const browser = await puppeteer.launch({
@@ -504,7 +633,13 @@ export function setupRoutes(app: express.Application) {
         return res.status(404).json({ message: "Template not found" });
       }
 
-      const html = generateHTMLFromTemplate(template, data);
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        data,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
       
       // Generate image using Puppeteer
       const browser = await puppeteer.launch({

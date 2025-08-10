@@ -65,15 +65,18 @@ export function TemplateManager() {
   });
 
   // Transform raw templates into template families
-  const templateFamilies: TemplateFamily[] = rawTemplates.map(template => ({
-    familyId: template.id,
-    name: template.name,
-    description: template.description,
-    totalVersions: 1, // Since we're only getting latest versions
-    latestVersion: template,
+  const templateFamilies: TemplateFamily[] = rawTemplates.map((template, index) => ({
+    familyId: template.familyId || template.id || index + 1, // Ensure familyId is always available
+    name: template.name || 'Unnamed Template',
+    description: template.description || '',
+    totalVersions: template.totalVersions || 1, // Since we're only getting latest versions
+    latestVersion: {
+      ...template.latestVersion || template,
+      id: template.latestVersion?.id || template.id || index + 1 // Ensure ID is always available
+    },
     createdAt: template.createdAt,
     updatedAt: template.updatedAt,
-    isPublished: template.isPublished,
+    isPublished: template.isPublished || false,
     publishedAt: template.publishedAt || undefined
   }));
 
@@ -103,7 +106,17 @@ export function TemplateManager() {
   const paginatedFamilies = filteredFamilies.slice(startIndex, startIndex + itemsPerPage);
 
   const handleEdit = (family: TemplateFamily) => {
-    setLocation(`/builder?templateId=${family.latestVersion.id}`);
+    const templateId = family.latestVersion?.id || family.familyId;
+    console.log('Editing template:', templateId, 'from family:', family);
+    if (templateId) {
+      setLocation(`/builder?templateId=${templateId}`);
+    } else {
+      toast({
+        title: "Cannot edit template",
+        description: "Template ID is missing",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewVersions = (family: TemplateFamily) => {
@@ -248,9 +261,9 @@ export function TemplateManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedFamilies.map((family) => (
+                {paginatedFamilies.map((family, index) => (
                   <TableRow 
-                    key={`family-${family.familyId}`} 
+                    key={`family-${family.familyId || index}`} 
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleViewVersions(family)}
                   >

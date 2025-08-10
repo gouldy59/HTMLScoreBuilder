@@ -35,40 +35,47 @@ export default function Builder() {
   const [reportBackgroundImage, setReportBackgroundImage] = useState<string>('');
   const { toast } = useToast();
 
-  // Extract templateId from URL parameters using window.location
-  const urlParams = new URLSearchParams(window.location.search);
-  const templateId = urlParams.get('templateId');
+  // Extract templateId from URL parameters - works with both window.location and wouter
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('templateId');
+    console.log('URL search params:', window.location.search, 'extracted templateId:', id);
+    setTemplateId(id);
+  }, [location]);
 
   // Load template if templateId is provided in URL
-  const { data: templateToLoad, isLoading: templateLoading, refetch } = useQuery<Template>({
+  const { data: templateToLoad, isLoading: templateLoading, refetch, error: templateError } = useQuery<Template>({
     queryKey: ['template-single', templateId], // More specific query key to avoid cache conflicts
     queryFn: async () => {
+      if (!templateId) {
+        throw new Error('Template ID is required');
+      }
+      console.log('Fetching template with ID:', templateId);
       const response = await fetch(`/api/templates/${templateId}`);
       if (!response.ok) {
-        throw new Error(`Failed to fetch template ${templateId}`);
+        if (response.status === 400) {
+          throw new Error(`Invalid template ID: ${templateId}`);
+        }
+        throw new Error(`Failed to fetch template ${templateId}: ${response.status} ${response.statusText}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log('Successfully fetched template:', data);
+      return data;
     },
-    enabled: !!templateId, // Load whenever templateId is present
+    enabled: !!templateId && templateId !== 'undefined', // Load whenever templateId is present and valid
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
     refetchOnMount: 'always', // Always refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch on window focus
+    retry: false, // Don't retry failed requests
   });
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
-      
-      // Force invalidate cache and refetch when templateId changes
-      if (requestedTemplateId !== currentTemplateId) {
-        queryClient.invalidateQueries({ queryKey: ['template-single'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-        if (refetch) {
-          refetch();
-        }
-      }
       
       // Always reload if the templateId changed, even if it's different from currentTemplateId
       if (requestedTemplateId !== currentTemplateId || currentTemplateId === null) {
@@ -99,7 +106,18 @@ export default function Builder() {
         });
       }
     }
-  }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast, refetch]);
+    
+    // Handle template loading errors
+    if (templateError && templateId) {
+      console.error('Template loading error:', templateError);
+      toast({
+        title: 'Failed to load template',
+        description: `Could not load template ${templateId}: ${templateError.message}`,
+        variant: 'destructive',
+        duration: 5000
+      });
+    }
+  }, [templateToLoad, templateId, templateLoading, currentTemplateId, templateError, toast]);
 
   // Handle URL changes - show wizard for new builder or skip for existing templates
   useEffect(() => {

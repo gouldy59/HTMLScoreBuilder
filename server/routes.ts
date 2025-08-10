@@ -550,7 +550,40 @@ export function setupRoutes(app: express.Application) {
     }
   });
 
-  // Export HTML endpoint
+  // Template-specific HTML export endpoint
+  app.post("/api/templates/:id/export-html", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid template ID" });
+      }
+
+      const template = await storage.getTemplate(id);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+
+      const templateData = req.body?.data || {};
+      
+      // Generate HTML using template components and provided data
+      const html = generateTemplateHTML(
+        template.components as any[] || [],
+        templateData,
+        template.name,
+        (template.styles as any)?.reportBackground || '#ffffff',
+        (template.styles as any)?.reportBackgroundImage || ''
+      );
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="template_${id}.html"`);
+      return res.send(html);
+    } catch (error) {
+      console.error('HTML export error:', error);
+      return res.status(500).json({ message: "Failed to export HTML" });
+    }
+  });
+
+  // Legacy export HTML endpoint
   app.post("/api/export-html", async (req, res) => {
     try {
       const { templateId, data = {} } = req.body;

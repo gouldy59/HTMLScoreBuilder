@@ -1,4 +1,7 @@
 import { templates, users, templateAuditLog, type Template, type InsertTemplate, type User, type InsertUser, type CreateVersion, type InsertAuditLog, type AuditLog } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, or, ne } from "drizzle-orm";
+import { FileStorage } from "./fileStorage";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -434,9 +437,6 @@ export class MemStorage implements IStorage {
   }
 }
 
-import { db } from "./db";
-import { eq, desc, and, or, ne } from "drizzle-orm";
-
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -740,4 +740,233 @@ const memStorage = new MemStorage();
   }
 })();
 
-export const storage = memStorage;
+// Initialize storage with fallback to FileStorage, then MemStorage
+let storage: IStorage;
+
+(async () => {
+  try {
+    // Test database connection
+    const dbStorage = new DatabaseStorage();
+    await db.select().from(templates).limit(1);
+    console.log('Database connection successful, using persistent database storage');
+    
+    // Initialize with sample data if empty
+    const existingTemplates = await dbStorage.getAllTemplates();
+    if (existingTemplates.length === 0) {
+      console.log('Seeding database with sample templates...');
+      await seedDatabase(dbStorage);
+    }
+    
+    storage = dbStorage;
+  } catch (error) {
+    console.log('Database not available, using file-based persistence:', error instanceof Error ? error.message : 'Unknown error');
+    try {
+      const fileStorage = new FileStorage();
+      
+      // Initialize with sample data if empty
+      const existingTemplates = await fileStorage.getAllTemplates();
+      if (existingTemplates.length === 0) {
+        console.log('Seeding file storage with sample templates...');
+        await seedFileStorage(fileStorage);
+      }
+      
+      storage = fileStorage;
+      console.log('File-based storage initialized successfully');
+    } catch (fileError) {
+      console.log('File storage failed, falling back to memory storage:', fileError instanceof Error ? fileError.message : 'Unknown error');
+      storage = memStorage;
+    }
+  }
+})();
+
+async function seedDatabase(dbStorage: DatabaseStorage) {
+  try {
+    await dbStorage.createTemplate({
+      name: "Student Score Report",
+      description: "Template for academic score reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "{{studentName}} - Academic Score Report",
+            subtitle: "Academic Year {{academicYear}} • Grade {{grade}}"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937",
+            fontSize: "large",
+            width: "400px",
+            height: "120px"
+          },
+          position: { x: 401.5, y: 34 }
+        },
+        {
+          id: "component-2",
+          type: "student-info",
+          content: {
+            fields: {
+              "Student Name": "{{studentName}}",
+              "Student ID": "{{studentId}}",
+              "Class": "{{className}}",
+              "Teacher": "{{teacherName}}"
+            }
+          },
+          style: {
+            backgroundColor: "#F0FDF4",
+            textColor: "#1F2937",
+            width: "350px",
+            height: "200px"
+          },
+          position: { x: 428.5, y: 237 }
+        },
+        {
+          id: "component-3",
+          type: "text-block",
+          content: {
+            text: "This report shows the academic performance for {{studentName}} in the {{academicYear}} academic year."
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+            textColor: "#1F2937"
+          },
+          position: { x: 50, y: 500 }
+        }
+      ],
+      variables: {
+        studentName: "Sample Student",
+        academicYear: "2024-2025",
+        grade: "10",
+        studentId: "12345",
+        className: "10A",
+        teacherName: "Ms. Smith"
+      },
+      styles: {
+        reportBackground: "#ffffff",
+        reportBackgroundImage: ""
+      }
+    });
+
+    await dbStorage.createTemplate({
+      name: "Simple Report Template",
+      description: "Basic template for reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "Report Title",
+            subtitle: "Report Subtitle"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937"
+          },
+          position: { x: 100, y: 50 }
+        }
+      ],
+      variables: {},
+      styles: {}
+    });
+    console.log('Sample templates seeded successfully');
+  } catch (error) {
+    console.log('Error seeding database:', error);
+  }
+}
+
+async function seedFileStorage(fileStorage: FileStorage) {
+  try {
+    await fileStorage.createTemplate({
+      name: "Student Score Report",
+      description: "Template for academic score reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "{{studentName}} - Academic Score Report",
+            subtitle: "Academic Year {{academicYear}} • Grade {{grade}}"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937",
+            fontSize: "large",
+            width: "400px",
+            height: "120px"
+          },
+          position: { x: 401.5, y: 34 }
+        },
+        {
+          id: "component-2",
+          type: "student-info",
+          content: {
+            fields: {
+              "Student Name": "{{studentName}}",
+              "Student ID": "{{studentId}}",
+              "Class": "{{className}}",
+              "Teacher": "{{teacherName}}"
+            }
+          },
+          style: {
+            backgroundColor: "#F0FDF4",
+            textColor: "#1F2937",
+            width: "350px",
+            height: "200px"
+          },
+          position: { x: 428.5, y: 237 }
+        },
+        {
+          id: "component-3",
+          type: "text-block",
+          content: {
+            text: "This report shows the academic performance for {{studentName}} in the {{academicYear}} academic year."
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+            textColor: "#1F2937"
+          },
+          position: { x: 50, y: 500 }
+        }
+      ],
+      variables: {
+        studentName: "Sample Student",
+        academicYear: "2024-2025",
+        grade: "10",
+        studentId: "12345",
+        className: "10A",
+        teacherName: "Ms. Smith"
+      },
+      styles: {
+        reportBackground: "#ffffff",
+        reportBackgroundImage: ""
+      }
+    });
+
+    await fileStorage.createTemplate({
+      name: "Simple Report Template",
+      description: "Basic template for reports",
+      components: [
+        {
+          id: "component-1",
+          type: "header",
+          content: {
+            title: "Report Title",
+            subtitle: "Report Subtitle"
+          },
+          style: {
+            backgroundColor: "#DBEAFE",
+            textColor: "#1F2937"
+          },
+          position: { x: 100, y: 50 }
+        }
+      ],
+      variables: {},
+      styles: {}
+    });
+    console.log('Sample templates seeded successfully to file storage');
+  } catch (error) {
+    console.log('Error seeding file storage:', error);
+  }
+}
+
+export { storage };

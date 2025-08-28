@@ -359,26 +359,51 @@ function generateGoogleChartHTML(
   title: string,
   width: number = 400,
   height: number = 300,
-  backgroundColor: string = 'transparent'
+  backgroundColor: string = 'transparent',
+  colors?: string[]
 ): string {
   const dataString = JSON.stringify(data);
-  const optionsString = JSON.stringify({
+  
+  const chartOptions: any = {
     title: title,
     width: width,
     height: height,
     backgroundColor: backgroundColor,
-    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-    legend: { position: 'bottom' },
-    hAxis: {},
-    vAxis: {},
+    colors: colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
+    legend: { position: 'bottom', alignment: 'center' },
+    hAxis: {
+      textStyle: { fontSize: 11 },
+      titleTextStyle: { fontSize: 12 }
+    },
+    vAxis: {
+      textStyle: { fontSize: 11 },
+      titleTextStyle: { fontSize: 12 }
+    },
     pieHole: chartType === 'donut' ? 0.4 : 0,
     chartArea: {
-      left: 60,
-      top: 40,
-      width: '75%',
-      height: '70%'
+      left: chartType === 'bar' ? 120 : 80,
+      top: 60,
+      width: chartType === 'bar' ? '65%' : '70%',
+      height: chartType === 'column' ? '75%' : '65%'
+    },
+    fontSize: 11,
+    focusTarget: 'category'
+  };
+  
+  // Add stacking configuration for multi-series data
+  if ((chartType === 'bar' || chartType === 'column') && data.length > 1 && data[0].length > 2) {
+    chartOptions.isStacked = true;
+    chartOptions.bar = { groupWidth: '60%' };
+    
+    if (chartType === 'column') {
+      chartOptions.vAxis.minValue = 0;
+      chartOptions.hAxis.slantedText = false;
+    } else if (chartType === 'bar') {
+      chartOptions.hAxis.minValue = 0;
     }
-  });
+  }
+  
+  const optionsString = JSON.stringify(chartOptions);
 
   let googleChartType = 'ColumnChart';
   switch (chartType) {
@@ -572,6 +597,20 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const chartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
       const chartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
       
+      // Extract colors for stacked column charts
+      let chartColors: string[] | undefined;
+      if (content.chartData && Array.isArray(content.chartData) && content.chartData[0]?.segments) {
+        const colorSet = new Set<string>();
+        content.chartData.forEach((category: any) => {
+          if (category.segments) {
+            category.segments.forEach((seg: any) => {
+              if (seg.color) colorSet.add(seg.color);
+            });
+          }
+        });
+        chartColors = Array.from(colorSet);
+      }
+
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
           ${generateGoogleChartHTML(
@@ -581,7 +620,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Column Chart', variables),
             chartWidth,
             chartHeight,
-            style.backgroundColor || '#ffffff'
+            style.backgroundColor || '#ffffff',
+            chartColors
           )}
         </div>`;
 

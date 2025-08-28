@@ -187,10 +187,10 @@ export const createGoogleChart = (
         easing: 'out'
       },
       chartArea: {
-        left: config.type === 'bar' ? 120 : 60,
-        top: 50,
-        width: config.type === 'bar' ? '65%' : '75%',
-        height: '65%'
+        left: config.type === 'bar' ? 120 : 80,
+        top: 60,
+        width: config.type === 'bar' ? '65%' : '70%',
+        height: config.type === 'column' ? '75%' : '65%'
       },
       bar: { groupWidth: '75%' },
       fontSize: 11,
@@ -207,18 +207,28 @@ export const createGoogleChart = (
       options.focusTarget = 'category';
       
       // Enhanced stacking options for better visualization
-      options.bar = { groupWidth: '75%' };
-      
-      // Remove percentage formatting that might be causing issues
       if (config.type === 'column') {
+        options.bar = { groupWidth: '60%' };
         options.vAxis = {
           ...options.vAxis,
-          minValue: 0
+          minValue: 0,
+          textStyle: { fontSize: 10 }
         };
-      } else if (config.type === 'bar') {
         options.hAxis = {
           ...options.hAxis,
-          minValue: 0
+          textStyle: { fontSize: 10 },
+          slantedText: false
+        };
+      } else if (config.type === 'bar') {
+        options.bar = { groupWidth: '60%' };
+        options.hAxis = {
+          ...options.hAxis,
+          minValue: 0,
+          textStyle: { fontSize: 10 }
+        };
+        options.vAxis = {
+          ...options.vAxis,
+          textStyle: { fontSize: 10 }
         };
       }
     }

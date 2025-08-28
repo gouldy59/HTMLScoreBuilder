@@ -50,6 +50,14 @@ Preferred communication style: Simple, everyday language.
 - **@radix-ui/***: UI primitive components for consistent design
 - **tailwindcss**: Utility-first CSS framework for responsive styling
 - **html-pdf-node**: Server-side PDF generation via Puppeteer
-- **puppeteer**: Browser automation for image and PDF generation (enhanced implementation)
+- **puppeteer**: Browser automation for image and PDF generation (enhanced implementation with full-page layout)
 - **OpenAI DALL-E 3**: AI image generation for dynamic Image components
 - **File System Storage**: JSON-based persistence layer for local template storage
+
+# Recent Changes
+- **2024-08-28**: Fixed PDF/image export full-page layout - Reports now fill entire A4 page instead of small centered view
+- **2024-08-28**: Implemented viewport-relative positioning (vw/vh) for proper scaling in exports
+- **2024-08-28**: Removed all PDF margins and background support for professional full-page reports
+- **2024-08-28**: Fixed critical PDF/image export issue - charts now render properly instead of showing text placeholders
+- **2024-08-28**: Replaced basic HTML generator with full client-side HTML generator for server exports
+- **2024-08-28**: Google Charts migration complete, template saving fixed, drag-and-drop issues resolved

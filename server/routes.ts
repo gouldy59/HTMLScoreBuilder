@@ -5,6 +5,7 @@ import { storage } from './storage';
 import pdf from 'html-pdf-node';
 import puppeteer from 'puppeteer';
 import { generateImage } from './openai';
+import { generatePDFFromHTML, generateImageFromHTML } from './pdf-utils';
 
 // Server-side HTML generator that properly renders charts
 function generateHTMLFromTemplate(template: any, variables: any = {}) {
@@ -104,7 +105,13 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
 
   function renderComponent(component: any): string {
     const { type, content, style, position } = component;
-    const positionStyle = `position: absolute; left: ${position?.x || 0}px; top: ${position?.y || 0}px; width: ${style?.width || '400px'}; height: ${style?.height || '300px'};`;
+    // Scale positions for full-page layout (794px canvas -> 100vw, 1123px canvas -> 100vh)
+    const scaleX = position?.x ? (position.x / 794) * 100 : 0;
+    const scaleY = position?.y ? (position.y / 1123) * 100 : 0;
+    const widthVw = style?.width ? (parseInt(style.width.toString().replace('px', '')) / 794) * 100 : 50;
+    const heightVh = style?.height ? (parseInt(style.height.toString().replace('px', '')) / 1123) * 100 : 25;
+    
+    const positionStyle = `position: absolute; left: ${scaleX}vw; top: ${scaleY}vh; width: ${widthVw}vw; height: ${heightVh}vh;`;
 
     switch (type) {
       case 'header':
@@ -117,8 +124,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'column-chart':
         const googleData = convertToGoogleChartData(variables);
         const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
-        const chartWidth = parseInt(style?.width?.toString().replace('px', '') || '400');
-        const chartHeight = parseInt(style?.height?.toString().replace('px', '') || '300') - 50;
+        const chartWidth = Math.min(600, widthVw * 7.94); // Convert vw back to approximate px for chart sizing
+        const chartHeight = Math.min(400, heightVh * 11.23) - 50;
         
         return `
           <div style="${positionStyle} background-color: ${style?.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px;">
@@ -136,8 +143,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'bar-chart':
         const barGoogleData = convertToGoogleChartData(variables);
         const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
-        const barChartWidth = parseInt(style?.width?.toString().replace('px', '') || '400');
-        const barChartHeight = parseInt(style?.height?.toString().replace('px', '') || '300') - 50;
+        const barChartWidth = Math.min(600, widthVw * 7.94);
+        const barChartHeight = Math.min(400, heightVh * 11.23) - 50;
         
         return `
           <div style="${positionStyle} background-color: ${style?.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px;">
@@ -155,8 +162,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'pie-chart':
         const pieGoogleData = convertToGoogleChartData(variables);
         const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
-        const pieChartWidth = parseInt(style?.width?.toString().replace('px', '') || '400');
-        const pieChartHeight = parseInt(style?.height?.toString().replace('px', '') || '300') - 50;
+        const pieChartWidth = Math.min(600, widthVw * 7.94);
+        const pieChartHeight = Math.min(400, heightVh * 11.23) - 50;
         
         return `
           <div style="${positionStyle} background-color: ${style?.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px;">
@@ -174,8 +181,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'line-chart':
         const lineGoogleData = convertToGoogleChartData(variables);
         const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
-        const lineChartWidth = parseInt(style?.width?.toString().replace('px', '') || '400');
-        const lineChartHeight = parseInt(style?.height?.toString().replace('px', '') || '300') - 50;
+        const lineChartWidth = Math.min(600, widthVw * 7.94);
+        const lineChartHeight = Math.min(400, heightVh * 11.23) - 50;
         
         return `
           <div style="${positionStyle} background-color: ${style?.backgroundColor || '#ffffff'}; padding: 16px; border-radius: 8px;">
@@ -211,20 +218,36 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           google.charts.load('current', {'packages':['corechart', 'bar', 'line', 'scatter']});
         </script>
         <style>
-            body { 
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-              margin: 0; 
-              padding: 20px;
-              background-color: #f5f5f5;
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
             }
-            .report-container {
-              position: relative; 
-              width: 794px;
-              min-height: 1123px;
+            html, body {
+              width: 100%;
+              height: 100%;
+              margin: 0;
+              padding: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               background-color: ${reportBackground};
               ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
-              margin: 0 auto;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .report-container {
+              position: relative;
+              width: 100vw;
+              height: 100vh;
+              background-color: ${reportBackground};
+              ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;` : ''}
+            }
+            @media print {
+              html, body {
+                width: 210mm;
+                height: 297mm;
+              }
+              .report-container {
+                width: 210mm;
+                height: 297mm;
+              }
             }
         </style>
     </head>
@@ -540,40 +563,8 @@ export function setupRoutes(app: express.Application) {
       const templateData = req.body?.data || {};
       const html = generateHTMLFromTemplate(template, templateData);
       
-      // Generate PDF using Puppeteer directly (more reliable than html-pdf-node)
-      const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
-        args: [
-          '--no-sandbox', 
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ]
-      });
-      
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 794, height: 1123 });
-      
-      // Wait for charts to render
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const pdfBuffer = await page.pdf({ 
-        format: 'A4',
-        margin: {
-          top: '0.5in',
-          right: '0.5in',
-          bottom: '0.5in',
-          left: '0.5in'
-        }
-      });
-      
-      await browser.close();
+      // Generate PDF with full-page layout (no margins)
+      const pdfBuffer = await generatePDFFromHTML(html, id);
       
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="template_${id}.pdf"`);
@@ -600,36 +591,8 @@ export function setupRoutes(app: express.Application) {
       const templateData = req.body?.data || {};
       const html = generateHTMLFromTemplate(template, templateData);
       
-      // Generate image using Puppeteer
-      const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium',
-        args: [
-          '--no-sandbox', 
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ]
-      });
-      
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-      await page.setViewport({ width: 794, height: 1123 });
-      
-      // Wait for charts to render
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const imageBuffer = await page.screenshot({ 
-        type: 'png',
-        fullPage: false,
-        clip: { x: 0, y: 0, width: 794, height: 1123 } 
-      });
-      
-      await browser.close();
+      // Generate image with full-page layout
+      const imageBuffer = await generateImageFromHTML(html, id);
       
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Content-Disposition', `attachment; filename="template_${id}.png"`);

@@ -293,7 +293,7 @@ export function generateHTML(
   return html;
 }
 
-function convertToGoogleChartData(variables: Record<string, any>) {
+function convertToGoogleChartData(variables: Record<string, any>, componentContent?: any) {
   // Default sample data structure
   const defaultData = [
     ['Subject', 'Score'],
@@ -303,6 +303,23 @@ function convertToGoogleChartData(variables: Record<string, any>) {
     ['History', 88],
     ['Art', 95]
   ];
+
+  // Handle stacked bar/column chart data from component content
+  if (componentContent?.chartData && Array.isArray(componentContent.chartData) && componentContent.chartData.length > 0 && componentContent.chartData[0].segments) {
+    const headers = ['Category'];
+    const segmentLabels = componentContent.chartData[0].segments.map((seg: any) => seg.label || `Segment ${seg.value}`);
+    headers.push(...segmentLabels);
+    
+    const rows = componentContent.chartData.map((category: any) => {
+      const row = [category.label || 'Unlabeled'];
+      category.segments.forEach((segment: any) => {
+        row.push(Number(segment.value) || 0);
+      });
+      return row;
+    });
+    
+    return [headers, ...rows];
+  }
 
   // Check if we have Chart.js format data (legacy compatibility)
   if (variables.chartData && variables.chartData.labels && variables.chartData.datasets) {
@@ -550,7 +567,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const googleData = convertToGoogleChartData(columnChartData || variables);
+      const googleData = convertToGoogleChartData(columnChartData || variables, content);
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       const chartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
       const chartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
@@ -584,7 +601,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const lineGoogleData = convertToGoogleChartData(lineChartData || variables);
+      const lineGoogleData = convertToGoogleChartData(lineChartData || variables, content);
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
       const lineChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
       const lineChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;

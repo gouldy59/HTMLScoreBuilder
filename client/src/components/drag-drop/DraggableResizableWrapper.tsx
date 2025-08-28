@@ -120,10 +120,8 @@ export function DraggableResizableWrapper({
   }, [isDragging, isResizing, dragStart, resizeStart, component, onUpdateComponent]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (isSelected && (e.key === 'Delete' || e.key === 'Backspace')) {
-      e.preventDefault();
-      onDelete();
-    }
+    // Removed delete/backspace shortcuts for component deletion
+    // Components can only be deleted via the UI delete button
   };
 
   useEffect(() => {

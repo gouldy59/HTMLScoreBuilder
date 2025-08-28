@@ -63,6 +63,11 @@ export function GoogleChartComponent({
           }
         }
 
+        // Use chartData from component content for stacked charts
+        if (!chartData && content.chartData) {
+          chartData = content.chartData;
+        }
+
         const googleData = convertToGoogleChartData(chartData, chartType);
         
         // Extract colors from stacked bar chart segments

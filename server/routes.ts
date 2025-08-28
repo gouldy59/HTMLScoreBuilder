@@ -6,6 +6,40 @@ import pdf from 'html-pdf-node';
 import puppeteer from 'puppeteer';
 import { generateImage } from './openai';
 
+// Simple HTML generator function for server-side use
+function generateHTMLFromTemplate(template: any, variables: any = {}) {
+  const baseHTML = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${template.name || 'Report'}</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+          google.charts.load('current', {'packages':['corechart', 'bar', 'line']});
+        </script>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .component { margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>${template.name || 'Generated Report'}</h1>
+        <div class="template-content">
+            ${(template.components || []).map((comp: any) => `
+                <div class="component">
+                    <h3>${comp.content?.title || comp.type}</h3>
+                    <p>Component: ${comp.type}</p>
+                </div>
+            `).join('')}
+        </div>
+    </body>
+    </html>
+  `;
+  return baseHTML;
+}
+
 const createTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true, updatedAt: true });
 const createVersionSchema = createInsertSchema(templates).pick({ 
   name: true, 
@@ -68,10 +102,14 @@ export function setupRoutes(app: express.Application) {
       const template = await storage.createTemplate(validation.data);
       res.status(201).json(template);
     } catch (error: any) {
+      console.error('Template creation error:', error);
       if (error.message && error.message.includes('already exists')) {
         return res.status(409).json({ message: error.message });
       }
-      res.status(500).json({ message: "Failed to create template" });
+      res.status(500).json({ 
+        message: "Failed to create template",
+        error: error.message 
+      });
     }
   });
 

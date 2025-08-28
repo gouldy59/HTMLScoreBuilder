@@ -159,9 +159,9 @@ export class MemStorage implements IStorage {
       id,
       name: finalName,
       description: insertTemplate.description || null,
-      components: insertTemplate.components || [],
-      variables: insertTemplate.variables || {},
-      styles: insertTemplate.styles || {},
+      components: insertTemplate.components as any || [],
+      variables: insertTemplate.variables as any || {},
+      styles: insertTemplate.styles as any || {},
       version: 1,
       isLatest: true,
       parentId: null,
@@ -266,9 +266,9 @@ export class MemStorage implements IStorage {
       id: newVersionId,
       name: version.name,
       description: version.description || null,
-      components: version.components || [],
-      variables: version.variables || {},
-      styles: version.styles || {},
+      components: (version.components as any) || [],
+      variables: (version.variables as any) || {},
+      styles: (version.styles as any) || {},
       version: nextVersion,
       isLatest: true,
       parentId: familyId,
@@ -642,4 +642,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use MemStorage as fallback since database is disabled
+export const storage = new MemStorage();

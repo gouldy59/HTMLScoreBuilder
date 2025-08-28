@@ -29,6 +29,13 @@ export function GoogleChartComponent({
   const [error, setError] = useState<string | null>(null);
   const { content, style } = component;
 
+  // Handle component click to prevent multiple drag zones
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onSelect();
+  };
+
   useEffect(() => {
     const initChart = async () => {
       if (!chartRef.current) return;
@@ -85,23 +92,16 @@ export function GoogleChartComponent({
 
   return (
     <div
-      className={`relative cursor-pointer ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
-      onClick={onSelect}
+      className="component-content w-full h-full"
       style={{
-        position: 'absolute',
-        left: component.position.x,
-        top: component.position.y,
-        zIndex: isSelected ? 10 : 1,
+        width: style.width || '400px',
+        height: style.height || '300px',
+        backgroundColor: style.backgroundColor || '#ffffff',
+        padding: '16px',
+        borderRadius: '8px'
       }}
+      data-chart-component="true"
     >
-      <div 
-        className="bg-white rounded-lg shadow-sm border"
-        style={{
-          width: style.width,
-          height: style.height,
-          backgroundColor: style.backgroundColor
-        }}
-      >
         {isLoading && (
           <div className="flex items-center justify-center h-full">
             <div className="text-sm text-gray-500">Loading chart...</div>
@@ -122,21 +122,6 @@ export function GoogleChartComponent({
             display: isLoading || error ? 'none' : 'block'
           }}
         />
-      </div>
-
-      {isSelected && (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute -top-2 -right-2 w-6 h-6 p-0"
-        >
-          ×
-        </Button>
-      )}
     </div>
   );
 }

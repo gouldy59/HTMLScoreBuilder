@@ -726,24 +726,44 @@ export function PropertiesPanel({
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                       {category.segments?.map((segment: any, segmentIndex: number) => (
-                        <div key={segmentIndex} className="flex items-center gap-1">
-                          <input
-                            type="color"
-                            value={segment.color || '#FDE2E7'}
-                            onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'color', e.target.value)}
-                            className="w-6 h-6 rounded border cursor-pointer"
-                          />
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={segment.value || 0}
-                            onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'value', parseInt(e.target.value) || 0)}
-                            className="w-16 text-xs"
-                          />
-                          <span className="text-xs text-gray-500">{segment.label}</span>
+                        <div key={segmentIndex} className="bg-gray-50 p-2 rounded border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-medium">Segment {segmentIndex + 1}</span>
+                            <div 
+                              className="w-5 h-5 rounded border-2 border-gray-300"
+                              style={{ backgroundColor: segment.color || '#FDE2E7' }}
+                              title={`Color: ${segment.color || '#FDE2E7'}`}
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <input
+                              type="color"
+                              value={segment.color || '#FDE2E7'}
+                              onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'color', e.target.value)}
+                              className="w-full h-8 rounded border cursor-pointer"
+                              title="Pick color"
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={segment.value || 0}
+                              onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'value', parseInt(e.target.value) || 0)}
+                              className="text-xs"
+                              placeholder="Value"
+                            />
+                            <Input
+                              placeholder="Label"
+                              value={segment.label || ''}
+                              onChange={(e) => updateSegment(categoryIndex, segmentIndex, 'label', e.target.value)}
+                              className="text-xs"
+                            />
+                          </div>
+                          <div className="mt-1 text-xs text-gray-600 font-medium">
+                            {segment.label}: {segment.value}%
+                          </div>
                         </div>
                       ))}
                     </div>

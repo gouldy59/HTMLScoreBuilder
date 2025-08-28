@@ -86,6 +86,23 @@ export const convertToGoogleChartData = (templateData: any, chartType: string) =
   // If no template data, return default
   if (!templateData) return defaultData;
 
+  // Handle stacked bar chart data (segments-based)
+  if (Array.isArray(templateData) && templateData.length > 0 && templateData[0].segments) {
+    const headers = ['Category'];
+    const segmentLabels = templateData[0].segments.map((seg: any) => seg.label || `Segment ${seg.value}`);
+    headers.push(...segmentLabels);
+    
+    const rows = templateData.map((category: any) => {
+      const row = [category.label || 'Unlabeled'];
+      category.segments.forEach((segment: any) => {
+        row.push(Number(segment.value) || 0);
+      });
+      return row;
+    });
+    
+    return [headers, ...rows];
+  }
+
   // Handle Chart.js format data (legacy compatibility)
   if (templateData.labels && templateData.datasets) {
     const labels = templateData.labels;
@@ -154,6 +171,11 @@ export const createGoogleChart = (
         height: '70%'
       }
     };
+
+    // Add stacking configuration for bar and column charts
+    if (config.type === 'bar' || config.type === 'column') {
+      options.isStacked = true;
+    }
 
     // Create appropriate chart type
     switch (config.type) {

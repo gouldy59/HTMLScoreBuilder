@@ -65,13 +65,19 @@ export function GoogleChartComponent({
 
         const googleData = convertToGoogleChartData(chartData, chartType);
         
+        // Extract colors from stacked bar chart segments
+        let extractedColors: string[] | undefined;
+        if (Array.isArray(chartData) && chartData.length > 0 && chartData[0].segments) {
+          extractedColors = chartData[0].segments.map((seg: any) => seg.color || '#3B82F6');
+        }
+
         const config: GoogleChartConfig = {
           type: chartType,
           title: content.title || chartTitle || 'Chart',
           width: parseInt(style.width) || 400,
           height: parseInt(style.height) || 300,
           backgroundColor: style.backgroundColor || 'transparent',
-          colors: content.colors || undefined,
+          colors: extractedColors || content.colors || undefined,
           legend: { position: 'bottom' },
           hAxis: { title: content.hAxisTitle },
           vAxis: { title: content.vAxisTitle },

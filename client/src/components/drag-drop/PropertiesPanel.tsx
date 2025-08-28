@@ -332,134 +332,146 @@ export function PropertiesPanel({
         );
 
       case 'column-chart':
-        const defaultBarColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
-        const barColors = selectedComponent.content.barColors || defaultBarColors;
+        const columnChartData = selectedComponent.content.chartData || [];
+        
+        const addColumnCategory = () => {
+          if (columnChartData.length >= 20) return; // Limit to 20 bars
+          const newCategory = {
+            label: `Category ${columnChartData.length + 1}`,
+            scoreValue: 50,
+            segments: [
+              { value: 25, color: "#FDE2E7", label: "0%-25%" },
+              { value: 25, color: "#FB923C", label: "26%-50%" },
+              { value: 25, color: "#FEF3C7", label: "51%-75%" },
+              { value: 25, color: "#D1FAE5", label: "76%-100%" }
+            ]
+          };
+          updateContent('chartData', [...columnChartData, newCategory]);
+        };
+        
+        const removeColumnCategory = (index: number) => {
+          const newData = columnChartData.filter((_: any, i: number) => i !== index);
+          updateContent('chartData', newData);
+        };
+        
+        const updateColumnCategory = (index: number, field: string, value: any) => {
+          const newData = [...columnChartData];
+          newData[index] = { ...newData[index], [field]: value };
+          updateContent('chartData', newData);
+        };
+        
+        const updateColumnSegment = (categoryIndex: number, segmentIndex: number, field: string, value: any) => {
+          const newData = [...columnChartData];
+          const newSegments = [...newData[categoryIndex].segments];
+          newSegments[segmentIndex] = { ...newSegments[segmentIndex], [field]: value };
+          newData[categoryIndex] = { ...newData[categoryIndex], segments: newSegments };
+          updateContent('chartData', newData);
+        };
         
         return (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Label htmlFor="columnTitle">Chart Title</Label>
               <Input
-                id="chartTitle"
+                id="columnTitle"
                 value={selectedComponent.content.title || ''}
                 onChange={(e) => updateContent('title', e.target.value)}
                 placeholder="Enter chart title..."
               />
             </div>
+            
             <div>
-              <Label htmlFor="chartData">Data Source</Label>
-              <div className="space-y-2">
-                <Textarea
-                  id="chartData"
-                  value={selectedComponent.content.data || ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    updateContent('data', value);
-                    
-                    // Validate JSON if it's not a template variable
-                    if (value && !value.startsWith('{{')) {
-                      const jsonValidation = validateJSON(value);
-                      if (jsonValidation.isValid && jsonValidation.data) {
-                        const chartValidation = validateChartData(jsonValidation.data);
-                        if (!chartValidation.isValid) {
-                          setJsonError(`Chart data: ${chartValidation.error}`);
-                        } else {
-                          setJsonError('');
-                        }
-                      } else {
-                        setJsonError(`JSON: ${jsonValidation.error}`);
-                      }
-                    } else {
-                      setJsonError('');
-                    }
-                  }}
-                  placeholder={`{{chartData}} or valid JSON chart data`}
-                  className="min-h-20 font-mono text-sm"
-                />
-                {jsonError && (
-                  <p className="text-sm text-red-600">{jsonError}</p>
-                )}
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const example = getExampleJSON('chart');
-                      updateContent('data', example);
-                      setJsonError('');
-                    }}
-                  >
-                    <i className="fas fa-lightbulb mr-1 text-xs"></i>
-                    Example
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const value = selectedComponent.content.data;
-                      if (value && !value.startsWith('{{')) {
-                        const validation = validateJSON(value);
-                        if (validation.isValid) {
-                          toast({ title: 'Valid JSON format', description: 'Chart data is properly formatted' });
-                        } else {
-                          toast({ title: 'Invalid JSON', description: validation.error, variant: 'destructive' });
-                        }
-                      }
-                    }}
-                  >
-                    <i className="fas fa-check mr-1 text-xs"></i>
-                    Validate
-                  </Button>
-                </div>
-              </div>
+              <Label htmlFor="columnSubtitle">Chart Subtitle</Label>
+              <Input
+                id="columnSubtitle"
+                value={selectedComponent.content.subtitle || ''}
+                onChange={(e) => updateContent('subtitle', e.target.value)}
+                placeholder="Enter chart subtitle..."
+              />
             </div>
             
-            {/* Bar Color Customization */}
             <div>
-              <Label className="text-sm font-medium">Bar Colors</Label>
-              <p className="text-xs text-gray-500 mb-3">Customize the color of each bar in your chart</p>
-              <div className="grid grid-cols-2 gap-2">
-                {barColors.slice(0, 8).map((color, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <span className="text-xs w-8 text-gray-600">#{index + 1}</span>
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(e) => {
-                        const newColors = [...barColors];
-                        newColors[index] = e.target.value;
-                        updateContent('barColors', newColors);
-                      }}
-                      className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
-                    />
-                    <Input
-                      value={color}
-                      onChange={(e) => {
-                        const newColors = [...barColors];
-                        newColors[index] = e.target.value;
-                        updateContent('barColors', newColors);
-                      }}
-                      className="flex-1 text-xs"
-                      placeholder="#3B82F6"
-                    />
+              <div className="flex items-center justify-between mb-2">
+                <Label>Chart Categories ({columnChartData.length}/20)</Label>
+                <Button
+                  onClick={addColumnCategory}
+                  disabled={columnChartData.length >= 20}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-plus mr-1 text-xs"></i>Add Category
+                </Button>
+              </div>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {columnChartData.map((category: any, categoryIndex: number) => (
+                  <div key={categoryIndex} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Input
+                        value={category.label || ''}
+                        onChange={(e) => updateColumnCategory(categoryIndex, 'label', e.target.value)}
+                        placeholder="Category name"
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={() => removeColumnCategory(categoryIndex)}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <i className="fas fa-trash text-xs"></i>
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {category.segments?.map((segment: any, segmentIndex: number) => (
+                        <div key={segmentIndex} className="bg-white p-2 rounded border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-medium">Segment {segmentIndex + 1}</span>
+                            <div 
+                              className="w-5 h-5 rounded border-2 border-gray-300"
+                              style={{ backgroundColor: segment.color || '#FDE2E7' }}
+                              title={`Color: ${segment.color || '#FDE2E7'}`}
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <input
+                              type="color"
+                              value={segment.color || '#FDE2E7'}
+                              onChange={(e) => updateColumnSegment(categoryIndex, segmentIndex, 'color', e.target.value)}
+                              className="w-full h-8 rounded border cursor-pointer"
+                              title="Pick color"
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={segment.value || 0}
+                              onChange={(e) => updateColumnSegment(categoryIndex, segmentIndex, 'value', parseInt(e.target.value) || 0)}
+                              className="text-xs"
+                              placeholder="Value"
+                            />
+                            <Input
+                              placeholder="Label"
+                              value={segment.label || ''}
+                              onChange={(e) => updateColumnSegment(categoryIndex, segmentIndex, 'label', e.target.value)}
+                              className="text-xs"
+                            />
+                          </div>
+                          <div className="mt-1 text-xs text-gray-600 font-medium">
+                            {segment.label}: {segment.value}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
-              <Button
-                onClick={() => {
-                  updateContent('barColors', [...defaultBarColors]);
-                }}
-                variant="outline"
-                size="sm"
-                className="w-full mt-2 text-xs"
-              >
-                Reset All Colors
-              </Button>
             </div>
           </div>
         );
+
+
       
       case 'line-chart':
       case 'pie-chart':
@@ -769,6 +781,32 @@ export function PropertiesPanel({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t">
+              <Label>Display Options</Label>
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="showPercentages"
+                    checked={selectedComponent.content.showPercentages !== false}
+                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
+                    className="rounded"
+                  />
+                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values in bars</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="wrapLabels"
+                    checked={selectedComponent.content.wrapLabels === true}
+                    onChange={(e) => updateContent('wrapLabels', e.target.checked)}
+                    className="rounded"
+                  />
+                  <Label htmlFor="wrapLabels" className="text-sm">Wrap long labels</Label>
+                </div>
               </div>
             </div>
             

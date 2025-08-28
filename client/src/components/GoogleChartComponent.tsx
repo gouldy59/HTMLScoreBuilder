@@ -79,8 +79,8 @@ export function GoogleChartComponent({
         const config: GoogleChartConfig = {
           type: chartType,
           title: content.title || chartTitle || 'Chart',
-          width: parseInt(style.width) || 400,
-          height: parseInt(style.height) || 300,
+          width: parseInt(style.width.replace('px', '')) || 400,
+          height: parseInt(style.height.replace('px', '')) || 300,
           backgroundColor: style.backgroundColor || 'transparent',
           colors: extractedColors || content.colors || undefined,
           legend: { position: 'bottom' },

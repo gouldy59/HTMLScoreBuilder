@@ -172,8 +172,8 @@ export const createGoogleChart = (
       }
     };
 
-    // Add stacking configuration for bar and column charts
-    if (config.type === 'bar' || config.type === 'column') {
+    // Add stacking configuration for bar and column charts with segments
+    if ((config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2) {
       options.isStacked = true;
     }
 

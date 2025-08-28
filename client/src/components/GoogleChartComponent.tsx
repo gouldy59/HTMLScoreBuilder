@@ -79,13 +79,13 @@ export function GoogleChartComponent({
         const config: GoogleChartConfig = {
           type: chartType,
           title: content.title || chartTitle || 'Chart',
-          width: parseInt(style.width.replace('px', '')) || 400,
-          height: parseInt(style.height.replace('px', '')) || 300,
+          width: parseInt((style.width || '400px').replace('px', '')) || 400,
+          height: parseInt((style.height || '300px').replace('px', '')) || 300,
           backgroundColor: style.backgroundColor || 'transparent',
           colors: extractedColors || content.colors || undefined,
-          legend: { position: 'bottom' },
-          hAxis: { title: content.hAxisTitle },
-          vAxis: { title: content.vAxisTitle },
+          legend: { position: 'bottom', alignment: 'center' },
+          hAxis: { title: content.hAxisTitle || '' },
+          vAxis: { title: content.vAxisTitle || '' },
           is3D: content.is3D || false,
           pieHole: chartType === 'donut' ? 0.4 : undefined
         };
@@ -108,8 +108,10 @@ export function GoogleChartComponent({
         width: style.width || '400px',
         height: style.height || '300px',
         backgroundColor: style.backgroundColor || '#ffffff',
-        padding: '16px',
-        borderRadius: '8px'
+        padding: '8px',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column'
       }}
       data-chart-component="true"
     >
@@ -130,6 +132,7 @@ export function GoogleChartComponent({
           style={{ 
             width: '100%', 
             height: '100%',
+            minHeight: '200px',
             display: isLoading || error ? 'none' : 'block'
           }}
         />

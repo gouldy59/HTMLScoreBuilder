@@ -154,27 +154,53 @@ export const createGoogleChart = (
       height: config.height || 300,
       backgroundColor: config.backgroundColor || 'transparent',
       colors: config.colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-      legend: config.legend || { position: 'bottom' },
-      hAxis: config.hAxis || {},
-      vAxis: config.vAxis || {},
+      legend: { position: 'bottom', alignment: 'center' },
+      hAxis: {
+        title: config.hAxis?.title || '',
+        titleTextStyle: { fontSize: 12 },
+        textStyle: { fontSize: 11 }
+      },
+      vAxis: {
+        title: config.vAxis?.title || '',
+        titleTextStyle: { fontSize: 12 },
+        textStyle: { fontSize: 11 },
+        format: 'short'
+      },
       is3D: config.is3D || false,
       pieHole: config.pieHole || 0,
       animation: {
         startup: true,
-        duration: 1000,
+        duration: 800,
         easing: 'out'
       },
       chartArea: {
-        left: 60,
-        top: 40,
-        width: '75%',
-        height: '70%'
+        left: config.type === 'bar' ? 120 : 60,
+        top: 50,
+        width: config.type === 'bar' ? '65%' : '75%',
+        height: '65%'
+      },
+      bar: { groupWidth: '75%' },
+      fontSize: 11,
+      focusTarget: 'category',
+      tooltip: {
+        isHtml: true,
+        showColorCode: true
       }
     };
 
     // Add stacking configuration for bar and column charts with segments
     if ((config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2) {
       options.isStacked = true;
+      // Add data labels for stacked charts
+      options.annotations = {
+        alwaysOutside: false,
+        textStyle: {
+          fontSize: 10,
+          color: '#000',
+          auraColor: '#fff',
+          opacity: 0.8
+        }
+      };
     }
 
     // Create appropriate chart type

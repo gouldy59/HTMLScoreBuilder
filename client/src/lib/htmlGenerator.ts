@@ -138,7 +138,10 @@ export function generateHTML(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${templateName}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages: ['corechart', 'bar', 'line', 'scatter']});
+    </script>
     <style>
         * {
           -webkit-print-color-adjust: exact !important;
@@ -290,49 +293,100 @@ export function generateHTML(
   return html;
 }
 
-function generateChartData(variables: Record<string, any>) {
-  // Check if we have Chart.js format data
+function convertToGoogleChartData(variables: Record<string, any>) {
+  // Default sample data structure
+  const defaultData = [
+    ['Subject', 'Score'],
+    ['Math', 85],
+    ['Science', 92],
+    ['English', 78],
+    ['History', 88],
+    ['Art', 95]
+  ];
+
+  // Check if we have Chart.js format data (legacy compatibility)
   if (variables.chartData && variables.chartData.labels && variables.chartData.datasets) {
-    return variables.chartData;
+    const labels = variables.chartData.labels;
+    const data = variables.chartData.datasets[0]?.data || [];
+    
+    const result: (string | number)[][] = [['Category', 'Value']];
+    labels.forEach((label: string, index: number) => {
+      result.push([label, data[index] || 0]);
+    });
+    return result;
   }
-  
+
   // Generate data from individual score fields
   const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
-  const labels: string[] = [];
-  const data: number[] = [];
+  const scores: (string | number)[][] = [];
   
   scoreFields.forEach(field => {
     if (variables[field] && typeof variables[field] === 'number') {
       const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-      labels.push(subjectName);
-      data.push(variables[field]);
+      scores.push([subjectName, variables[field]]);
     }
   });
-  
-  // If no data found, use sample data
-  if (labels.length === 0) {
-    return {
-      labels: ['Math', 'Science', 'English', 'History', 'Art'],
-      datasets: [{
-        label: 'Scores',
-        data: [85, 92, 78, 88, 95],
-        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-        borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-        borderWidth: 1
-      }]
-    };
+
+  if (scores.length > 0) {
+    return [['Subject', 'Score'], ...scores];
   }
-  
-  return {
-    labels,
-    datasets: [{
-      label: 'Scores',
-      data,
-      backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-      borderColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-      borderWidth: 1
-    }]
-  };
+
+  return defaultData;
+}
+
+// Generate Google Charts HTML for server-side rendering
+function generateGoogleChartHTML(
+  chartId: string,
+  data: any[][],
+  chartType: string,
+  title: string,
+  width: number = 400,
+  height: number = 300,
+  backgroundColor: string = 'transparent'
+): string {
+  const dataString = JSON.stringify(data);
+  const optionsString = JSON.stringify({
+    title: title,
+    width: width,
+    height: height,
+    backgroundColor: backgroundColor,
+    colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
+    legend: { position: 'bottom' },
+    hAxis: {},
+    vAxis: {},
+    pieHole: chartType === 'donut' ? 0.4 : 0,
+    chartArea: {
+      left: 60,
+      top: 40,
+      width: '75%',
+      height: '70%'
+    }
+  });
+
+  let googleChartType = 'ColumnChart';
+  switch (chartType) {
+    case 'bar': googleChartType = 'BarChart'; break;
+    case 'pie': googleChartType = 'PieChart'; break;
+    case 'line': googleChartType = 'LineChart'; break;
+    case 'area': googleChartType = 'AreaChart'; break;
+    case 'scatter': googleChartType = 'ScatterChart'; break;
+    case 'bubble': googleChartType = 'BubbleChart'; break;
+    case 'donut': googleChartType = 'PieChart'; break;
+    case 'histogram': googleChartType = 'Histogram'; break;
+    default: googleChartType = 'ColumnChart';
+  }
+
+  return `
+    <div id="${chartId}" style="width: ${width}px; height: ${height}px; margin: 0 auto;"></div>
+    <script type="text/javascript">
+      google.charts.setOnLoadCallback(function() {
+        var data = google.visualization.arrayToDataTable(${dataString});
+        var options = ${optionsString};
+        var chart = new google.visualization.${googleChartType}(document.getElementById('${chartId}'));
+        chart.draw(data, options);
+      });
+    </script>
+  `;
 }
 
 function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: Record<string, any>): string {
@@ -481,149 +535,181 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       `;
 
     case 'column-chart':
-      // Handle chart data - check component's own data first, then variables
-      let verticalChartData = null;
-      
+      // Get chart data from template or variables
+      let columnChartData = null;
       if (content.data && content.data.trim()) {
         if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
-          // Template variable
           const variableName = content.data.slice(2, -2);
-          verticalChartData = variables[variableName];
+          columnChartData = variables[variableName];
         } else {
-          // Direct JSON data
           try {
-            verticalChartData = JSON.parse(content.data);
+            columnChartData = JSON.parse(content.data);
           } catch (e) {
-            verticalChartData = null;
+            columnChartData = null;
           }
         }
       }
+
+      const googleData = convertToGoogleChartData(columnChartData || variables);
+      const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
+      const chartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
+      const chartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
       
-      // Fallback to generated chart data
-      if (!verticalChartData) {
-        verticalChartData = generateChartData(variables);
-      }
-      
-      let verticalChartHTML = `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">`;
-      verticalChartHTML += `<h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Vertical Bar Chart', variables)}</h3>`;
-      
-      // Chart container with axes
-      verticalChartHTML += `<div style="position: relative; width: 100%; height: 300px;">
-        <!-- Y-axis -->
-        <div style="position: absolute; left: 0; top: 0; bottom: 50px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 8px;">
-          <span style="font-size: 11px; color: #666;">100</span>
-          <span style="font-size: 11px; color: #666;">75</span>
-          <span style="font-size: 11px; color: #666;">50</span>
-          <span style="font-size: 11px; color: #666;">25</span>
-          <span style="font-size: 11px; color: #666;">0</span>
-        </div>
-        
-        <!-- Chart area -->
-        <div style="margin-left: 50px; height: 250px; position: relative; border-left: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
-          <!-- Bars container -->
-          <div class="flex items-end justify-center" style="height: 100%; padding: 20px 20px 0px 20px;">`;
-      
-      if (verticalChartData.labels && verticalChartData.datasets && verticalChartData.datasets[0]) {
-        verticalChartData.labels.forEach((label: string, index: number) => {
-          const value = Math.min(verticalChartData.datasets[0].data[index], 100); // Cap at 100
-          const height = Math.max((value / 100) * 210, 5); // Use 210px as max height to match chart area
-          
-          // Use custom colors if available, otherwise use default colors
-          const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
-          const barColors = content.barColors || defaultColors;
-          const barColor = barColors[index % barColors.length];
-          
-          // Calculate bar width based on number of bars to prevent overflow
-          const barCount = verticalChartData.labels.length;
-          const availableWidth = 500; // Available width for bars
-          const spacing = 8; // Space between bars
-          const totalSpacing = (barCount - 1) * spacing;
-          const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
-          
-          verticalChartHTML += `<div class="flex items-end mx-1">
-            <div style="width: ${maxBarWidth}px; height: ${height}px; background-color: ${barColor}; border-radius: 4px 4px 0 0; border: 1px solid ${barColor};"></div>
-          </div>`;
-        });
-        
-        verticalChartHTML += `</div>
-        </div>
-        <!-- Labels container - outside and below chart area -->
-        <div style="margin-left: 50px; padding: 5px 20px; height: 50px;" class="flex justify-center">`;
-        
-        verticalChartData.labels.forEach((label: string, index: number) => {
-          const value = Math.min(verticalChartData.datasets[0].data[index], 100);
-          const barCount = verticalChartData.labels.length;
-          const availableWidth = 500;
-          const spacing = 8;
-          const totalSpacing = (barCount - 1) * spacing;
-          const maxBarWidth = Math.min(50, (availableWidth - totalSpacing) / barCount);
-          
-          verticalChartHTML += `<div class="flex flex-col items-center mx-1" style="width: ${maxBarWidth + 8}px;">
-            <div class="text-sm text-gray-700 text-center" style="font-size: ${barCount > 8 ? '10px' : '12px'}; word-wrap: break-word; max-width: ${maxBarWidth + 10}px; margin-top: 2px;">${label}</div>
-            <div class="text-xs text-gray-500 text-center" style="font-size: ${barCount > 8 ? '8px' : '10px'}; margin-top: 1px;">${value}</div>
-          </div>`;
-        });
-      }
-      
-      verticalChartHTML += `</div>
-      </div>`;
-      verticalChartHTML += '</div>';
-      return verticalChartHTML;
+      return `
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
+          ${generateGoogleChartHTML(
+            columnChartId, 
+            googleData, 
+            'column',
+            replaceVariables(content.title || 'Column Chart', variables),
+            chartWidth,
+            chartHeight,
+            style.backgroundColor || '#ffffff'
+          )}
+        </div>`;
 
     case 'line-chart':
+      // Get chart data from template or variables
+      let lineChartData = null;
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          const variableName = content.data.slice(2, -2);
+          lineChartData = variables[variableName];
+        } else {
+          try {
+            lineChartData = JSON.parse(content.data);
+          } catch (e) {
+            lineChartData = null;
+          }
+        }
+      }
+
+      const lineGoogleData = convertToGoogleChartData(lineChartData || variables);
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
+      const lineChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
+      const lineChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
-          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Line Chart', variables)}</h3>
-          <div style="height: 300px;">
-            <canvas id="${lineChartId}" width="400" height="200"></canvas>
-          </div>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const ctx = document.getElementById('${lineChartId}').getContext('2d');
-              const chartData = ${JSON.stringify(generateChartData(variables))};
-              
-              new Chart(ctx, {
-                type: 'line',
-                data: chartData,
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100
-                    }
-                  }
-                }
-              });
-            });
-          </script>
+          ${generateGoogleChartHTML(
+            lineChartId, 
+            lineGoogleData, 
+            'line',
+            replaceVariables(content.title || 'Line Chart', variables),
+            lineChartWidth,
+            lineChartHeight,
+            style.backgroundColor || '#F8FAFC'
+          )}
         </div>`;
 
     case 'pie-chart':
+      // Get chart data from template or variables
+      let pieChartData = null;
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          const variableName = content.data.slice(2, -2);
+          pieChartData = variables[variableName];
+        } else {
+          try {
+            pieChartData = JSON.parse(content.data);
+          } catch (e) {
+            pieChartData = null;
+          }
+        }
+      }
+
+      const pieGoogleData = convertToGoogleChartData(pieChartData || variables);
       const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
+      const pieChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
+      const pieChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
-          <h3 class="text-lg font-semibold mb-4 text-center">${replaceVariables(content.title || 'Pie Chart', variables)}</h3>
-          <div style="height: 300px;">
-            <canvas id="${pieChartId}" width="400" height="200"></canvas>
-          </div>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const ctx = document.getElementById('${pieChartId}').getContext('2d');
-              const chartData = ${JSON.stringify(generateChartData(variables))};
-              
-              new Chart(ctx, {
-                type: 'pie',
-                data: chartData,
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false
-                }
-              });
-            });
-          </script>
+          ${generateGoogleChartHTML(
+            pieChartId, 
+            pieGoogleData, 
+            'pie',
+            replaceVariables(content.title || 'Pie Chart', variables),
+            pieChartWidth,
+            pieChartHeight,
+            style.backgroundColor || '#F8FAFC'
+          )}
+        </div>`;
+
+    case 'donut-chart':
+      // Get chart data from template or variables
+      let donutChartData = null;
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          const variableName = content.data.slice(2, -2);
+          donutChartData = variables[variableName];
+        } else {
+          try {
+            donutChartData = JSON.parse(content.data);
+          } catch (e) {
+            donutChartData = null;
+          }
+        }
+      }
+
+      const donutGoogleData = convertToGoogleChartData(donutChartData || variables);
+      const donutChartId = `donut-chart-${Math.random().toString(36).substr(2, 9)}`;
+      const donutChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
+      const donutChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      
+      return `
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
+          ${generateGoogleChartHTML(
+            donutChartId, 
+            donutGoogleData, 
+            'donut',
+            replaceVariables(content.title || 'Donut Chart', variables),
+            donutChartWidth,
+            donutChartHeight,
+            style.backgroundColor || '#F8FAFC'
+          )}
+        </div>`;
+
+    case 'bubble-chart':
+      // Get chart data from template or variables - for bubble charts we need x, y, size data
+      let bubbleChartData = null;
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          const variableName = content.data.slice(2, -2);
+          bubbleChartData = variables[variableName];
+        } else {
+          try {
+            bubbleChartData = JSON.parse(content.data);
+          } catch (e) {
+            bubbleChartData = null;
+          }
+        }
+      }
+
+      // For bubble charts, use sample bubble data if no specific data provided
+      const bubbleGoogleData = bubbleChartData || [
+        ['ID', 'X', 'Y', 'Size'],
+        ['Math',    85, 92, 85],
+        ['Science', 78, 88, 78], 
+        ['English', 95, 85, 95],
+        ['History', 68, 75, 68],
+        ['Art',     90, 95, 90]
+      ];
+      const bubbleChartId = `bubble-chart-${Math.random().toString(36).substr(2, 9)}`;
+      const bubbleChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
+      const bubbleChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      
+      return `
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
+          ${generateGoogleChartHTML(
+            bubbleChartId, 
+            bubbleGoogleData, 
+            'bubble',
+            replaceVariables(content.title || 'Bubble Chart', variables),
+            bubbleChartWidth,
+            bubbleChartHeight,
+            style.backgroundColor || '#F8FAFC'
+          )}
         </div>`;
 
     case 'text-block':
@@ -768,16 +854,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         </table>
       </div>`;
 
-    case 'bubble-chart':
-      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Bubble Chart', variables)}</h3>
-        <div class="relative h-48 bg-gray-50 rounded-lg">
-          <svg width="100%" height="100%" viewBox="0 0 100 100">
-            <circle cx="20" cy="30" r="5" fill="#3B82F6" opacity="0.7" />
-            <circle cx="60" cy="20" r="6" fill="#10B981" opacity="0.7" />
-          </svg>
-        </div>
-      </div>`;
+
 
     case 'stacked-column-chart':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
@@ -794,17 +871,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         </div>
       </div>`;
 
-    case 'donut-chart':
-      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
-        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Donut Chart', variables)}</h3>
-        <div class="flex items-center justify-center">
-          <svg width="200" height="160" viewBox="0 0 200 160">
-            <path d="M 100 80 L 100 10 A 70 70 0 0 1 170 80 L 135 80 A 35 35 0 0 0 100 45 Z" fill="#3B82F6" opacity="0.8" />
-            <text x="100" y="75" text-anchor="middle" class="text-sm font-semibold fill-gray-700">Total</text>
-            <text x="100" y="90" text-anchor="middle" class="text-lg font-bold fill-gray-800">100%</text>
-          </svg>
-        </div>
-      </div>`;
+
 
     case 'venn-diagram':
       return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">

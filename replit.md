@@ -43,12 +43,13 @@ Preferred communication style: Simple, everyday language.
 
 # External Dependencies
 
-- **@neondatabase/serverless**: Neon PostgreSQL connection with WebSocket support.
-- **drizzle-orm**: Database ORM and query builder with fallback strategies.
-- **@tanstack/react-query**: Server state management and caching.
-- **@radix-ui/***: UI primitive components for consistent design.
-- **tailwindcss**: Utility-first CSS framework for responsive styling.
-- **html-pdf-node**: Server-side PDF generation via Puppeteer.
-- **puppeteer**: Browser automation for image and PDF generation.
-- **OpenAI DALL-E 3**: AI image generation for dynamic Image components.
-- **File System Storage**: JSON-based persistence layer for local template storage.
+- **Google Charts**: Primary charting library for interactive and static chart generation
+- **@neondatabase/serverless**: Neon PostgreSQL connection with WebSocket support
+- **drizzle-orm**: Database ORM and query builder with fallback strategies
+- **@tanstack/react-query**: Server state management and caching
+- **@radix-ui/***: UI primitive components for consistent design
+- **tailwindcss**: Utility-first CSS framework for responsive styling
+- **html-pdf-node**: Server-side PDF generation via Puppeteer
+- **puppeteer**: Browser automation for image and PDF generation (enhanced implementation)
+- **OpenAI DALL-E 3**: AI image generation for dynamic Image components
+- **File System Storage**: JSON-based persistence layer for local template storage

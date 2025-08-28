@@ -30,7 +30,28 @@ export function ImageComponent({
     });
   };
 
-  const imageSrc = replaceVariables(src || '');
+  // Get default example image if no src is provided
+  const getDefaultImageUrl = () => {
+    // Try to get imageUrl from template data first
+    if (templateData.imageUrl) return templateData.imageUrl;
+    if (templateData.profileImageUrl) return templateData.profileImageUrl;
+    if (templateData.schoolLogoUrl) return templateData.schoolLogoUrl;
+    
+    // Fallback to example images from different categories
+    const defaultImages = [
+      "https://images.unsplash.com/photo-1494790108755-2616b612b602?w=400&h=300&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop"
+    ];
+    
+    // Use component id to get consistent image per component
+    const imageIndex = component.id ? Math.abs(component.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % defaultImages.length : 0;
+    return defaultImages[imageIndex];
+  };
+
+  const imageSrc = replaceVariables(src || '') || getDefaultImageUrl();
   const imageCaption = replaceVariables(caption || '');
 
   const handleImageLoad = () => {
@@ -64,27 +85,7 @@ export function ImageComponent({
 
   return (
     <div style={containerStyle} onClick={onClick}>
-      {!imageSrc ? (
-        // Placeholder when no image source is provided
-        <div
-          style={{
-            width: '100%',
-            height: componentStyle.height || '200px',
-            backgroundColor: '#F3F4F6',
-            border: '2px dashed #D1D5DB',
-            borderRadius: componentStyle.borderRadius || '8px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#6B7280'
-          }}
-        >
-          <i className="fas fa-image text-4xl mb-2"></i>
-          <p className="text-sm font-medium">No Image Selected</p>
-          <p className="text-xs">Click to add an image URL</p>
-        </div>
-      ) : imageError ? (
+      {imageError ? (
         // Error state when image fails to load
         <div
           style={{

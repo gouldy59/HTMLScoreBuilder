@@ -242,7 +242,12 @@ export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template')
         englishGrade: "B",
         overallGrade: "B+",
         gpa: 3.5,
-        rank: 15
+        rank: 15,
+        imageUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b602?w=400&h=300&fit=crop&crop=face",
+        profileImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
+        schoolLogoUrl: "https://images.unsplash.com/photo-1562774053-701939374585?w=300&h=200&fit=crop",
+        websiteUrl: "https://example-school.edu",
+        studentPortal: "https://portal.example-school.edu"
       }, null, 2);
     
     default:

@@ -452,6 +452,8 @@ export const DEFAULT_VARIABLES: TemplateVariable[] = [
   { name: 'gpa', type: 'number', description: 'Grade Point Average' },
   { name: 'rank', type: 'number', description: 'Class rank' },
   { name: 'imageUrl', type: 'string', description: 'Image URL for dynamic images' },
+  { name: 'profileImageUrl', type: 'string', description: 'Student profile image URL' },
+  { name: 'schoolLogoUrl', type: 'string', description: 'School logo image URL' },
   { name: 'websiteUrl', type: 'string', description: 'Website URL for QR codes' },
   { name: 'studentPortal', type: 'string', description: 'Student portal URL' }
 ];

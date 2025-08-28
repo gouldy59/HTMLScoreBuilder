@@ -88,15 +88,28 @@ export const convertToGoogleChartData = (templateData: any, chartType: string) =
 
   // Handle stacked bar chart data (segments-based)
   if (Array.isArray(templateData) && templateData.length > 0 && templateData[0].segments) {
-    const headers = ['Category'];
-    const segmentLabels = templateData[0].segments.map((seg: any) => seg.label || `Segment ${seg.value}`);
-    headers.push(...segmentLabels);
+    // Get all unique segment labels across all categories to ensure consistency
+    const segmentLabelsSet = new Set<string>();
+    templateData.forEach((category: any) => {
+      if (category.segments) {
+        category.segments.forEach((seg: any) => {
+          segmentLabelsSet.add(seg.label || `Segment ${seg.value}`);
+        });
+      }
+    });
+    
+    const segmentLabels = Array.from(segmentLabelsSet);
+    const headers = ['Category', ...segmentLabels];
     
     const rows = templateData.map((category: any) => {
       const row = [category.label || 'Unlabeled'];
-      category.segments.forEach((segment: any) => {
-        row.push(Number(segment.value) || 0);
+      
+      // For each segment label, find the corresponding value
+      segmentLabels.forEach((label: string) => {
+        const segment = category.segments?.find((seg: any) => seg.label === label);
+        row.push(Number(segment?.value) || 0);
       });
+      
       return row;
     });
     
@@ -191,16 +204,23 @@ export const createGoogleChart = (
     // Add stacking configuration for bar and column charts with segments
     if ((config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2) {
       options.isStacked = true;
-      // Add data labels for stacked charts
-      options.annotations = {
-        alwaysOutside: false,
-        textStyle: {
-          fontSize: 10,
-          color: '#000',
-          auraColor: '#fff',
-          opacity: 0.8
-        }
-      };
+      options.focusTarget = 'category';
+      
+      // Enhanced stacking options for better visualization
+      options.bar = { groupWidth: '75%' };
+      
+      // Remove percentage formatting that might be causing issues
+      if (config.type === 'column') {
+        options.vAxis = {
+          ...options.vAxis,
+          minValue: 0
+        };
+      } else if (config.type === 'bar') {
+        options.hAxis = {
+          ...options.hAxis,
+          minValue: 0
+        };
+      }
     }
 
     // Create appropriate chart type

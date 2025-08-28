@@ -73,7 +73,16 @@ export function GoogleChartComponent({
         // Extract colors from stacked bar chart segments
         let extractedColors: string[] | undefined;
         if (Array.isArray(chartData) && chartData.length > 0 && chartData[0].segments) {
-          extractedColors = chartData[0].segments.map((seg: any) => seg.color || '#3B82F6');
+          // Get all unique segment colors across all categories
+          const colorSet = new Set<string>();
+          chartData.forEach((category: any) => {
+            if (category.segments) {
+              category.segments.forEach((seg: any) => {
+                colorSet.add(seg.color || '#3B82F6');
+              });
+            }
+          });
+          extractedColors = Array.from(colorSet);
         }
 
         const config: GoogleChartConfig = {

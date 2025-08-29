@@ -1,4 +1,6 @@
 import { TemplateComponent } from '@/types/template';
+// Import the same conversion function used by the builder
+import { convertToGoogleChartData as convertChartData } from '../lib/googleCharts';
 import { replaceVariables } from './templateEngine';
 
 interface PagedComponent extends TemplateComponent {
@@ -322,54 +324,11 @@ export function generateHTML(
   return html;
 }
 
+// Import the same conversion function used by the builder
+import { convertToGoogleChartData as convertChartData } from '@/lib/googleCharts';
+
 function convertToGoogleChartData(chartData: any, chartType?: string) {
-  // Handle stacked chart data with segments
-  if (chartData && Array.isArray(chartData) && chartData.length > 0 && chartData[0].segments) {
-    // Get all unique segment labels for the header, preserving order
-    const segmentLabels = new Set<string>();
-    chartData.forEach((category: any) => {
-      if (category.segments) {
-        category.segments.forEach((segment: any) => {
-          if (segment.label) {
-            segmentLabels.add(segment.label);
-          }
-        });
-      }
-    });
-
-    const headers = ['Category', ...Array.from(segmentLabels)];
-    
-    const rows = chartData.map((category: any) => {
-      const row = [category.label || 'Category'];
-      
-      // Add values for each segment in order
-      Array.from(segmentLabels).forEach(label => {
-        const segment = category.segments?.find((seg: any) => seg.label === label);
-        row.push(segment?.value || 0);
-      });
-      
-      return row;
-    });
-
-    return [headers, ...rows];
-  }
-  
-  // Handle simple data format (non-stacked)
-  if (chartData && Array.isArray(chartData) && chartData.length > 0 && (chartData[0].value !== undefined || chartData[0].score !== undefined)) {
-    return [
-      ['Category', 'Value'],
-      ...chartData.map((item: any, index: number) => [
-        item.label || item.name || `Category ${index + 1}`,
-        item.value || item.score || 0
-      ])
-    ];
-  }
-  
-  // Fallback for when no valid data is provided
-  return [
-    ['Category', 'Value'],
-    ['Sample Data', 50]
-  ];
+  return convertChartData(chartData, chartType || 'column');
 }
 
 // Generate Google Charts HTML for server-side rendering

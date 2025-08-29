@@ -239,7 +239,7 @@ export function generateHTML(
           background-color: ${reportBackground} !important;
           ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''}
           overflow: visible;
-          padding: 20px;
+          padding: 0;
           margin: 0 auto;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           -webkit-print-color-adjust: exact !important;
@@ -259,7 +259,7 @@ export function generateHTML(
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             page-break-after: always;
             position: relative;
-            padding: 20px;
+            padding: 0;
           }
           
           .report-page:last-child {
@@ -310,7 +310,7 @@ export function generateHTML(
     const pageComponents = pagedComponents.filter(comp => comp.pageNumber === pageNum);
     
     html += `
-<div class="report-page" style="position: relative; width: 794px; min-height: 1123px; height: auto; background-color: ${reportBackground} !important; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''} overflow: visible; padding: 20px; margin: 0 auto ${pageNum < totalPages ? '40px' : '20px'} auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
+<div class="report-page" style="position: relative; width: 794px; min-height: 1123px; height: auto; background-color: ${reportBackground} !important; ${reportBackgroundImage ? `background-image: url('${reportBackgroundImage}') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center !important;` : ''} overflow: visible; padding: 0; margin: 0 auto ${pageNum < totalPages ? '40px' : '20px'} auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important;">`;
     
     pageComponents.forEach(component => {
       html += generatePagedComponentHTML(component, variables);

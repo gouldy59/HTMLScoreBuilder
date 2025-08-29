@@ -285,7 +285,7 @@ export const generateGoogleChartHTML = (
     height: config.height || 300,
     backgroundColor: config.backgroundColor || 'transparent',
     colors: config.colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-    legend: config.legend || { position: 'bottom' },
+    legend: config.hideLegend ? { position: 'none' } : (config.legend || { position: 'bottom' }),
     hAxis: config.hAxis || {},
     vAxis: config.vAxis || {},
     is3D: config.is3D || false,

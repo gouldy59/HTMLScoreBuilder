@@ -647,16 +647,13 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const googleData = convertToGoogleChartData(columnChartData || variables, content);
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       
-      // Calculate proper chart dimensions for preview scaling with container padding
-      // Builder uses 1152x1632px canvas, preview uses 794x1123px (scale factor ~0.69)
+      // Use consistent chart dimensions between builder and preview
       const originalWidth = parseInt((style.width || '400px').replace('px', ''));
       const originalHeight = parseInt((style.height || '300px').replace('px', ''));
-      const scaledWidth = Math.max(200, originalWidth * 0.69); // Ensure minimum width
-      const scaledHeight = Math.max(150, originalHeight * 0.69); // Ensure minimum height
       
       // Subtract padding to ensure chart fits within container
-      const chartWidth = Math.max(150, scaledWidth - 48); // 24px padding on each side
-      const chartHeight = Math.max(120, scaledHeight - 120); // 60px padding top/bottom for title and legend
+      const chartWidth = Math.max(150, originalWidth - 48); // 24px padding on each side
+      const chartHeight = Math.max(120, originalHeight - 120); // 60px padding top/bottom for title and legend
       
       // Extract colors for stacked column charts
       let chartColors: string[] | undefined;
@@ -679,13 +676,15 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             columnChartId, 
             googleData, 
-            'column',
-            replaceVariables(content.title || 'Column Chart', variables),
-            chartWidth,
-            chartHeight,
-            chartBgColor,
-            chartColors,
-            content
+            {
+              type: 'column',
+              title: replaceVariables(content.title || 'Column Chart', variables),
+              width: chartWidth,
+              height: chartHeight,
+              backgroundColor: chartBgColor,
+              colors: chartColors,
+              hideLegend: content.hideLegend === true
+            }
           )}
         </div>`;
 
@@ -717,13 +716,14 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             lineChartId, 
             lineGoogleData, 
-            'line',
-            replaceVariables(content.title || 'Line Chart', variables),
-            lineChartWidth,
-            lineChartHeight,
-            lineBgColor,
-            undefined,
-            content
+            {
+              type: 'line',
+              title: replaceVariables(content.title || 'Line Chart', variables),
+              width: lineChartWidth,
+              height: lineChartHeight,
+              backgroundColor: lineBgColor,
+              hideLegend: content.hideLegend === true
+            }
           )}
         </div>`;
 

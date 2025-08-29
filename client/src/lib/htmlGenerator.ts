@@ -129,6 +129,20 @@ export function generateHTML(
     const scaledX = Math.max(20, Math.min(position.x * scaleX, USABLE_WIDTH - 20));
     const scaledHeight = actualHeight * scaleY;
     
+    // Handle manual page break positioning
+    if (manualPageBreakProcessed) {
+      // Position component at top of new page after manual page break
+      const adjustedY = 50; // 50px from top of page
+      pagedComponents.push({
+        ...component,
+        pageNumber: currentPage,
+        adjustedPosition: { x: scaledX, y: adjustedY }
+      });
+      currentPageHeight = adjustedY + scaledHeight;
+      manualPageBreakProcessed = false;
+      return;
+    }
+    
     // Improved page splitting logic for auto-splitter  
     const componentAbsoluteY = scaledY;
     const componentBottomY = componentAbsoluteY + scaledHeight;

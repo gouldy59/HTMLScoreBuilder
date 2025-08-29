@@ -55,7 +55,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     defaultContent: {
       title: 'Chart Title',
       subtitle: 'Add your chart description here',
-      showPercentages: true,
+
       chartData: [
         {
           label: "Category A",

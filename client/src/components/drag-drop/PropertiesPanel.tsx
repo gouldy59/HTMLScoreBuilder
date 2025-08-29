@@ -472,17 +472,7 @@ export function PropertiesPanel({
             <div className="border-t pt-4">
               <Label className="font-medium text-sm">Display Settings</Label>
               <div className="space-y-2 mt-2">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="showPercentages"
-                    checked={selectedComponent.content.showPercentages !== false}
-                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside columns (displays % labels on chart segments)</Label>
-                </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -712,17 +702,7 @@ export function PropertiesPanel({
             <div className="border-t pt-4">
               <Label className="font-medium text-sm">Display Settings</Label>
               <div className="space-y-2 mt-2">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="showPercentages"
-                    checked={selectedComponent.content.showPercentages !== false}
-                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars (displays % labels on chart segments)</Label>
-                </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"

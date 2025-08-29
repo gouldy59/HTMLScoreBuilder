@@ -541,7 +541,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const horizontalChartData = content.chartData || [];
       const title = replaceVariables(content.title || '主要领域', variables);
       const subtitle = replaceVariables(content.subtitle || '您在各个主要领域的表现', variables);
-      const showPercentages = content.showPercentages !== false;
+
       const wrapLabels = content.wrapLabels === true;
       
       const barBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');

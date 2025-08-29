@@ -276,8 +276,28 @@ export const createGoogleChart = (
 export const generateGoogleChartHTML = (
   chartId: string,
   data: any[][],
-  config: GoogleChartConfig
+  config: GoogleChartConfig | string,
+  title?: string,
+  width?: number,
+  height?: number,
+  backgroundColor?: string,
+  colors?: string[],
+  content?: any
 ): string => {
+  // Handle legacy string config for backward compatibility
+  if (typeof config === 'string') {
+    const chartConfig: GoogleChartConfig = {
+      type: config as any,
+      title: title || '',
+      width: width || 400,
+      height: height || 300,
+      backgroundColor: backgroundColor || 'transparent',
+      colors: colors,
+      hideLegend: content?.hideLegend === true,
+      legend: content?.hideLegend ? { position: 'none' } : { position: 'bottom' }
+    };
+    config = chartConfig;
+  }
   const dataString = JSON.stringify(data);
   const optionsString = JSON.stringify({
     title: config.title || '',
@@ -285,11 +305,12 @@ export const generateGoogleChartHTML = (
     height: config.height || 300,
     backgroundColor: config.backgroundColor || 'transparent',
     colors: config.colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-    legend: config.legend || { position: 'bottom' },
+    legend: config.hideLegend ? { position: 'none' } : (config.legend || { position: 'bottom' }),
     hAxis: config.hAxis || {},
     vAxis: config.vAxis || {},
     is3D: config.is3D || false,
     pieHole: config.pieHole || 0,
+    isStacked: (config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2,
     chartArea: {
       left: 60,
       top: 40,

@@ -538,95 +538,66 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       return tableHTML;
 
     case 'bar-chart':
-      const horizontalChartData = content.chartData || [];
-      const title = replaceVariables(content.title || '主要领域', variables);
-      const subtitle = replaceVariables(content.subtitle || '您在各个主要领域的表现', variables);
-      const showPercentages = content.showPercentages !== false;
-      const wrapLabels = content.wrapLabels === true;
+      // Get chart data from template or variables
+      let barChartData = null;
+      if (content.data && content.data.trim()) {
+        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+          const variableName = content.data.slice(2, -2);
+          barChartData = variables[variableName];
+        } else {
+          try {
+            barChartData = JSON.parse(content.data);
+          } catch (e) {
+            barChartData = null;
+          }
+        }
+      }
+
+      const barGoogleData = convertToGoogleChartData(barChartData || content.chartData || variables, 'bar');
+      const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
       
+      // Calculate proper chart dimensions for preview scaling with container padding
+      const barOriginalWidth = parseInt((style.width || '500px').replace('px', ''));
+      const barOriginalHeight = parseInt((style.height || '300px').replace('px', ''));
+      const barScaledWidth = Math.max(200, barOriginalWidth * 0.69);
+      const barScaledHeight = Math.max(150, barOriginalHeight * 0.69);
+      
+      const barChartWidth = Math.max(150, barScaledWidth - 48);
+      const barChartHeight = Math.max(120, barScaledHeight - 120);
+      
+      // Extract colors for stacked bar charts
+      let barChartColors: string[] | undefined;
+      if (content.chartData && Array.isArray(content.chartData) && content.chartData[0]?.segments) {
+        const colorSet = new Set<string>();
+        content.chartData.forEach((category: any) => {
+          if (category.segments) {
+            category.segments.forEach((seg: any) => {
+              if (seg.color) colorSet.add(seg.color);
+            });
+          }
+        });
+        barChartColors = Array.from(colorSet);
+      }
+
       const barBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
       
       return `
-        <div style="${positionStyle} background-color: ${barBgColor}; padding: 24px; border-radius: 8px;">
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
-            <p class="text-sm text-gray-600">${subtitle}</p>
-          </div>
-          
-
-          
-          <div class="space-y-3 mb-6">
-            ${horizontalChartData.length === 0 ? `
-              <div class="text-center py-8 text-gray-500">
-                <p class="text-sm">No chart data available</p>
-              </div>
-            ` : horizontalChartData.map((item: any) => `
-              <div style="display: flex; align-items: center;">
-                <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; ${
-                  wrapLabels ? 
-                    'width: 120px; word-wrap: break-word; white-space: normal; line-height: 1.2;' :
-                    `width: ${horizontalChartData.length > 0 ? 
-                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
-                        const labelLength = (item.label || 'Category').length * 7;
-                        return labelLength > longest ? labelLength : longest;
-                      }, 80))) + 'px' : '80px'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
-                }">${item.label || 'Category'}</div>
-                <div style="position: relative; width: ${
-                  wrapLabels ? 'calc(100% - 132px - 48px)' :
-                    `calc(100% - ${horizontalChartData.length > 0 ? 
-                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
-                        const labelLength = (item.label || 'Category').length * 7;
-                        return labelLength > longest ? labelLength : longest;
-                      }, 80))) + 12 : 92}px - 48px)`
-                };">
-                  <div class="flex h-6 bg-gray-100 rounded overflow-hidden relative">
-                    ${(item.segments || []).map((segment: any, segIndex: number) => `
-                      <div class="flex items-center justify-center text-xs font-medium" 
-                           style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
-                           title="${segment.label}: ${segment.value || 0}%">
-
-                      </div>
-                    `).join('') || ''}
-                    
-                    ${item.scoreValue !== undefined && item.scoreValue !== null ? `
-                      <div style="position: absolute; top: 50%; left: calc(${Math.min(Math.max(item.scoreValue || 0, 0), 100)}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"
-                           title="Score: ${item.scoreValue}%">
-                      </div>
-                    ` : ''}
-                  </div>
-                  
-                  ${item.scoreValue !== undefined && item.scoreValue !== null ? `
-                    <div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
-                      <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
-                        ${item.scoreValue}%
-                      </span>
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-          
-          <div class="flex justify-center space-x-6">
-            <div class="flex items-center space-x-1">
-              <div class="w-4 h-4 rounded" style="background-color: #FDE2E7;"></div>
-              <span class="text-xs text-gray-600">0%-25%</span>
-            </div>
-            <div class="flex items-center space-x-1">
-              <div class="w-4 h-4 rounded" style="background-color: #FB923C;"></div>
-              <span class="text-xs text-gray-600">26%-50%</span>
-            </div>
-            <div class="flex items-center space-x-1">
-              <div class="w-4 h-4 rounded" style="background-color: #86EFAC;"></div>
-              <span class="text-xs text-gray-600">51%-75%</span>
-            </div>
-            <div class="flex items-center space-x-1">
-              <div class="w-4 h-4 rounded" style="background-color: #D1FAE5;"></div>
-              <span class="text-xs text-gray-600">76%-100%</span>
-            </div>
-          </div>
-        </div>
-      `;
+        <div style="${positionStyle} background-color: ${barBgColor}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
+          ${generateGoogleChartHTML(
+            barChartId, 
+            barGoogleData, 
+            { 
+              type: 'bar',
+              title: replaceVariables(content.title || 'Bar Chart', variables),
+              width: barChartWidth,
+              height: barChartHeight,
+              backgroundColor: barBgColor,
+              colors: barChartColors,
+              hideLegend: content.hideLegend === true,
+              legend: content.hideLegend ? { position: 'none' } : { position: 'bottom' }
+            }
+          )}
+        </div>`;
 
     case 'column-chart':
       // Get chart data from template or variables
@@ -644,7 +615,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const googleData = convertToGoogleChartData(columnChartData || variables, content);
+      const googleData = convertToGoogleChartData(columnChartData || content.chartData || variables, 'column');
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       
       // Calculate proper chart dimensions for preview scaling with container padding
@@ -679,13 +650,16 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             columnChartId, 
             googleData, 
-            'column',
-            replaceVariables(content.title || 'Column Chart', variables),
-            chartWidth,
-            chartHeight,
-            chartBgColor,
-            chartColors,
-            content
+            { 
+              type: 'column',
+              title: replaceVariables(content.title || 'Column Chart', variables),
+              width: chartWidth,
+              height: chartHeight,
+              backgroundColor: chartBgColor,
+              colors: chartColors,
+              hideLegend: content.hideLegend === true,
+              legend: content.hideLegend ? { position: 'none' } : { position: 'bottom' }
+            }
           )}
         </div>`;
 
@@ -705,7 +679,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const lineGoogleData = convertToGoogleChartData(lineChartData || variables, content);
+      const lineGoogleData = convertToGoogleChartData(lineChartData || variables, 'line');
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
       const lineChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
       const lineChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
@@ -743,7 +717,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const pieGoogleData = convertToGoogleChartData(pieChartData || variables);
+      const pieGoogleData = convertToGoogleChartData(pieChartData || variables, 'pie');
       const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
       const pieChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
       const pieChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;

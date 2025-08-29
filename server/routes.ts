@@ -122,7 +122,22 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           </div>`;
 
       case 'column-chart':
-        const googleData = convertToGoogleChartData(variables);
+        // Get chart data from component content or use provided variables
+        let columnChartData = null;
+        if (content?.data && content.data.trim()) {
+          if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+            const variableName = content.data.slice(2, -2);
+            columnChartData = variables[variableName];
+          } else {
+            try {
+              columnChartData = JSON.parse(content.data);
+            } catch (e) {
+              columnChartData = null;
+            }
+          }
+        }
+        
+        const googleData = columnChartData || convertToGoogleChartData(variables);
         const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
         const chartWidth = Math.min(600, widthVw * 7.94); // Convert vw back to approximate px for chart sizing
         const chartHeight = Math.min(400, heightVh * 11.23) - 50;
@@ -141,7 +156,22 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           </div>`;
 
       case 'bar-chart':
-        const barGoogleData = convertToGoogleChartData(variables);
+        // Get chart data from component content or use provided variables
+        let barChartData = null;
+        if (content?.data && content.data.trim()) {
+          if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+            const variableName = content.data.slice(2, -2);
+            barChartData = variables[variableName];
+          } else {
+            try {
+              barChartData = JSON.parse(content.data);
+            } catch (e) {
+              barChartData = null;
+            }
+          }
+        }
+        
+        const barGoogleData = barChartData || convertToGoogleChartData(variables);
         const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
         const barChartWidth = Math.min(600, widthVw * 7.94);
         const barChartHeight = Math.min(400, heightVh * 11.23) - 50;
@@ -179,7 +209,22 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           </div>`;
 
       case 'line-chart':
-        const lineGoogleData = convertToGoogleChartData(variables);
+        // Get chart data from component content or use provided variables
+        let lineChartData = null;
+        if (content?.data && content.data.trim()) {
+          if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+            const variableName = content.data.slice(2, -2);
+            lineChartData = variables[variableName];
+          } else {
+            try {
+              lineChartData = JSON.parse(content.data);
+            } catch (e) {
+              lineChartData = null;
+            }
+          }
+        }
+        
+        const lineGoogleData = lineChartData || convertToGoogleChartData(variables);
         const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
         const lineChartWidth = Math.min(600, widthVw * 7.94);
         const lineChartHeight = Math.min(400, heightVh * 11.23) - 50;

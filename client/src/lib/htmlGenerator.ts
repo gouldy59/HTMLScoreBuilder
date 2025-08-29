@@ -322,85 +322,79 @@ export function generateHTML(
   return html;
 }
 
-function convertToGoogleChartData(variables: Record<string, any>, componentContent?: any) {
-  // Default sample data structure
-  const defaultData = [
-    ['Subject', 'Score'],
-    ['Math', 85],
-    ['Science', 92],
-    ['English', 78],
-    ['History', 88],
-    ['Art', 95]
-  ];
+function convertToGoogleChartData(chartData: any, chartType?: string) {
+  // Handle stacked chart data with segments
+  if (chartData && Array.isArray(chartData) && chartData.length > 0 && chartData[0].segments) {
+    // Get all unique segment labels for the header, preserving order
+    const segmentLabels = new Set<string>();
+    chartData.forEach((category: any) => {
+      if (category.segments) {
+        category.segments.forEach((segment: any) => {
+          if (segment.label) {
+            segmentLabels.add(segment.label);
+          }
+        });
+      }
+    });
 
-  // Handle stacked bar/column chart data from component content
-  if (componentContent?.chartData && Array.isArray(componentContent.chartData) && componentContent.chartData.length > 0 && componentContent.chartData[0].segments) {
-    const headers = ['Category'];
-    const segmentLabels = componentContent.chartData[0].segments.map((seg: any) => seg.label || `Segment ${seg.value}`);
-    headers.push(...segmentLabels);
+    const headers = ['Category', ...Array.from(segmentLabels)];
     
-    const rows = componentContent.chartData.map((category: any) => {
-      const row = [category.label || 'Unlabeled'];
-      category.segments.forEach((segment: any) => {
-        row.push(Number(segment.value) || 0);
+    const rows = chartData.map((category: any) => {
+      const row = [category.label || 'Category'];
+      
+      // Add values for each segment in order
+      Array.from(segmentLabels).forEach(label => {
+        const segment = category.segments?.find((seg: any) => seg.label === label);
+        row.push(segment?.value || 0);
       });
+      
       return row;
     });
-    
+
     return [headers, ...rows];
   }
-
-  // Check if we have Chart.js format data (legacy compatibility)
-  if (variables.chartData && variables.chartData.labels && variables.chartData.datasets) {
-    const labels = variables.chartData.labels;
-    const data = variables.chartData.datasets[0]?.data || [];
-    
-    const result: (string | number)[][] = [['Category', 'Value']];
-    labels.forEach((label: string, index: number) => {
-      result.push([label, data[index] || 0]);
-    });
-    return result;
-  }
-
-  // Generate data from individual score fields
-  const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
-  const scores: (string | number)[][] = [];
   
-  scoreFields.forEach(field => {
-    if (variables[field] && typeof variables[field] === 'number') {
-      const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-      scores.push([subjectName, variables[field]]);
-    }
-  });
-
-  if (scores.length > 0) {
-    return [['Subject', 'Score'], ...scores];
+  // Handle simple data format (non-stacked)
+  if (chartData && Array.isArray(chartData) && chartData.length > 0 && (chartData[0].value !== undefined || chartData[0].score !== undefined)) {
+    return [
+      ['Category', 'Value'],
+      ...chartData.map((item: any, index: number) => [
+        item.label || item.name || `Category ${index + 1}`,
+        item.value || item.score || 0
+      ])
+    ];
   }
-
-  return defaultData;
+  
+  // Fallback for when no valid data is provided
+  return [
+    ['Category', 'Value'],
+    ['Sample Data', 50]
+  ];
 }
 
 // Generate Google Charts HTML for server-side rendering
 function generateGoogleChartHTML(
   chartId: string,
   data: any[][],
-  chartType: string,
-  title: string,
-  width: number = 400,
-  height: number = 300,
-  backgroundColor: string = 'transparent',
-  colors?: string[],
-  content?: any
+  options: {
+    type: string;
+    title?: string;
+    width?: number;
+    height?: number;
+    backgroundColor?: string;
+    colors?: string[];
+    hideLegend?: boolean;
+  }
 ): string {
   const dataString = JSON.stringify(data);
   
   const chartOptions: any = {
-    title: title,
-    width: width,
-    height: height,
-    backgroundColor: backgroundColor,
-    colors: colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-    legend: colors && colors.length > 0 && !content?.hideLegend ? { position: 'bottom', alignment: 'center' } : 'none',
+    title: options.title || '',
+    width: options.width || 400,
+    height: options.height || 300,
+    backgroundColor: options.backgroundColor || 'transparent',
+    colors: options.colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
+    legend: options.hideLegend ? 'none' : { position: 'bottom', alignment: 'center' },
     hAxis: {
       textStyle: { fontSize: 11 },
       titleTextStyle: { fontSize: 12 }
@@ -409,23 +403,23 @@ function generateGoogleChartHTML(
       textStyle: { fontSize: 11 },
       titleTextStyle: { fontSize: 12 }
     },
-    pieHole: chartType === 'donut' ? 0.4 : 0,
+    pieHole: options.type === 'donut' ? 0.4 : 0,
     chartArea: {
-      left: chartType === 'bar' ? 100 : 70,
-      top: chartType === 'column' ? 60 : 50,
-      width: chartType === 'bar' ? '60%' : '70%',
-      height: chartType === 'column' ? '60%' : '60%'
+      left: options.type === 'bar' ? 100 : 70,
+      top: options.type === 'column' ? 60 : 50,
+      width: options.type === 'bar' ? '60%' : '70%',
+      height: options.type === 'column' ? '60%' : '60%'
     },
     fontSize: 11,
     focusTarget: 'category'
   };
   
   // Add stacking configuration for multi-series data
-  if ((chartType === 'bar' || chartType === 'column') && data.length > 1 && data[0].length > 2) {
+  if ((options.type === 'bar' || options.type === 'column') && data.length > 1 && data[0].length > 2) {
     chartOptions.isStacked = true;
     
     // Enhanced stacking options for better visualization
-    if (chartType === 'column') {
+    if (options.type === 'column') {
       chartOptions.bar = { groupWidth: '70%' };
       chartOptions.vAxis = {
         ...chartOptions.vAxis,
@@ -439,7 +433,7 @@ function generateGoogleChartHTML(
         slantedText: false,
         maxAlternation: 1
       };
-    } else if (chartType === 'bar') {
+    } else if (options.type === 'bar') {
       chartOptions.bar = { groupWidth: '70%' };
       chartOptions.hAxis = {
         ...chartOptions.hAxis,
@@ -456,7 +450,7 @@ function generateGoogleChartHTML(
   const optionsString = JSON.stringify(chartOptions);
 
   let googleChartType = 'ColumnChart';
-  switch (chartType) {
+  switch (options.type) {
     case 'bar': googleChartType = 'BarChart'; break;
     case 'pie': googleChartType = 'PieChart'; break;
     case 'line': googleChartType = 'LineChart'; break;
@@ -469,7 +463,7 @@ function generateGoogleChartHTML(
   }
 
   return `
-    <div id="${chartId}" style="width: ${width}px; height: ${height}px; margin: 0 auto; overflow: hidden; box-sizing: border-box;"></div>
+    <div id="${chartId}" style="width: ${options.width || 400}px; height: ${options.height || 300}px; margin: 0 auto; overflow: hidden; box-sizing: border-box;"></div>
     <script type="text/javascript">
       google.charts.setOnLoadCallback(function() {
         var data = google.visualization.arrayToDataTable(${dataString});
@@ -557,7 +551,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         barChartData = content.chartData;
       }
 
-      const barGoogleData = convertToGoogleChartData(barChartData || variables, 'bar');
+      const barGoogleData = convertToGoogleChartData(barChartData, 'bar');
       const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
       
       const barWidth = parseInt((style.width || '500px').replace('px', '')) - 48;
@@ -616,7 +610,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         columnChartData = content.chartData;
       }
 
-      const columnGoogleData = convertToGoogleChartData(columnChartData || variables, 'column');
+      const columnGoogleData = convertToGoogleChartData(columnChartData, 'column');
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       
       const columnWidth = parseInt((style.width || '400px').replace('px', '')) - 48;

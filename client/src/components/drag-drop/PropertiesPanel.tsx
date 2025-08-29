@@ -839,32 +839,6 @@ export function PropertiesPanel({
             </div>
             
             <div className="pt-2 border-t">
-              <Label>Display Options</Label>
-              <div className="space-y-2 mt-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="showPercentages"
-                    checked={selectedComponent.content.showPercentages !== false}
-                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
-                    className="rounded"
-                  />
-                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values in bars</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="wrapLabels"
-                    checked={selectedComponent.content.wrapLabels === true}
-                    onChange={(e) => updateContent('wrapLabels', e.target.checked)}
-                    className="rounded"
-                  />
-                  <Label htmlFor="wrapLabels" className="text-sm">Wrap long labels</Label>
-                </div>
-              </div>
-            </div>
-            
-            <div className="pt-2 border-t">
               <Label>Quick Actions</Label>
               <div className="flex gap-2 mt-2">
                 <Button

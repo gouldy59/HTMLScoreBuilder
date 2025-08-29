@@ -22,6 +22,12 @@ export function PageBreakComponent({
     e.stopPropagation();
     onSelect?.();
   };
+  
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete?.();
+  };
 
   const replaceVariables = (text: string, data: any) => {
     return text.replace(/\{\{(\w+)\}\}/g, (match, key) => {
@@ -69,6 +75,17 @@ export function PageBreakComponent({
         <span>📄 {label}</span>
         <div className="w-6 h-0.5 bg-red-400"></div>
       </div>
+      
+      {/* Delete button */}
+      {isSelected && onDelete && (
+        <button
+          onClick={handleDelete}
+          className="absolute -top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-bold z-30"
+          title="Delete page break"
+        >
+          ×
+        </button>
+      )}
       
       {/* Visual indicator for new page */}
       <div className="absolute -bottom-1 left-0 right-0 text-center">

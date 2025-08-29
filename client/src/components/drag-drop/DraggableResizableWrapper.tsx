@@ -25,7 +25,8 @@ export function DraggableResizableWrapper({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === wrapperRef.current || (e.target as HTMLElement).closest('.component-content')) {
+    // For page breaks, ensure they can be selected and dragged
+    if (component.type === 'page-break' || e.target === wrapperRef.current || (e.target as HTMLElement).closest('.component-content')) {
       e.preventDefault();
       setIsDragging(true);
       setDragStart({
@@ -37,12 +38,10 @@ export function DraggableResizableWrapper({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // For page-break components, ensure they can be selected
-    if (component.type === 'page-break') {
-      e.preventDefault();
-      e.stopPropagation();
-      onSelect();
-    }
+    // Ensure all components can be selected on click
+    e.preventDefault();
+    e.stopPropagation();
+    onSelect();
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
@@ -146,7 +145,7 @@ export function DraggableResizableWrapper({
     top: component.position.y,
     width: component.style?.width || 'auto',
     height: component.style?.height || 'auto',
-    cursor: isDragging ? 'grabbing' : (component.type === 'page-break' ? 'pointer' : 'grab'),
+    cursor: isDragging ? 'grabbing' : (component.type === 'page-break' ? 'move' : 'grab'),
     zIndex: isSelected ? 1000 : 1,
     border: isSelected ? '2px solid #3B82F6' : '2px solid transparent',
     borderRadius: '4px',

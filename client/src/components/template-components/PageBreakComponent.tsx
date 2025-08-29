@@ -24,6 +24,12 @@ export function PageBreakComponent({
     onSelect?.();
   };
   
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onSelect?.();
+  };
+  
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -70,6 +76,7 @@ export function PageBreakComponent({
         zIndex: 10
       }}
       onClick={handleClick}
+      onMouseDown={handleMouseDown}
     >
       <div className="flex items-center space-x-2 text-xs text-red-600 font-semibold">
         <div className="w-6 h-0.5 bg-red-400"></div>

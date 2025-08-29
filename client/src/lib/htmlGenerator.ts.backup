@@ -538,7 +538,11 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       return tableHTML;
 
     case 'bar-chart':
-      // Use Google Charts for bar chart in preview (same as builder)
+      const horizontalChartData = content.chartData || [];
+      const title = replaceVariables(content.title || '主要领域', variables);
+      const subtitle = replaceVariables(content.subtitle || '您在各个主要领域的表现', variables);
+
+      // Use Google Charts for stacked bar chart in preview (same as builder)
       let barChartData = null;
       if (content.data && content.data.trim()) {
         if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
@@ -553,6 +557,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
+      // Use chartData from component content for stacked charts
       if (!barChartData && content.chartData) {
         barChartData = content.chartData;
       }
@@ -595,6 +600,59 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             }
           )}
         </div>`;
+          
+
+          
+          <div class="space-y-3 mb-6">
+            ${horizontalChartData.length === 0 ? `
+              <div class="text-center py-8 text-gray-500">
+                <p class="text-sm">No chart data available</p>
+              </div>
+            ` : horizontalChartData.map((item: any) => `
+              <div style="display: flex; align-items: center;">
+                <div style="font-size: 12px; color: #374151; padding-right: 12px; font-weight: 500; ${
+                  wrapLabels ? 
+                    'width: 120px; word-wrap: break-word; white-space: normal; line-height: 1.2;' :
+                    `width: ${horizontalChartData.length > 0 ? 
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
+                        const labelLength = (item.label || 'Category').length * 7;
+                        return labelLength > longest ? labelLength : longest;
+                      }, 80))) + 'px' : '80px'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
+                }">${item.label || 'Category'}</div>
+                <div style="position: relative; width: ${
+                  wrapLabels ? 'calc(100% - 132px - 48px)' :
+                    `calc(100% - ${horizontalChartData.length > 0 ? 
+                      Math.min(200, Math.max(80, horizontalChartData.reduce((longest: number, item: any) => {
+                        const labelLength = (item.label || 'Category').length * 7;
+                        return labelLength > longest ? labelLength : longest;
+                      }, 80))) + 12 : 92}px - 48px)`
+                };">
+                  <div class="flex h-6 bg-gray-100 rounded overflow-hidden relative">
+                    ${(item.segments || []).map((segment: any, segIndex: number) => `
+                      <div class="flex items-center justify-center text-xs font-medium" 
+                           style="width: ${segment.value || 0}%; background-color: ${segment.color || '#E5E7EB'}; ${segIndex > 0 ? 'border-left: 1px solid #fff;' : ''}"
+                           title="${segment.label}: ${segment.value || 0}%">
+
+                      </div>
+                    `).join('') || ''}
+                    
+                    ${item.scoreValue !== undefined && item.scoreValue !== null ? `
+                      <div style="position: absolute; top: 50%; left: calc(${Math.min(Math.max(item.scoreValue || 0, 0), 100)}% - 6px); transform: translateY(-50%); width: 12px; height: 12px; background-color: #dc2626; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 10;"
+                           title="Score: ${item.scoreValue}%">
+                      </div>
+                    ` : ''}
+                  </div>
+                  
+                  ${item.scoreValue !== undefined && item.scoreValue !== null ? `
+                    <div style="position: absolute; right: -48px; top: 0; bottom: 0; display: flex; align-items: center;">
+                      <span style="font-size: 12px; font-weight: bold; color: #dc2626; background-color: white; padding: 2px 4px; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); border: 1px solid #e5e7eb;">
+                        ${item.scoreValue}%
+                      </span>
+                    </div>
+                  ` : ''}
+                </div>
+        </div>`;
+
     case 'column-chart':
       // Use Google Charts for stacked column chart in preview (same as builder)
       let columnChartData = null;

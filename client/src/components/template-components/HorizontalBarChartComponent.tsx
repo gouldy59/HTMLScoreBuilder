@@ -15,7 +15,7 @@ export function HorizontalBarChartComponent(props: HorizontalBarChartComponentPr
     <GoogleChartComponent
       {...props}
       chartType="bar"
-      chartTitle="Horizontal Bar Chart"
+      chartTitle="Bar Chart"
     />
   );
 }

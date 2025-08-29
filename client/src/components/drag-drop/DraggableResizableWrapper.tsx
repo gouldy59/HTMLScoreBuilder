@@ -156,7 +156,7 @@ export function DraggableResizableWrapper({
       tabIndex={0}
     >
       {/* Component content */}
-      <div className="component-content w-full h-full">
+      <div className="component-content w-full h-full overflow-hidden" style={{ boxSizing: 'border-box' }}>
         {children}
       </div>
 

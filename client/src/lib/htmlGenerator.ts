@@ -383,10 +383,10 @@ function generateGoogleChartHTML(
     },
     pieHole: chartType === 'donut' ? 0.4 : 0,
     chartArea: {
-      left: chartType === 'bar' ? 120 : 90,
-      top: chartType === 'column' ? 80 : 60,
-      width: chartType === 'bar' ? '65%' : '75%',
-      height: chartType === 'column' ? '70%' : '65%'
+      left: chartType === 'bar' ? 100 : 70,
+      top: chartType === 'column' ? 60 : 50,
+      width: chartType === 'bar' ? '60%' : '70%',
+      height: chartType === 'column' ? '60%' : '60%'
     },
     fontSize: 11,
     focusTarget: 'category'
@@ -441,7 +441,7 @@ function generateGoogleChartHTML(
   }
 
   return `
-    <div id="${chartId}" style="width: ${width}px; height: ${height}px; margin: 0 auto;"></div>
+    <div id="${chartId}" style="width: ${width}px; height: ${height}px; margin: 0 auto; overflow: hidden; box-sizing: border-box;"></div>
     <script type="text/javascript">
       google.charts.setOnLoadCallback(function() {
         var data = google.visualization.arrayToDataTable(${dataString});
@@ -617,12 +617,16 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const googleData = convertToGoogleChartData(columnChartData || variables, content);
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       
-      // Calculate proper chart dimensions for preview scaling
+      // Calculate proper chart dimensions for preview scaling with container padding
       // Builder uses 1152x1632px canvas, preview uses 794x1123px (scale factor ~0.69)
       const originalWidth = parseInt((style.width || '400px').replace('px', ''));
       const originalHeight = parseInt((style.height || '300px').replace('px', ''));
-      const chartWidth = Math.max(300, originalWidth * 0.69); // Ensure minimum width
-      const chartHeight = Math.max(250, originalHeight * 0.69); // Ensure minimum height
+      const scaledWidth = Math.max(200, originalWidth * 0.69); // Ensure minimum width
+      const scaledHeight = Math.max(150, originalHeight * 0.69); // Ensure minimum height
+      
+      // Subtract padding to ensure chart fits within container
+      const chartWidth = Math.max(150, scaledWidth - 48); // 24px padding on each side
+      const chartHeight = Math.max(120, scaledHeight - 120); // 60px padding top/bottom for title and legend
       
       // Extract colors for stacked column charts
       let chartColors: string[] | undefined;
@@ -639,7 +643,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       }
 
       return `
-        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
+        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
           ${generateGoogleChartHTML(
             columnChartId, 
             googleData, 

@@ -187,10 +187,10 @@ export const createGoogleChart = (
         easing: 'out'
       },
       chartArea: {
-        left: config.type === 'bar' ? 120 : 90,
-        top: config.type === 'column' ? 80 : 60,
-        width: config.type === 'bar' ? '65%' : '75%',
-        height: config.type === 'column' ? '70%' : '65%'
+        left: config.type === 'bar' ? 100 : 70,
+        top: config.type === 'column' ? 60 : 50,
+        width: config.type === 'bar' ? '60%' : '70%',
+        height: config.type === 'column' ? '60%' : '60%'
       },
       bar: { groupWidth: '75%' },
       fontSize: 11,

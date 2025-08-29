@@ -85,11 +85,17 @@ export function GoogleChartComponent({
           extractedColors = Array.from(colorSet);
         }
 
+        // Ensure chart fits within container with padding
+        const containerWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
+        const containerHeight = parseInt((style.height || '300px').replace('px', '')) || 300;
+        const chartWidth = Math.max(200, containerWidth - 32); // 16px padding on each side
+        const chartHeight = Math.max(150, containerHeight - 32); // 16px padding top/bottom
+
         const config: GoogleChartConfig = {
           type: chartType,
           title: content.title || chartTitle || 'Chart',
-          width: parseInt((style.width || '400px').replace('px', '')) || 400,
-          height: parseInt((style.height || '300px').replace('px', '')) || 300,
+          width: chartWidth,
+          height: chartHeight,
           backgroundColor: style.backgroundColor || 'transparent',
           colors: extractedColors || content.colors || undefined,
           legend: { position: 'bottom', alignment: 'center' },
@@ -112,15 +118,16 @@ export function GoogleChartComponent({
 
   return (
     <div
-      className="component-content w-full h-full"
+      className="component-content w-full h-full overflow-hidden"
       style={{
         width: style.width || '400px',
         height: style.height || '300px',
         backgroundColor: style.backgroundColor || '#ffffff',
-        padding: '8px',
+        padding: '16px',
         borderRadius: '8px',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        boxSizing: 'border-box'
       }}
       data-chart-component="true"
     >
@@ -141,7 +148,8 @@ export function GoogleChartComponent({
           style={{ 
             width: '100%', 
             height: '100%',
-            minHeight: '200px',
+            minHeight: '150px',
+            overflow: 'hidden',
             display: isLoading || error ? 'none' : 'block'
           }}
         />

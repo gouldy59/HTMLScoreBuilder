@@ -139,8 +139,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     // Calculate relative position from the page break
     const relativeY = originalY - pageBreakY;
     
-    // If component is close to the page break (within 50px), move it to start of next page
-    if (relativeY < 50) {
+    // If component is close to the page break (within 100px), move it to start of next page
+    if (relativeY < 100) {
       return { x: component.position?.x || 0, y: pageStartY + 20 };
     }
     
@@ -381,6 +381,18 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'page-break':
         // Page breaks are invisible in PDF/image generation
         return `<div style="${positionStyle} height: 0px; page-break-before: always; display: block; visibility: hidden;"></div>`;
+
+      case 'text-block':
+        const textContent = content?.text ? replaceVariables(content.text, variables) : 'Add your text content here. You can use variables like {{studentName}} to make it dynamic.';
+        const fontSize = style?.fontSize || '16px';
+        const fontWeight = style?.fontWeight || 'normal';
+        const textAlign = style?.textAlign || 'left';
+        const lineHeight = style?.lineHeight || '1.5';
+        
+        return `
+          <div style="${positionStyle} background-color: ${style?.backgroundColor || 'transparent'}; color: ${style?.color || '#000000'}; font-size: ${fontSize}; font-weight: ${fontWeight}; text-align: ${textAlign}; line-height: ${lineHeight}; padding: 8px; border-radius: 4px;">
+            ${textContent.split('\n').map(line => `<p style="margin: 0 0 8px 0;">${line}</p>`).join('')}
+          </div>`;
 
       default:
         return `

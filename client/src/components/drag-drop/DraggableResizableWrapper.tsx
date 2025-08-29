@@ -25,16 +25,14 @@ export function DraggableResizableWrapper({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    // For page breaks, ensure they can be selected and dragged
-    if (component.type === 'page-break' || e.target === wrapperRef.current || (e.target as HTMLElement).closest('.component-content')) {
-      e.preventDefault();
-      setIsDragging(true);
-      setDragStart({
-        x: e.clientX - component.position.x,
-        y: e.clientY - component.position.y
-      });
-      onSelect();
-    }
+    // Always allow dragging for all components, including page breaks
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - component.position.x,
+      y: e.clientY - component.position.y
+    });
+    onSelect();
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -69,8 +67,12 @@ export function DraggableResizableWrapper({
         // Get canvas bounds - find the actual canvas container  
         const canvas = document.querySelector('[data-canvas="true"]') || document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
         
-        const componentWidth = parseInt(component.style?.width?.toString() || '300');
-        const componentHeight = parseInt(component.style?.height?.toString() || '200');
+        const componentWidth = component.type === 'page-break' ? 
+          canvas?.clientWidth || 794 : 
+          parseInt(component.style?.width?.toString() || '300');
+        const componentHeight = component.type === 'page-break' ? 
+          40 : 
+          parseInt(component.style?.height?.toString() || '200');
         
         const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
         const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;

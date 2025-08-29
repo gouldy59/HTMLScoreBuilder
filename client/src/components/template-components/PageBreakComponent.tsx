@@ -25,8 +25,8 @@ export function PageBreakComponent({
   };
   
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // Don't prevent default or stop propagation for page breaks
+    // Let the wrapper handle the drag functionality
     onSelect?.();
   };
   
@@ -88,7 +88,11 @@ export function PageBreakComponent({
       {/* Delete button */}
       {isSelected && onDelete && (
         <button
-          onClick={handleDelete}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
           className="absolute -top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-bold z-30"
           title="Delete page break"
         >

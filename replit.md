@@ -55,6 +55,9 @@ Preferred communication style: Simple, everyday language.
 - **File System Storage**: JSON-based persistence layer for local template storage
 
 # Recent Changes
+- **2024-08-29**: Fixed page break component interaction - selection, movement, and deletion now work properly
+- **2024-08-29**: Enhanced page break sizing (40px height) and visual feedback for better user experience
+- **2024-08-29**: Improved component positioning after page breaks with proper 50px margins in exports
 - **2024-08-28**: Fixed PDF/image export full-page layout - Reports now fill entire A4 page instead of small centered view
 - **2024-08-28**: Implemented viewport-relative positioning (vw/vh) for proper scaling in exports
 - **2024-08-28**: Removed all PDF margins and background support for professional full-page reports

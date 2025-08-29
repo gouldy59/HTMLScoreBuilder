@@ -21,32 +21,34 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
   }
 
   function convertToGoogleChartData(variables: Record<string, any>) {
-    // Default sample data structure
-    const defaultData = [
-      ['Subject', 'Score'],
-      ['Math', variables.mathScore || 85],
-      ['Science', variables.scienceScore || 92],
-      ['English', variables.englishScore || 78],
-      ['History', variables.historyScore || 88],
-      ['Art', variables.artScore || 95]
-    ];
-
+    console.log('Converting chart data with variables:', variables);
+    
     // Generate data from individual score fields
     const scoreFields = ['mathScore', 'scienceScore', 'englishScore', 'historyScore', 'artScore'];
     const scores: (string | number)[][] = [];
     
     scoreFields.forEach(field => {
-      if (variables[field] && typeof variables[field] === 'number') {
+      if (variables[field] !== undefined && variables[field] !== null) {
         const subjectName = field.replace('Score', '').charAt(0).toUpperCase() + field.replace('Score', '').slice(1);
-        scores.push([subjectName, variables[field]]);
+        scores.push([subjectName, Number(variables[field])]);
       }
     });
 
     if (scores.length > 0) {
+      console.log('Generated chart data from variables:', [['Subject', 'Score'], ...scores]);
       return [['Subject', 'Score'], ...scores];
     }
 
-    return defaultData;
+    // Fallback sample data only if no variables provided
+    const fallbackData = [
+      ['Subject', 'Score'],
+      ['Math', 85],
+      ['Science', 92],
+      ['English', 78]
+    ];
+    
+    console.log('Using fallback chart data:', fallbackData);
+    return fallbackData;
   }
 
   function generateGoogleChartHTML(
@@ -190,7 +192,22 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           </div>`;
 
       case 'pie-chart':
-        const pieGoogleData = convertToGoogleChartData(variables);
+        // Get chart data from component content or use provided variables
+        let pieChartData = null;
+        if (content?.data && content.data.trim()) {
+          if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
+            const variableName = content.data.slice(2, -2);
+            pieChartData = variables[variableName];
+          } else {
+            try {
+              pieChartData = JSON.parse(content.data);
+            } catch (e) {
+              pieChartData = null;
+            }
+          }
+        }
+        
+        const pieGoogleData = pieChartData || convertToGoogleChartData(variables);
         const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
         const pieChartWidth = Math.min(600, widthVw * 7.94);
         const pieChartHeight = Math.min(400, heightVh * 11.23) - 50;

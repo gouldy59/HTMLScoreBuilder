@@ -99,8 +99,7 @@ export async function generateImageFromHTML(html: string, templateId: number): P
   // Use full page screenshot to capture all content including multiple pages
   const imageBuffer = await page.screenshot({ 
     type: 'png',
-    fullPage: true,
-    clip: { x: 0, y: 0, width: 794, height: Math.max(bodyHeight, 1123) }
+    fullPage: true
   });
   
   await browser.close();

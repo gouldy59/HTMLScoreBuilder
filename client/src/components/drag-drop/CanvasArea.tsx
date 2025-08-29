@@ -245,22 +245,43 @@ export function CanvasArea({
             </div>
           ))}
           
-          {/* Page break position indicators */}
+          {/* Page break position indicators with greyed sections */}
           {pageBreaks.map((pageBreak, index) => {
             const pageBreakY = pageBreak.position?.y || 0;
+            const nextPageStart = Math.ceil((pageBreakY + 40) / pageHeight) * pageHeight;
+            const greyedHeight = nextPageStart - (pageBreakY + 40);
+            
             return (
-              <div
-                key={`page-boundary-${index}`}
-                className="absolute left-0 right-0 border-t-2 border-dashed border-red-400 bg-red-100 pointer-events-none z-15"
-                style={{
-                  top: `${pageBreakY + 20}px`,
-                  height: '20px',
-                  opacity: 0.8
-                }}
-              >
-                <div className="absolute left-4 top-0 text-xs font-semibold text-red-700 bg-white px-2 rounded">
-                  ✂️ Page Break Here
+              <div key={`page-break-area-${index}`}>
+                {/* Page break indicator */}
+                <div
+                  className="absolute left-0 right-0 border-t-2 border-dashed border-red-400 bg-red-100 pointer-events-none z-15"
+                  style={{
+                    top: `${pageBreakY + 20}px`,
+                    height: '20px',
+                    opacity: 0.8
+                  }}
+                >
+                  <div className="absolute left-4 top-0 text-xs font-semibold text-red-700 bg-white px-2 rounded">
+                    ✂️ Page Break Here
+                  </div>
                 </div>
+                
+                {/* Greyed out section from page break to next page */}
+                {greyedHeight > 0 && (
+                  <div
+                    className="absolute left-0 right-0 bg-gray-300 bg-opacity-40 pointer-events-none z-5"
+                    style={{
+                      top: `${pageBreakY + 40}px`,
+                      height: `${greyedHeight}px`,
+                      opacity: 0.6
+                    }}
+                  >
+                    <div className="absolute left-4 top-2 text-xs text-gray-600 bg-white bg-opacity-80 px-2 py-1 rounded">
+                      Content will move to next page
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

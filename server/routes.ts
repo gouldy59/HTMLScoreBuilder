@@ -58,18 +58,27 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     title: string,
     width: number = 400,
     height: number = 300,
-    backgroundColor: string = 'transparent'
+    backgroundColor: string = 'transparent',
+    customColors: string[] = []
   ): string {
     const dataString = JSON.stringify(data);
+    
+    // Use custom colors if provided, otherwise default colors
+    const colors = customColors.length > 0 ? customColors : ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'];
+    
     const optionsString = JSON.stringify({
       title: title,
       width: width,
       height: height,
       backgroundColor: backgroundColor,
-      colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
+      colors: colors,
       legend: { position: 'bottom' },
       hAxis: {},
-      vAxis: {},
+      vAxis: {
+        minValue: 0,
+        maxValue: 100,
+        format: '#\'%\''
+      },
       pieHole: chartType === 'donut' ? 0.4 : 0,
       chartArea: {
         left: 60,
@@ -180,13 +189,19 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        // Convert custom chartData format to Google Charts format
+        // Convert custom chartData format to Google Charts format and extract colors
         let googleData;
+        let chartColors: string[] = [];
         if (columnChartData && Array.isArray(columnChartData) && columnChartData[0]?.label) {
           // Custom chart data format with labels
           googleData = [['Category', 'Score'], ...columnChartData.map(item => [item.label, item.scoreValue || 0])];
+          // Extract colors from segments if available
+          chartColors = columnChartData.map(item => 
+            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
+          );
         } else {
           googleData = columnChartData || convertToGoogleChartData(variables);
+          chartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
         }
 
         const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
@@ -202,7 +217,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
               replaceVariables(content?.title || 'Column Chart', variables),
               chartWidth,
               chartHeight,
-              style?.backgroundColor || '#ffffff'
+              style?.backgroundColor || '#ffffff',
+              chartColors
             )}
           </div>`;
 
@@ -226,13 +242,19 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        // Convert custom chartData format to Google Charts format
+        // Convert custom chartData format to Google Charts format and extract colors
         let barGoogleData;
+        let barChartColors: string[] = [];
         if (barChartData && Array.isArray(barChartData) && barChartData[0]?.label) {
           // Custom chart data format with labels
           barGoogleData = [['Category', 'Score'], ...barChartData.map(item => [item.label, item.scoreValue || 0])];
+          // Extract colors from segments if available
+          barChartColors = barChartData.map(item => 
+            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
+          );
         } else {
           barGoogleData = barChartData || convertToGoogleChartData(variables);
+          barChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
         }
         const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
         const barChartWidth = Math.min(600, widthVw * 7.94);
@@ -247,7 +269,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
               replaceVariables(content?.title || 'Bar Chart', variables),
               barChartWidth,
               barChartHeight,
-              style?.backgroundColor || '#ffffff'
+              style?.backgroundColor || '#ffffff',
+              barChartColors
             )}
           </div>`;
 
@@ -271,13 +294,19 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        // Convert custom chartData format to Google Charts format
+        // Convert custom chartData format to Google Charts format and extract colors
         let pieGoogleData;
+        let pieChartColors: string[] = [];
         if (pieChartData && Array.isArray(pieChartData) && pieChartData[0]?.label) {
           // Custom chart data format with labels
           pieGoogleData = [['Category', 'Score'], ...pieChartData.map(item => [item.label, item.scoreValue || 0])];
+          // Extract colors from segments if available
+          pieChartColors = pieChartData.map(item => 
+            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
+          );
         } else {
           pieGoogleData = pieChartData || convertToGoogleChartData(variables);
+          pieChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
         }
         const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
         const pieChartWidth = Math.min(600, widthVw * 7.94);
@@ -292,7 +321,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
               replaceVariables(content?.title || 'Pie Chart', variables),
               pieChartWidth,
               pieChartHeight,
-              style?.backgroundColor || '#ffffff'
+              style?.backgroundColor || '#ffffff',
+              pieChartColors
             )}
           </div>`;
 
@@ -316,13 +346,19 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        // Convert custom chartData format to Google Charts format
+        // Convert custom chartData format to Google Charts format and extract colors
         let lineGoogleData;
+        let lineChartColors: string[] = [];
         if (lineChartData && Array.isArray(lineChartData) && lineChartData[0]?.label) {
           // Custom chart data format with labels
           lineGoogleData = [['Category', 'Score'], ...lineChartData.map(item => [item.label, item.scoreValue || 0])];
+          // Extract colors from segments if available
+          lineChartColors = lineChartData.map(item => 
+            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
+          );
         } else {
           lineGoogleData = lineChartData || convertToGoogleChartData(variables);
+          lineChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
         }
         const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
         const lineChartWidth = Math.min(600, widthVw * 7.94);
@@ -337,7 +373,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
               replaceVariables(content?.title || 'Line Chart', variables),
               lineChartWidth,
               lineChartHeight,
-              style?.backgroundColor || '#ffffff'
+              style?.backgroundColor || '#ffffff',
+              lineChartColors
             )}
           </div>`;
 

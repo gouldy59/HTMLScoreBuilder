@@ -586,16 +586,13 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             barChartId, 
             barGoogleData, 
-            { 
-              type: 'bar',
-              title: replaceVariables(content.title || 'Bar Chart', variables),
-              width: barChartWidth,
-              height: barChartHeight,
-              backgroundColor: barBgColor,
-              colors: barChartColors,
-              hideLegend: content.hideLegend === true,
-              legend: content.hideLegend ? { position: 'none' } : { position: 'bottom' }
-            }
+            'bar',
+            replaceVariables(content.title || 'Bar Chart', variables),
+            barChartWidth,
+            barChartHeight,
+            barBgColor,
+            barChartColors,
+            content
           )}
         </div>`;
 
@@ -650,16 +647,13 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             columnChartId, 
             googleData, 
-            { 
-              type: 'column',
-              title: replaceVariables(content.title || 'Column Chart', variables),
-              width: chartWidth,
-              height: chartHeight,
-              backgroundColor: chartBgColor,
-              colors: chartColors,
-              hideLegend: content.hideLegend === true,
-              legend: content.hideLegend ? { position: 'none' } : { position: 'bottom' }
-            }
+            'column',
+            replaceVariables(content.title || 'Column Chart', variables),
+            chartWidth,
+            chartHeight,
+            chartBgColor,
+            chartColors,
+            content
           )}
         </div>`;
 
@@ -799,8 +793,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         ['Art',     90, 95, 90]
       ];
       const bubbleChartId = `bubble-chart-${Math.random().toString(36).substr(2, 9)}`;
-      const bubbleChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
-      const bubbleChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      const bubbleChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
+      const bubbleChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
       
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">

@@ -25,6 +25,7 @@ export interface GoogleChartConfig {
   height?: number | string;
   backgroundColor?: string;
   colors?: string[];
+  hideLegend?: boolean;
   legend?: {
     position: 'top' | 'bottom' | 'left' | 'right' | 'none';
     alignment?: 'start' | 'center' | 'end';
@@ -33,11 +34,14 @@ export interface GoogleChartConfig {
     title?: string;
     minValue?: number;
     maxValue?: number;
+    textStyle?: any;
+    slantedText?: boolean;
   };
   vAxis?: {
     title?: string;
     minValue?: number;
     maxValue?: number;
+    textStyle?: any;
   };
   is3D?: boolean;
   pieHole?: number; // For donut charts
@@ -203,30 +207,30 @@ export const createGoogleChart = (
 
     // Add stacking configuration for bar and column charts with segments
     if ((config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2) {
-      options.isStacked = true;
+      (options as any).isStacked = true;
       options.focusTarget = 'category';
       
       // Enhanced stacking options for better visualization
       if (config.type === 'column') {
         options.bar = { groupWidth: '60%' };
-        options.vAxis = {
+        (options as any).vAxis = {
           ...options.vAxis,
           minValue: 0,
           textStyle: { fontSize: 10 }
         };
-        options.hAxis = {
+        (options as any).hAxis = {
           ...options.hAxis,
           textStyle: { fontSize: 10 },
           slantedText: false
         };
       } else if (config.type === 'bar') {
         options.bar = { groupWidth: '60%' };
-        options.hAxis = {
+        (options as any).hAxis = {
           ...options.hAxis,
           minValue: 0,
           textStyle: { fontSize: 10 }
         };
-        options.vAxis = {
+        (options as any).vAxis = {
           ...options.vAxis,
           textStyle: { fontSize: 10 }
         };
@@ -310,7 +314,7 @@ export const generateGoogleChartHTML = (
     vAxis: config.vAxis || {},
     is3D: config.is3D || false,
     pieHole: config.pieHole || 0,
-    isStacked: (config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2,
+    ...(((config.type === 'bar' || config.type === 'column') && data.length > 1 && data[0].length > 2) ? { isStacked: true } : {}),
     chartArea: {
       left: 60,
       top: 40,

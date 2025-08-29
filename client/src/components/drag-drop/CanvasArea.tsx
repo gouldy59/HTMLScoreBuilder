@@ -54,6 +54,11 @@ export function CanvasArea({
 
   // Get page breaks for visual indicators
   const pageBreaks = components.filter(c => c.type === 'page-break');
+  
+  // Calculate total pages needed based on page breaks
+  const totalPages = Math.max(1, pageBreaks.length + 1);
+  const pageHeight = 1123; // A4 height in px
+  const totalCanvasHeight = totalPages * pageHeight;
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -190,7 +195,7 @@ export function CanvasArea({
           }`}
           style={{
             width: '794px', // A4 width at 96 DPI
-            height: '1123px', // A4 height at 96 DPI
+            height: `${totalCanvasHeight}px`, // Dynamic height based on pages
             backgroundColor: reportBackground,
             backgroundImage: reportBackgroundImage 
               ? `url("${reportBackgroundImage}"), linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
@@ -207,21 +212,54 @@ export function CanvasArea({
             position: 'relative'
           }}
         >
-          {/* Page boundary indicators when page breaks exist */}
-          {pageBreaks.length > 0 && pageBreaks.map((pageBreak, index) => {
+          {/* Page grid boundaries for multiple pages */}
+          {totalPages > 1 && Array.from({ length: totalPages - 1 }, (_, index) => (
+            <div
+              key={`page-separator-${index}`}
+              className="absolute left-0 right-0 border-t-4 border-dashed border-blue-500 bg-blue-50 pointer-events-none z-5"
+              style={{
+                top: `${(index + 1) * pageHeight}px`,
+                height: '32px',
+                opacity: 0.9
+              }}
+            >
+              <div className="absolute left-4 top-2 text-sm font-bold text-blue-700 bg-white px-3 py-1 rounded-md shadow-sm">
+                📄 Page {index + 2}
+              </div>
+              <div className="absolute right-4 top-2 text-xs text-blue-600 bg-white px-2 py-1 rounded border border-blue-200">
+                A4 Canvas Area
+              </div>
+            </div>
+          ))}
+          
+          {/* Page numbers in corners */}
+          {Array.from({ length: totalPages }, (_, index) => (
+            <div
+              key={`page-number-${index}`}
+              className="absolute top-2 right-2 text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded border border-gray-200 pointer-events-none z-10"
+              style={{
+                top: `${index * pageHeight + 8}px`
+              }}
+            >
+              Page {index + 1}
+            </div>
+          ))}
+          
+          {/* Page break position indicators */}
+          {pageBreaks.map((pageBreak, index) => {
             const pageBreakY = pageBreak.position?.y || 0;
             return (
               <div
                 key={`page-boundary-${index}`}
-                className="absolute left-0 right-0 border-t-2 border-dashed border-blue-400 bg-blue-100 pointer-events-none z-10"
+                className="absolute left-0 right-0 border-t-2 border-dashed border-red-400 bg-red-100 pointer-events-none z-15"
                 style={{
                   top: `${pageBreakY + 20}px`,
-                  height: '24px',
+                  height: '20px',
                   opacity: 0.8
                 }}
               >
-                <div className="absolute left-4 top-1 text-xs font-semibold text-blue-700 bg-white px-2 rounded">
-                  Page {index + 2} starts here
+                <div className="absolute left-4 top-0 text-xs font-semibold text-red-700 bg-white px-2 rounded">
+                  ✂️ Page Break Here
                 </div>
               </div>
             );
@@ -240,7 +278,7 @@ export function CanvasArea({
           ) : (
             <div 
               className="w-full h-full relative"
-              style={{ minHeight: '1123px' }}
+              style={{ minHeight: `${totalCanvasHeight}px` }}
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   onSelectComponent('');

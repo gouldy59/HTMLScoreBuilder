@@ -468,6 +468,44 @@ export function PropertiesPanel({
                 ))}
               </div>
             </div>
+            
+            <div className="border-t pt-4">
+              <Label className="font-medium text-sm">Display Settings</Label>
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="showPercentages"
+                    checked={selectedComponent.content.showPercentages !== false}
+                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside columns</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="wrapLabels"
+                    checked={selectedComponent.content.wrapLabels === true}
+                    onChange={(e) => updateContent('wrapLabels', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="wrapLabels" className="text-sm">Wrap long category labels to new line twice</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="hideLegend"
+                    checked={selectedComponent.content.hideLegend === true}
+                    onChange={(e) => updateContent('hideLegend', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="hideLegend" className="text-sm">Hide legend</Label>
+                </div>
+              </div>
+            </div>
           </div>
         );
 
@@ -660,26 +698,42 @@ export function PropertiesPanel({
               />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="showPercentages"
-                checked={selectedComponent.content.showPercentages !== false}
-                onChange={(e) => updateContent('showPercentages', e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="wrapLabels"
-                checked={selectedComponent.content.wrapLabels === true}
-                onChange={(e) => updateContent('wrapLabels', e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <Label htmlFor="wrapLabels" className="text-sm">Wrap long category labels to new line</Label>
+            <div className="border-t pt-4">
+              <Label className="font-medium text-sm">Display Settings</Label>
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="showPercentages"
+                    checked={selectedComponent.content.showPercentages !== false}
+                    onChange={(e) => updateContent('showPercentages', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="wrapLabels"
+                    checked={selectedComponent.content.wrapLabels === true}
+                    onChange={(e) => updateContent('wrapLabels', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="wrapLabels" className="text-sm">Wrap long category labels to new line twice</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="hideLegend"
+                    checked={selectedComponent.content.hideLegend === true}
+                    onChange={(e) => updateContent('hideLegend', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="hideLegend" className="text-sm">Hide legend</Label>
+                </div>
+              </div>
             </div>
             
             <div>

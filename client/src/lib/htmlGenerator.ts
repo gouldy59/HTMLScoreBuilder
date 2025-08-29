@@ -372,7 +372,7 @@ function generateGoogleChartHTML(
     height: height,
     backgroundColor: backgroundColor,
     colors: colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-    legend: { position: 'bottom', alignment: 'center' },
+    legend: colors && colors.length > 0 && !content.hideLegend ? { position: 'bottom', alignment: 'center' } : 'none',
     hAxis: {
       textStyle: { fontSize: 11 },
       titleTextStyle: { fontSize: 12 }

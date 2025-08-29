@@ -105,11 +105,48 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     `;
   }
 
+  // Calculate adjusted positions based on page breaks
+  const pageBreaks = components.filter((comp: any) => comp.type === 'page-break');
+  const pageHeight = 1123; // A4 height in pixels
+  
+  function getAdjustedPosition(component: any): { x: number; y: number } {
+    const originalY = component.position?.y || 0;
+    
+    // Find page breaks that come before this component
+    const precedingPageBreaks = pageBreaks.filter((pb: any) => (pb.position?.y || 0) < originalY);
+    
+    if (precedingPageBreaks.length === 0) {
+      return { x: component.position?.x || 0, y: originalY };
+    }
+    
+    // Find the closest page break before this component
+    const lastPageBreak = precedingPageBreaks[precedingPageBreaks.length - 1];
+    const pageBreakY = lastPageBreak.position?.y || 0;
+    
+    // Calculate which page this component should be on
+    const targetPage = Math.floor(pageBreakY / pageHeight) + 1;
+    const pageStartY = targetPage * pageHeight;
+    
+    // Calculate relative position from the page break
+    const relativeY = originalY - pageBreakY;
+    
+    // If component is close to the page break (within 50px), move it to start of next page
+    if (relativeY < 50) {
+      return { x: component.position?.x || 0, y: pageStartY + 20 };
+    }
+    
+    return { x: component.position?.x || 0, y: originalY };
+  }
+
   function renderComponent(component: any): string {
     const { type, content, style, position } = component;
+    
+    // Get adjusted position considering page breaks
+    const adjustedPos = getAdjustedPosition(component);
+    
     // Scale positions for full-page layout (794px canvas -> 100vw, 1123px canvas -> 100vh)
-    const scaleX = position?.x ? (position.x / 794) * 100 : 0;
-    const scaleY = position?.y ? (position.y / 1123) * 100 : 0;
+    const scaleX = adjustedPos.x ? (adjustedPos.x / 794) * 100 : 0;
+    const scaleY = adjustedPos.y ? (adjustedPos.y / 1123) * 100 : 0;
     const widthVw = style?.width ? (parseInt(style.width.toString().replace('px', '')) / 794) * 100 : 50;
     const heightVh = style?.height ? (parseInt(style.height.toString().replace('px', '')) / 1123) * 100 : 25;
     
@@ -126,7 +163,11 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'column-chart':
         // Get chart data from component content or use provided variables
         let columnChartData = null;
-        if (content?.data && content.data.trim()) {
+        
+        // First check for chartData in content (created by chart components)
+        if (content?.chartData && Array.isArray(content.chartData)) {
+          columnChartData = content.chartData;
+        } else if (content?.data && content.data.trim()) {
           if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
             const variableName = content.data.slice(2, -2);
             columnChartData = variables[variableName];
@@ -139,7 +180,15 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        const googleData = columnChartData || convertToGoogleChartData(variables);
+        // Convert custom chartData format to Google Charts format
+        let googleData;
+        if (columnChartData && Array.isArray(columnChartData) && columnChartData[0]?.label) {
+          // Custom chart data format with labels
+          googleData = [['Category', 'Score'], ...columnChartData.map(item => [item.label, item.scoreValue || 0])];
+        } else {
+          googleData = columnChartData || convertToGoogleChartData(variables);
+        }
+
         const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
         const chartWidth = Math.min(600, widthVw * 7.94); // Convert vw back to approximate px for chart sizing
         const chartHeight = Math.min(400, heightVh * 11.23) - 50;
@@ -160,7 +209,11 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'bar-chart':
         // Get chart data from component content or use provided variables
         let barChartData = null;
-        if (content?.data && content.data.trim()) {
+        
+        // First check for chartData in content (created by chart components)
+        if (content?.chartData && Array.isArray(content.chartData)) {
+          barChartData = content.chartData;
+        } else if (content?.data && content.data.trim()) {
           if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
             const variableName = content.data.slice(2, -2);
             barChartData = variables[variableName];
@@ -173,7 +226,14 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        const barGoogleData = barChartData || convertToGoogleChartData(variables);
+        // Convert custom chartData format to Google Charts format
+        let barGoogleData;
+        if (barChartData && Array.isArray(barChartData) && barChartData[0]?.label) {
+          // Custom chart data format with labels
+          barGoogleData = [['Category', 'Score'], ...barChartData.map(item => [item.label, item.scoreValue || 0])];
+        } else {
+          barGoogleData = barChartData || convertToGoogleChartData(variables);
+        }
         const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
         const barChartWidth = Math.min(600, widthVw * 7.94);
         const barChartHeight = Math.min(400, heightVh * 11.23) - 50;
@@ -194,7 +254,11 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'pie-chart':
         // Get chart data from component content or use provided variables
         let pieChartData = null;
-        if (content?.data && content.data.trim()) {
+        
+        // First check for chartData in content (created by chart components)
+        if (content?.chartData && Array.isArray(content.chartData)) {
+          pieChartData = content.chartData;
+        } else if (content?.data && content.data.trim()) {
           if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
             const variableName = content.data.slice(2, -2);
             pieChartData = variables[variableName];
@@ -207,7 +271,14 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        const pieGoogleData = pieChartData || convertToGoogleChartData(variables);
+        // Convert custom chartData format to Google Charts format
+        let pieGoogleData;
+        if (pieChartData && Array.isArray(pieChartData) && pieChartData[0]?.label) {
+          // Custom chart data format with labels
+          pieGoogleData = [['Category', 'Score'], ...pieChartData.map(item => [item.label, item.scoreValue || 0])];
+        } else {
+          pieGoogleData = pieChartData || convertToGoogleChartData(variables);
+        }
         const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
         const pieChartWidth = Math.min(600, widthVw * 7.94);
         const pieChartHeight = Math.min(400, heightVh * 11.23) - 50;
@@ -228,7 +299,11 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
       case 'line-chart':
         // Get chart data from component content or use provided variables
         let lineChartData = null;
-        if (content?.data && content.data.trim()) {
+        
+        // First check for chartData in content (created by chart components)
+        if (content?.chartData && Array.isArray(content.chartData)) {
+          lineChartData = content.chartData;
+        } else if (content?.data && content.data.trim()) {
           if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
             const variableName = content.data.slice(2, -2);
             lineChartData = variables[variableName];
@@ -241,7 +316,14 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           }
         }
         
-        const lineGoogleData = lineChartData || convertToGoogleChartData(variables);
+        // Convert custom chartData format to Google Charts format
+        let lineGoogleData;
+        if (lineChartData && Array.isArray(lineChartData) && lineChartData[0]?.label) {
+          // Custom chart data format with labels
+          lineGoogleData = [['Category', 'Score'], ...lineChartData.map(item => [item.label, item.scoreValue || 0])];
+        } else {
+          lineGoogleData = lineChartData || convertToGoogleChartData(variables);
+        }
         const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
         const lineChartWidth = Math.min(600, widthVw * 7.94);
         const lineChartHeight = Math.min(400, heightVh * 11.23) - 50;

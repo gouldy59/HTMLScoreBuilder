@@ -98,7 +98,7 @@ export function GoogleChartComponent({
           height: chartHeight,
           backgroundColor: style.backgroundColor || 'transparent',
           colors: extractedColors || content.colors || undefined,
-          legend: content.hideLegend ? 'none' : { position: 'bottom', alignment: 'center' },
+          legend: content.hideLegend ? { position: 'none' } : { position: 'bottom', alignment: 'center' },
           hAxis: { title: content.hAxisTitle || '' },
           vAxis: { title: content.vAxisTitle || '' },
           is3D: content.is3D || false,

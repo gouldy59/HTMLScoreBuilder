@@ -362,7 +362,8 @@ function generateGoogleChartHTML(
   width: number = 400,
   height: number = 300,
   backgroundColor: string = 'transparent',
-  colors?: string[]
+  colors?: string[],
+  content?: any
 ): string {
   const dataString = JSON.stringify(data);
   
@@ -372,7 +373,7 @@ function generateGoogleChartHTML(
     height: height,
     backgroundColor: backgroundColor,
     colors: colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-    legend: colors && colors.length > 0 && !content.hideLegend ? { position: 'bottom', alignment: 'center' } : 'none',
+    legend: colors && colors.length > 0 && !content?.hideLegend ? { position: 'bottom', alignment: 'center' } : 'none',
     hAxis: {
       textStyle: { fontSize: 11 },
       titleTextStyle: { fontSize: 12 }
@@ -652,7 +653,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             chartWidth,
             chartHeight,
             style.backgroundColor || '#ffffff',
-            chartColors
+            chartColors,
+            content
           )}
         </div>`;
 
@@ -674,8 +676,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
       const lineGoogleData = convertToGoogleChartData(lineChartData || variables, content);
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
-      const lineChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
-      const lineChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      const lineChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
+      const lineChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
       
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
@@ -686,7 +688,9 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Line Chart', variables),
             lineChartWidth,
             lineChartHeight,
-            style.backgroundColor || '#F8FAFC'
+            style.backgroundColor || '#F8FAFC',
+            undefined,
+            content
           )}
         </div>`;
 
@@ -708,8 +712,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
       const pieGoogleData = convertToGoogleChartData(pieChartData || variables);
       const pieChartId = `pie-chart-${Math.random().toString(36).substr(2, 9)}`;
-      const pieChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
-      const pieChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      const pieChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
+      const pieChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
       
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
@@ -720,7 +724,9 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Pie Chart', variables),
             pieChartWidth,
             pieChartHeight,
-            style.backgroundColor || '#F8FAFC'
+            style.backgroundColor || '#F8FAFC',
+            undefined,
+            content
           )}
         </div>`;
 
@@ -742,8 +748,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
       const donutGoogleData = convertToGoogleChartData(donutChartData || variables);
       const donutChartId = `donut-chart-${Math.random().toString(36).substr(2, 9)}`;
-      const donutChartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
-      const donutChartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      const donutChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
+      const donutChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
       
       return `
         <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
@@ -754,7 +760,9 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Donut Chart', variables),
             donutChartWidth,
             donutChartHeight,
-            style.backgroundColor || '#F8FAFC'
+            style.backgroundColor || '#F8FAFC',
+            undefined,
+            content
           )}
         </div>`;
 

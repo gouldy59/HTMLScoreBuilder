@@ -364,10 +364,10 @@ function generateGoogleChartHTML(
     },
     pieHole: options.type === 'donut' ? 0.4 : 0,
     chartArea: {
-      left: options.type === 'bar' ? 100 : 70,
-      top: options.type === 'column' ? 60 : 50,
-      width: options.type === 'bar' ? '60%' : '70%',
-      height: options.type === 'column' ? '60%' : '60%'
+      left: options.type === 'bar' ? 120 : 80,
+      top: options.type === 'column' ? 80 : 60,
+      width: options.type === 'bar' ? '65%' : '75%',
+      height: options.type === 'column' ? '70%' : '70%'
     },
     fontSize: 11,
     focusTarget: 'category'
@@ -513,8 +513,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const barGoogleData = convertToGoogleChartData(barChartData, 'bar');
       const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
       
-      const barWidth = parseInt((style.width || '500px').replace('px', '')) - 48;
-      const barHeight = parseInt((style.height || '300px').replace('px', '')) - 120;
+      const barWidth = parseInt((style.width || '500px').replace('px', '')) - 20;
+      const barHeight = parseInt((style.height || '300px').replace('px', '')) - 20;
       
       // Extract colors for stacked bar charts
       let barChartColors: string[] | undefined;
@@ -533,7 +533,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const barBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
       
       return `
-        <div style="${positionStyle} background-color: ${barBgColor}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
+        <div style="${positionStyle} background-color: ${barBgColor}; padding: 10px; border-radius: 8px; overflow: visible; box-sizing: border-box;">
           ${generateGoogleChartHTML(
             barChartId, 
             barGoogleData, 
@@ -572,8 +572,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const columnGoogleData = convertToGoogleChartData(columnChartData, 'column');
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
       
-      const columnWidth = parseInt((style.width || '400px').replace('px', '')) - 48;
-      const columnHeight = parseInt((style.height || '300px').replace('px', '')) - 120;
+      const columnWidth = parseInt((style.width || '400px').replace('px', '')) - 20;
+      const columnHeight = parseInt((style.height || '300px').replace('px', '')) - 20;
       
       // Extract colors for stacked column charts
       let columnChartColors: string[] | undefined;
@@ -592,7 +592,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const columnBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
       
       return `
-        <div style="${positionStyle} background-color: ${columnBgColor}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
+        <div style="${positionStyle} background-color: ${columnBgColor}; padding: 10px; border-radius: 8px; overflow: visible; box-sizing: border-box;">
           ${generateGoogleChartHTML(
             columnChartId, 
             columnGoogleData, 

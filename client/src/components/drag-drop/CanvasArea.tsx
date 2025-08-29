@@ -50,8 +50,10 @@ export function CanvasArea({
   reportBackgroundImage,
   templateData = {},
 }: CanvasAreaProps) {
-
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Get page breaks for visual indicators
+  const pageBreaks = components.filter(c => c.type === 'page-break');
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'component',
@@ -155,7 +157,7 @@ export function CanvasArea({
         componentElement = <SpacerComponent {...commonProps} />;
         break;
       case 'page-break':
-        componentElement = <PageBreakComponent {...commonProps} />;
+        componentElement = <PageBreakComponent {...commonProps} mode="builder" />;
         break;
       default:
         return null;
@@ -201,9 +203,30 @@ export function CanvasArea({
               : 'repeat',
             backgroundPosition: reportBackgroundImage 
               ? 'center, 0 0, 0 0'
-              : '0 0'
+              : '0 0',
+            position: 'relative'
           }}
         >
+          {/* Page boundary indicators when page breaks exist */}
+          {pageBreaks.length > 0 && pageBreaks.map((pageBreak, index) => {
+            const pageBreakY = pageBreak.position?.y || 0;
+            return (
+              <div
+                key={`page-boundary-${index}`}
+                className="absolute left-0 right-0 border-t-2 border-dashed border-blue-400 bg-blue-100 pointer-events-none z-10"
+                style={{
+                  top: `${pageBreakY + 20}px`,
+                  height: '24px',
+                  opacity: 0.8
+                }}
+              >
+                <div className="absolute left-4 top-1 text-xs font-semibold text-blue-700 bg-white px-2 rounded">
+                  Page {index + 2} starts here
+                </div>
+              </div>
+            );
+          })}
+          
           {components.length === 0 ? (
             <div className="absolute inset-4 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300"
               onClick={() => onSelectComponent('')}

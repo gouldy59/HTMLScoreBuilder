@@ -937,11 +937,8 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       </div>`;
 
     case 'page-break':
-      return `<div style="${positionStyle} page-break-before: always; height: 12px; background-color: ${style.backgroundColor || '#EF4444'}; border: 2px dashed ${style.backgroundColor || '#EF4444'}; margin: ${style.margin || '8px 0'}; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;">
-        <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: ${style.backgroundColor || '#EF4444'}; font-weight: bold; position: absolute; border-radius: 4px;">
-          ${replaceVariables(content.label || 'Page Break', variables)}
-        </span>
-      </div>`;
+      // Page breaks are invisible in preview - just create page boundary
+      return `<div style="${positionStyle} height: 0px; page-break-before: always; display: block; visibility: hidden;"></div>`;
 
     default:
       return `

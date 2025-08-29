@@ -16,9 +16,9 @@ export function generateHTML(
   // A4 dimensions in pixels (at 96 DPI): 794px × 1123px (with margins: ~754px × 1043px usable)
   const A4_WIDTH = 794;
   const A4_HEIGHT = 1123;
-  const PAGE_MARGIN = 40; // 20px margin on each side
-  const USABLE_WIDTH = A4_WIDTH - (PAGE_MARGIN * 2);
-  const USABLE_HEIGHT = A4_HEIGHT - (PAGE_MARGIN * 2);
+  const PAGE_MARGIN = 96; // 1-inch margin = 96px at 96 DPI
+  const USABLE_WIDTH = A4_WIDTH - (PAGE_MARGIN * 2);  // 602px usable width
+  const USABLE_HEIGHT = A4_HEIGHT - (PAGE_MARGIN * 2); // 931px usable height
   
   // Sort components by Y position to process them top to bottom
   const sortedComponents = [...components].sort((a, b) => 
@@ -44,10 +44,10 @@ export function generateHTML(
   sortedComponents.forEach((component) => {
     const position = component.position || { x: 0, y: 0 };
     
-    // Scale from canvas dimensions to preview dimensions
-    // Canvas: 1152x1632px, A4: 794x1123px (72dpi)
-    const scaleX = A4_WIDTH / 1152;  // ~0.69
-    const scaleY = A4_HEIGHT / 1632; // ~0.69
+    // No scaling needed - canvas and preview are now the same size
+    // Canvas: 794x1123px, A4: 794x1123px (96dpi)
+    const scaleX = 1.0;  // 1:1 scaling
+    const scaleY = 1.0;  // 1:1 scaling
     
     // Apply scaling to position
     let scaledY = position.y * scaleY;
@@ -179,7 +179,7 @@ export function generateHTML(
         
         @page {
           size: A4;
-          margin: 0.5in;
+          margin: 1in;
         }
         
         @media print {

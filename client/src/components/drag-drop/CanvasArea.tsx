@@ -187,8 +187,8 @@ export function CanvasArea({
             isOver ? 'border-blue-400 bg-blue-50' : ''
           }`}
           style={{
-            width: '1152px', // Increased canvas width for better workspace
-            height: '1632px', // A4 aspect ratio (√2 × width) for proper page preview
+            width: '794px', // A4 width at 96 DPI
+            height: '1123px', // A4 height at 96 DPI
             backgroundColor: reportBackground,
             backgroundImage: reportBackgroundImage 
               ? `url("${reportBackgroundImage}"), linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
@@ -217,7 +217,7 @@ export function CanvasArea({
           ) : (
             <div 
               className="w-full h-full relative"
-              style={{ minHeight: '1632px' }}
+              style={{ minHeight: '1123px' }}
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   onSelectComponent('');

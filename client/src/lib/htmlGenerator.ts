@@ -204,6 +204,8 @@ export function generateHTML(
           color-adjust: exact !important;
         }
         
+        /* Builder canvas is 1152x1632px, Preview pages are 794x1123px - scale factor 0.69 */
+        
         @media screen {
           .report-page {
             width: 794px;
@@ -381,10 +383,10 @@ function generateGoogleChartHTML(
     },
     pieHole: chartType === 'donut' ? 0.4 : 0,
     chartArea: {
-      left: chartType === 'bar' ? 120 : 80,
-      top: 60,
-      width: chartType === 'bar' ? '65%' : '70%',
-      height: chartType === 'column' ? '75%' : '65%'
+      left: chartType === 'bar' ? 120 : 90,
+      top: chartType === 'column' ? 80 : 60,
+      width: chartType === 'bar' ? '65%' : '75%',
+      height: chartType === 'column' ? '70%' : '65%'
     },
     fontSize: 11,
     focusTarget: 'category'
@@ -393,13 +395,33 @@ function generateGoogleChartHTML(
   // Add stacking configuration for multi-series data
   if ((chartType === 'bar' || chartType === 'column') && data.length > 1 && data[0].length > 2) {
     chartOptions.isStacked = true;
-    chartOptions.bar = { groupWidth: '60%' };
     
+    // Enhanced stacking options for better visualization
     if (chartType === 'column') {
-      chartOptions.vAxis.minValue = 0;
-      chartOptions.hAxis.slantedText = false;
+      chartOptions.bar = { groupWidth: '70%' };
+      chartOptions.vAxis = {
+        ...chartOptions.vAxis,
+        minValue: 0,
+        textStyle: { fontSize: 11 },
+        gridlines: { count: 5 }
+      };
+      chartOptions.hAxis = {
+        ...chartOptions.hAxis,
+        textStyle: { fontSize: 11 },
+        slantedText: false,
+        maxAlternation: 1
+      };
     } else if (chartType === 'bar') {
-      chartOptions.hAxis.minValue = 0;
+      chartOptions.bar = { groupWidth: '70%' };
+      chartOptions.hAxis = {
+        ...chartOptions.hAxis,
+        minValue: 0,
+        textStyle: { fontSize: 11 }
+      };
+      chartOptions.vAxis = {
+        ...chartOptions.vAxis,
+        textStyle: { fontSize: 11 }
+      };
     }
   }
   
@@ -594,8 +616,13 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
 
       const googleData = convertToGoogleChartData(columnChartData || variables, content);
       const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
-      const chartWidth = parseInt(scaledWidth.replace('px', '')) || 400;
-      const chartHeight = parseInt(scaledHeight.replace('px', '')) - 100 || 300;
+      
+      // Calculate proper chart dimensions for preview scaling
+      // Builder uses 1152x1632px canvas, preview uses 794x1123px (scale factor ~0.69)
+      const originalWidth = parseInt((style.width || '400px').replace('px', ''));
+      const originalHeight = parseInt((style.height || '300px').replace('px', ''));
+      const chartWidth = Math.max(300, originalWidth * 0.69); // Ensure minimum width
+      const chartHeight = Math.max(250, originalHeight * 0.69); // Ensure minimum height
       
       // Extract colors for stacked column charts
       let chartColors: string[] | undefined;

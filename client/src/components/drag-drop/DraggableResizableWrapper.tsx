@@ -36,6 +36,15 @@ export function DraggableResizableWrapper({
     }
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    // For page-break components, ensure they can be selected
+    if (component.type === 'page-break') {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelect();
+    }
+  };
+
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -137,7 +146,7 @@ export function DraggableResizableWrapper({
     top: component.position.y,
     width: component.style?.width || 'auto',
     height: component.style?.height || 'auto',
-    cursor: isDragging ? 'grabbing' : 'grab',
+    cursor: isDragging ? 'grabbing' : (component.type === 'page-break' ? 'pointer' : 'grab'),
     zIndex: isSelected ? 1000 : 1,
     border: isSelected ? '2px solid #3B82F6' : '2px solid transparent',
     borderRadius: '4px',
@@ -175,8 +184,9 @@ export function DraggableResizableWrapper({
             ×
           </button>
 
-          {/* Resize handles */}
-          <div className="absolute inset-0 pointer-events-none">
+          {/* Resize handles - only show for non-page-break components */}
+          {component.type !== 'page-break' && (
+            <div className="absolute inset-0 pointer-events-none">
             {/* Corner resize handles */}
             <div
               className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-se-resize pointer-events-auto"
@@ -212,7 +222,8 @@ export function DraggableResizableWrapper({
               className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-e-resize pointer-events-auto"
               onMouseDown={(e) => handleResizeMouseDown(e, 'e')}
             />
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>

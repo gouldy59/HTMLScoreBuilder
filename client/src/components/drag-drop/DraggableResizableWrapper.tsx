@@ -143,10 +143,10 @@ export function DraggableResizableWrapper({
     position: 'absolute',
     left: component.position.x,
     top: component.position.y,
-    width: component.style?.width || 'auto',
-    height: component.style?.height || 'auto',
+    width: component.type === 'page-break' ? '100%' : (component.style?.width || 'auto'),
+    height: component.type === 'page-break' ? '40px' : (component.style?.height || 'auto'),
     cursor: isDragging ? 'grabbing' : (component.type === 'page-break' ? 'move' : 'grab'),
-    zIndex: isSelected ? 1000 : 1,
+    zIndex: isSelected ? 1000 : (component.type === 'page-break' ? 100 : 1),
     border: isSelected ? '2px solid #3B82F6' : '2px solid transparent',
     borderRadius: '4px',
     outline: 'none'
@@ -157,10 +157,7 @@ export function DraggableResizableWrapper({
       ref={wrapperRef}
       style={wrapperStyle}
       onMouseDown={handleMouseDown}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect();
-      }}
+      onClick={handleClick}
       tabIndex={0}
     >
       {/* Component content */}

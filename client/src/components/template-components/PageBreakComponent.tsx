@@ -65,7 +65,7 @@ export function PageBreakComponent({
       }`}
       style={{
         width: component.style?.width || '100%',
-        height: component.style?.height || '2px',
+        height: '40px',
         minHeight: '40px',
         display: 'flex',
         alignItems: 'center',
@@ -73,7 +73,8 @@ export function PageBreakComponent({
         backgroundColor: isSelected ? '#EFF6FF' : '#FEF2F2',
         borderRadius: '6px',
         position: 'relative',
-        zIndex: 10
+        zIndex: 20,
+        pointerEvents: 'auto'
       }}
       onClick={handleClick}
       onMouseDown={handleMouseDown}

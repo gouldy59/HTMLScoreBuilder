@@ -96,7 +96,7 @@ export function GoogleChartComponent({
           title: content.title || chartTitle || 'Chart',
           width: chartWidth,
           height: chartHeight,
-          backgroundColor: style.backgroundColor || 'transparent',
+          backgroundColor: content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || 'transparent'),
           colors: extractedColors || content.colors || undefined,
           legend: content.hideLegend ? { position: 'none' } : { position: 'bottom', alignment: 'center' },
           hAxis: { title: content.hAxisTitle || '' },
@@ -122,7 +122,7 @@ export function GoogleChartComponent({
       style={{
         width: style.width || '400px',
         height: style.height || '300px',
-        backgroundColor: style.backgroundColor || '#ffffff',
+        backgroundColor: content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff'),
         padding: '16px',
         borderRadius: '8px',
         display: 'flex',

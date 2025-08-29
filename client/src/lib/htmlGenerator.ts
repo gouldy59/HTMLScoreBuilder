@@ -670,8 +670,10 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         chartColors = Array.from(colorSet);
       }
 
+      const chartBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
+      
       return `
-        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
+        <div style="${positionStyle} background-color: ${chartBgColor}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
           ${generateGoogleChartHTML(
             columnChartId, 
             googleData, 
@@ -679,7 +681,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Column Chart', variables),
             chartWidth,
             chartHeight,
-            style.backgroundColor || '#ffffff',
+            chartBgColor,
             chartColors,
             content
           )}
@@ -706,8 +708,10 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const lineChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
       const lineChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
       
+      const lineBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#F8FAFC');
+      
       return `
-        <div style="${positionStyle} background-color: ${style.backgroundColor || '#F8FAFC'}; padding: 24px; border-radius: 8px;">
+        <div style="${positionStyle} background-color: ${lineBgColor}; padding: 24px; border-radius: 8px;">
           ${generateGoogleChartHTML(
             lineChartId, 
             lineGoogleData, 
@@ -715,7 +719,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
             replaceVariables(content.title || 'Line Chart', variables),
             lineChartWidth,
             lineChartHeight,
-            style.backgroundColor || '#F8FAFC',
+            lineBgColor,
             undefined,
             content
           )}

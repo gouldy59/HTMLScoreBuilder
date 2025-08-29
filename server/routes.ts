@@ -132,19 +132,15 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     const lastPageBreak = precedingPageBreaks[precedingPageBreaks.length - 1];
     const pageBreakY = lastPageBreak.position?.y || 0;
     
-    // Calculate which page this component should be on
-    const targetPage = Math.floor(pageBreakY / pageHeight) + 1;
-    const pageStartY = targetPage * pageHeight;
+    // Calculate which page this component should be on after the page break
+    const pageNumber = Math.floor(pageBreakY / pageHeight) + 1;
+    const nextPageStartY = pageNumber * pageHeight;
     
-    // Calculate relative position from the page break
-    const relativeY = originalY - pageBreakY;
+    // If the component is positioned after a page break, move it to the top of the next page
+    console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, nextPageStartY=${nextPageStartY}`);
     
-    // If component is close to the page break (within 100px), move it to start of next page
-    if (relativeY < 100) {
-      return { x: component.position?.x || 0, y: pageStartY + 20 };
-    }
-    
-    return { x: component.position?.x || 0, y: originalY };
+    // Move component to top of next page with small margin
+    return { x: component.position?.x || 0, y: nextPageStartY + 30 };
   }
 
   function renderComponent(component: any): string {
@@ -195,10 +191,17 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
         if (columnChartData && Array.isArray(columnChartData) && columnChartData[0]?.label) {
           // Custom chart data format with labels
           googleData = [['Category', 'Score'], ...columnChartData.map(item => [item.label, item.scoreValue || 0])];
-          // Extract colors from segments if available
-          chartColors = columnChartData.map(item => 
-            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
-          );
+          // Extract colors from all segments if available
+          chartColors = [];
+          columnChartData.forEach(item => {
+            if (item.segments && item.segments.length > 0) {
+              item.segments.forEach(segment => {
+                chartColors.push(segment.color || '#3B82F6');
+              });
+            } else {
+              chartColors.push('#3B82F6');
+            }
+          });
         } else {
           googleData = columnChartData || convertToGoogleChartData(variables);
           chartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -248,10 +251,17 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
         if (barChartData && Array.isArray(barChartData) && barChartData[0]?.label) {
           // Custom chart data format with labels
           barGoogleData = [['Category', 'Score'], ...barChartData.map(item => [item.label, item.scoreValue || 0])];
-          // Extract colors from segments if available
-          barChartColors = barChartData.map(item => 
-            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
-          );
+          // Extract colors from all segments if available
+          barChartColors = [];
+          barChartData.forEach(item => {
+            if (item.segments && item.segments.length > 0) {
+              item.segments.forEach(segment => {
+                barChartColors.push(segment.color || '#3B82F6');
+              });
+            } else {
+              barChartColors.push('#3B82F6');
+            }
+          });
         } else {
           barGoogleData = barChartData || convertToGoogleChartData(variables);
           barChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -300,10 +310,17 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
         if (pieChartData && Array.isArray(pieChartData) && pieChartData[0]?.label) {
           // Custom chart data format with labels
           pieGoogleData = [['Category', 'Score'], ...pieChartData.map(item => [item.label, item.scoreValue || 0])];
-          // Extract colors from segments if available
-          pieChartColors = pieChartData.map(item => 
-            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
-          );
+          // Extract colors from all segments if available
+          pieChartColors = [];
+          pieChartData.forEach(item => {
+            if (item.segments && item.segments.length > 0) {
+              item.segments.forEach(segment => {
+                pieChartColors.push(segment.color || '#3B82F6');
+              });
+            } else {
+              pieChartColors.push('#3B82F6');
+            }
+          });
         } else {
           pieGoogleData = pieChartData || convertToGoogleChartData(variables);
           pieChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -352,10 +369,17 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
         if (lineChartData && Array.isArray(lineChartData) && lineChartData[0]?.label) {
           // Custom chart data format with labels
           lineGoogleData = [['Category', 'Score'], ...lineChartData.map(item => [item.label, item.scoreValue || 0])];
-          // Extract colors from segments if available
-          lineChartColors = lineChartData.map(item => 
-            item.segments && item.segments[0] ? item.segments[0].color : '#3B82F6'
-          );
+          // Extract colors from all segments if available
+          lineChartColors = [];
+          lineChartData.forEach(item => {
+            if (item.segments && item.segments.length > 0) {
+              item.segments.forEach(segment => {
+                lineChartColors.push(segment.color || '#3B82F6');
+              });
+            } else {
+              lineChartColors.push('#3B82F6');
+            }
+          });
         } else {
           lineGoogleData = lineChartData || convertToGoogleChartData(variables);
           lineChartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -379,8 +403,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
           </div>`;
 
       case 'page-break':
-        // Page breaks are invisible in PDF/image generation
-        return `<div style="${positionStyle} height: 0px; page-break-before: always; display: block; visibility: hidden;"></div>`;
+        // Page breaks create actual page breaks in PDF/image generation
+        return `<div style="page-break-before: always; height: 0px; width: 100%; clear: both;"></div>`;
 
       case 'text-block':
         const textContent = content?.text ? replaceVariables(content.text, variables) : 'Add your text content here. You can use variables like {{studentName}} to make it dynamic.';

@@ -14,6 +14,7 @@ export function PageBreakComponent({
   component, 
   isSelected = false, 
   onSelect, 
+  onDelete,
   templateData = {},
   mode = 'builder'
 }: PageBreakComponentProps) {

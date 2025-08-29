@@ -77,9 +77,9 @@ export function generateHTML(
         adjustedPosition: { x: 20, y: Math.max(20, scaledY - ((currentPage - 1) * USABLE_HEIGHT)) }
       });
       
-      // Force next component to start on new page
+      // Force next component to start on new page with proper positioning
       currentPage++;
-      currentPageHeight = 0;
+      currentPageHeight = 50; // Small margin at top of new page
       manualPageBreakProcessed = true;
       return;
     }

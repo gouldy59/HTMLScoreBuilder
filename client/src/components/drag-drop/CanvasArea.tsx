@@ -162,8 +162,27 @@ export function CanvasArea({
         componentElement = <SpacerComponent {...commonProps} />;
         break;
       case 'page-break':
-        componentElement = <PageBreakComponent {...commonProps} mode="builder" />;
-        break;
+        // Special handling for page breaks to ensure they're selectable
+        return (
+          <div
+            key={component.id}
+            className="absolute"
+            style={{
+              left: `${component.position?.x || 0}px`,
+              top: `${component.position?.y || 0}px`,
+              width: component.style?.width || '100%',
+              height: Math.max(40, parseInt(component.style?.height || '2')) + 'px',
+              zIndex: 15,
+              cursor: 'pointer'
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectComponent(component.id);
+            }}
+          >
+            <PageBreakComponent {...commonProps} mode="builder" />
+          </div>
+        );
       default:
         return null;
     }

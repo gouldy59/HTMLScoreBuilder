@@ -139,8 +139,8 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     const pageNumber = Math.floor(pageBreakY / pageHeight) + 1;
     const nextPageStartY = pageNumber * pageHeight;
     
-    // Position component at top of next page with minimal offset
-    const adjustedY = nextPageStartY + 20;
+    // Position component at top of next page with minimal offset  
+    const adjustedY = nextPageStartY + 50; // Increased margin for better spacing
     console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, relative=${relativeFromPageBreak}, nextPageStartY=${nextPageStartY}, adjustedY=${adjustedY}`);
     
     // Move component to top of next page

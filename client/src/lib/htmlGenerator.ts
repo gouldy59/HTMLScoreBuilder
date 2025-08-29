@@ -25,6 +25,16 @@ export function generateHTML(
     (a.position?.y || 0) - (b.position?.y || 0)
   );
   
+  // Debug: Log component positions to understand the scaling issue
+  console.log('Canvas components positions:', sortedComponents.map(c => ({
+    type: c.type,
+    position: c.position,
+    style: { width: c.style?.width, height: c.style?.height }
+  })));
+  
+  // Remove debug logging for production
+  // console.log = () => {};
+  
   // Split components into pages based on A4 height limits and manual page breaks
   const pagedComponents: PagedComponent[] = [];
   let currentPage = 1;
@@ -35,9 +45,26 @@ export function generateHTML(
     const position = component.position || { x: 0, y: 0 };
     
     // Scale from canvas dimensions to preview dimensions
-    const scaleX = A4_WIDTH / 1152;
-    const scaleY = A4_HEIGHT / 1632;
-    const scaledY = position.y * scaleY;
+    // Canvas: 1152x1632px, A4: 794x1123px (72dpi)
+    const scaleX = A4_WIDTH / 1152;  // ~0.69
+    const scaleY = A4_HEIGHT / 1632; // ~0.69
+    
+    // Apply scaling to position
+    let scaledY = position.y * scaleY;
+    console.log(`Component ${component.type}: original Y=${position.y}, scaled Y=${scaledY}, scale=${scaleY}`);
+    
+    // For stacked components, ensure they don't overlap by maintaining minimum spacing
+    if (pagedComponents.length > 0) {
+      const lastComponent = pagedComponents[pagedComponents.length - 1];
+      const lastComponentHeight = lastComponent.style?.height ? parseInt(lastComponent.style.height.toString().replace('px', '')) * scaleY : 100;
+      const lastComponentBottom = lastComponent.adjustedPosition.y + lastComponentHeight;
+      const minSpacing = 20; // minimum 20px spacing between components
+      
+      if (scaledY < lastComponentBottom + minSpacing) {
+        scaledY = lastComponentBottom + minSpacing;
+        console.log(`Adjusted Y from ${position.y * scaleY} to ${scaledY} to prevent overlap`);
+      }
+    }
     
     // Handle manual page breaks
     if (component.type === 'page-break') {
@@ -100,7 +127,7 @@ export function generateHTML(
     const scaledX = Math.max(20, Math.min(position.x * scaleX, USABLE_WIDTH - 20));
     const scaledHeight = actualHeight * scaleY;
     
-    // Improved page splitting logic for auto-splitter
+    // Improved page splitting logic for auto-splitter  
     const componentAbsoluteY = scaledY;
     const componentBottomY = componentAbsoluteY + scaledHeight;
     const currentPageBottomY = currentPage * USABLE_HEIGHT;

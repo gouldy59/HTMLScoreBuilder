@@ -137,10 +137,11 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     const nextPageStartY = pageNumber * pageHeight;
     
     // If the component is positioned after a page break, move it to the top of the next page
-    console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, nextPageStartY=${nextPageStartY}`);
+    const adjustedY = nextPageStartY + 30;
+    console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, nextPageStartY=${nextPageStartY}, adjustedY=${adjustedY}`);
     
     // Move component to top of next page with small margin
-    return { x: component.position?.x || 0, y: nextPageStartY + 30 };
+    return { x: component.position?.x || 0, y: adjustedY };
   }
 
   function renderComponent(component: any): string {
@@ -152,6 +153,7 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     // Scale positions for full-page layout (794px canvas -> 100vw, 1123px canvas -> 100vh)
     const scaleX = adjustedPos.x ? (adjustedPos.x / 794) * 100 : 0;
     const scaleY = adjustedPos.y ? (adjustedPos.y / 1123) * 100 : 0;
+    console.log(`Scaling ${component.type}: adjustedPos.y=${adjustedPos.y}, scaleY=${scaleY}`);
     const widthVw = style?.width ? (parseInt(style.width.toString().replace('px', '')) / 794) * 100 : 50;
     const heightVh = style?.height ? (parseInt(style.height.toString().replace('px', '')) / 1123) * 100 : 25;
     
@@ -469,6 +471,10 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
                 width: 210mm;
                 height: 297mm;
               }
+            }
+            @page {
+              size: A4;
+              margin: 0;
             }
         </style>
     </head>

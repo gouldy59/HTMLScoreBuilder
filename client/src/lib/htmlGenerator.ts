@@ -629,64 +629,76 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       `;
 
     case 'column-chart':
-      // Get chart data from template or variables
-      let columnChartData = null;
-      if (content.data && content.data.trim()) {
-        if (content.data.startsWith('{{') && content.data.endsWith('}}')) {
-          const variableName = content.data.slice(2, -2);
-          columnChartData = variables[variableName];
-        } else {
-          try {
-            columnChartData = JSON.parse(content.data);
-          } catch (e) {
-            columnChartData = null;
-          }
-        }
-      }
-
-      const googleData = convertToGoogleChartData(columnChartData || variables, content);
-      const columnChartId = `column-chart-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Use consistent chart dimensions between builder and preview
-      const originalWidth = parseInt((style.width || '400px').replace('px', ''));
-      const originalHeight = parseInt((style.height || '300px').replace('px', ''));
-      
-      // Subtract padding to ensure chart fits within container
-      const chartWidth = Math.max(150, originalWidth - 48); // 24px padding on each side
-      const chartHeight = Math.max(120, originalHeight - 120); // 60px padding top/bottom for title and legend
-      
-      // Extract colors for stacked column charts
-      let chartColors: string[] | undefined;
-      if (content.chartData && Array.isArray(content.chartData) && content.chartData[0]?.segments) {
-        const colorSet = new Set<string>();
-        content.chartData.forEach((category: any) => {
-          if (category.segments) {
-            category.segments.forEach((seg: any) => {
-              if (seg.color) colorSet.add(seg.color);
-            });
-          }
-        });
-        chartColors = Array.from(colorSet);
-      }
-
-      const chartBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
+      // Use the same logic as the VerticalBarChartComponent in the builder
+      const verticalChartData = content.chartData || [];
+      const columnTitle = replaceVariables(content.title || 'Performance Overview', variables);
+      const columnSubtitle = replaceVariables(content.subtitle || 'Chart showing performance metrics', variables);
+      const columnBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
       
       return `
-        <div style="${positionStyle} background-color: ${chartBgColor}; padding: 24px; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
-          ${generateGoogleChartHTML(
-            columnChartId, 
-            googleData, 
-            {
-              type: 'column',
-              title: replaceVariables(content.title || 'Column Chart', variables),
-              width: chartWidth,
-              height: chartHeight,
-              backgroundColor: chartBgColor,
-              colors: chartColors,
-              hideLegend: content.hideLegend === true
-            }
-          )}
-        </div>`;
+        <div style="${positionStyle} background-color: ${columnBgColor}; padding: 24px; border-radius: 8px; overflow: hidden;">
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">${columnTitle}</h3>
+            <p class="text-sm text-gray-600">${columnSubtitle}</p>
+          </div>
+          
+          <div class="flex items-end justify-center gap-8 h-64 relative">
+            ${verticalChartData.length === 0 ? `
+              <div class="text-center py-8 text-gray-500">
+                <p class="text-sm">No chart data available</p>
+              </div>
+            ` : verticalChartData.map((category: any, index: number) => {
+              const maxHeight = 200; // Maximum height for columns
+              const totalValue = category.segments ? category.segments.reduce((sum: number, seg: any) => sum + (seg.value || 0), 0) : 100;
+              const columnHeight = Math.max(20, (totalValue / 100) * maxHeight);
+              
+              return `
+                <div class="flex flex-col items-center">
+                  <div class="flex flex-col justify-end" style="height: ${maxHeight}px; width: 48px;">
+                    <div class="w-full bg-gray-100 rounded-t overflow-hidden flex flex-col-reverse" style="height: ${columnHeight}px;">
+                      ${(category.segments || []).map((segment: any) => {
+                        const segmentHeight = (segment.value || 0) / totalValue * columnHeight;
+                        return `
+                          <div 
+                            style="height: ${segmentHeight}px; background-color: ${segment.color || '#3B82F6'};" 
+                            title="${segment.label}: ${segment.value || 0}%"
+                          ></div>
+                        `;
+                      }).join('')}
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-700 mt-2 text-center font-medium" style="max-width: 64px; word-wrap: break-word;">
+                    ${category.label || `Category ${index + 1}`}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          
+          ${!content.hideLegend && verticalChartData.length > 0 && verticalChartData[0]?.segments ? `
+            <div class="flex flex-wrap justify-center gap-4 mt-6">
+              ${(() => {
+                const uniqueSegments = new Map();
+                verticalChartData.forEach((category: any) => {
+                  if (category.segments) {
+                    category.segments.forEach((segment: any) => {
+                      if (segment.label && !uniqueSegments.has(segment.label)) {
+                        uniqueSegments.set(segment.label, segment.color || '#3B82F6');
+                      }
+                    });
+                  }
+                });
+                return Array.from(uniqueSegments.entries()).map(([label, color]) => `
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded" style="background-color: ${color};"></div>
+                    <span class="text-xs text-gray-600">${label}</span>
+                  </div>
+                `).join('');
+              })()}
+            </div>
+          ` : ''}
+        </div>
+      `;
 
     case 'line-chart':
       // Get chart data from template or variables

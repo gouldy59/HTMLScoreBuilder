@@ -132,15 +132,18 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
     const lastPageBreak = precedingPageBreaks[precedingPageBreaks.length - 1];
     const pageBreakY = lastPageBreak.position?.y || 0;
     
-    // Calculate which page this component should be on after the page break
+    // Calculate the relative position from the page break
+    const relativeFromPageBreak = originalY - pageBreakY;
+    
+    // Calculate which page this component should be on after the page break  
     const pageNumber = Math.floor(pageBreakY / pageHeight) + 1;
     const nextPageStartY = pageNumber * pageHeight;
     
-    // If the component is positioned after a page break, move it to the top of the next page
-    const adjustedY = nextPageStartY + 30;
-    console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, nextPageStartY=${nextPageStartY}, adjustedY=${adjustedY}`);
+    // Position component at top of next page with minimal offset
+    const adjustedY = nextPageStartY + 20;
+    console.log(`Component ${component.type}: originalY=${originalY}, pageBreakY=${pageBreakY}, relative=${relativeFromPageBreak}, nextPageStartY=${nextPageStartY}, adjustedY=${adjustedY}`);
     
-    // Move component to top of next page with small margin
+    // Move component to top of next page
     return { x: component.position?.x || 0, y: adjustedY };
   }
 

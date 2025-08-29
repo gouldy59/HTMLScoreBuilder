@@ -59,7 +59,8 @@ export function PageBreakComponent({
         justifyContent: 'center',
         backgroundColor: isSelected ? '#EFF6FF' : '#FEF2F2',
         borderRadius: '6px',
-        position: 'relative'
+        position: 'relative',
+        zIndex: 10
       }}
       onClick={handleClick}
     >

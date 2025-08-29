@@ -167,7 +167,7 @@ export const createGoogleChart = (
       height: config.height || 300,
       backgroundColor: config.backgroundColor || 'transparent',
       colors: config.colors || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
-      legend: config.hideLegend ? 'none' : { position: 'bottom', alignment: 'center' },
+      legend: config.hideLegend ? { position: 'none' } : { position: 'bottom', alignment: 'center' },
       hAxis: {
         title: config.hAxis?.title || '',
         titleTextStyle: { fontSize: 12 },

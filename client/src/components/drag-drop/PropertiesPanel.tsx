@@ -480,7 +480,7 @@ export function PropertiesPanel({
                     onChange={(e) => updateContent('showPercentages', e.target.checked)}
                     className="rounded border-gray-300"
                   />
-                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside columns</Label>
+                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside columns (displays % labels on chart segments)</Label>
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -503,6 +503,17 @@ export function PropertiesPanel({
                     className="rounded border-gray-300"
                   />
                   <Label htmlFor="hideLegend" className="text-sm">Hide legend</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="chartBackgroundTransparentColumn"
+                    checked={selectedComponent.content.chartBackgroundTransparent === true}
+                    onChange={(e) => updateContent('chartBackgroundTransparent', e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="chartBackgroundTransparentColumn" className="text-sm">Transparent background</Label>
                 </div>
               </div>
             </div>
@@ -709,7 +720,7 @@ export function PropertiesPanel({
                     onChange={(e) => updateContent('showPercentages', e.target.checked)}
                     className="rounded border-gray-300"
                   />
-                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars</Label>
+                  <Label htmlFor="showPercentages" className="text-sm">Show percentage values inside bars (displays % labels on chart segments)</Label>
                 </div>
                 
                 <div className="flex items-center space-x-2">

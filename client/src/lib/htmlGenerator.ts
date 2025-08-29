@@ -544,8 +544,10 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       const showPercentages = content.showPercentages !== false;
       const wrapLabels = content.wrapLabels === true;
       
+      const barBgColor = content.chartBackgroundTransparent ? 'transparent' : (style.backgroundColor || '#ffffff');
+      
       return `
-        <div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
+        <div style="${positionStyle} background-color: ${barBgColor}; padding: 24px; border-radius: 8px;">
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-1">${title}</h3>
             <p class="text-sm text-gray-600">${subtitle}</p>

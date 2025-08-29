@@ -242,6 +242,10 @@ function generateHTMLFromTemplate(template: any, variables: any = {}) {
             )}
           </div>`;
 
+      case 'page-break':
+        // Page breaks are invisible in PDF/image generation
+        return `<div style="${positionStyle} height: 0px; page-break-before: always; display: block; visibility: hidden;"></div>`;
+
       default:
         return `
           <div style="${positionStyle} background-color: ${style?.backgroundColor || '#f0f0f0'}; padding: 16px; border-radius: 8px;">

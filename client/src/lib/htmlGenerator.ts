@@ -526,6 +526,11 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         barChartData = content.chartData;
       }
 
+      // Auto-detect chart data from standard JSON keys if no data is configured
+      if (!barChartData && variables && variables.stackedBarData) {
+        barChartData = variables.stackedBarData;
+      }
+
       const barGoogleData = convertToGoogleChartData(barChartData, 'bar');
       const barChartId = `bar-chart-${Math.random().toString(36).substr(2, 9)}`;
       
@@ -583,6 +588,29 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
       // Use chartData from component content for stacked charts
       if (!columnChartData && content.chartData) {
         columnChartData = content.chartData;
+      }
+
+      // Auto-detect chart data from standard JSON keys if no data is configured
+      if (!columnChartData && variables) {
+        if (component.type === 'bar-chart' && variables.stackedBarData) {
+          columnChartData = variables.stackedBarData;
+        } else if (component.type === 'column-chart' && variables.columnChartData) {
+          columnChartData = variables.columnChartData;
+        } else if (component.type === 'pie-chart' && variables.pieChartData) {
+          columnChartData = variables.pieChartData;
+        } else if (component.type === 'line-chart' && variables.lineChartData) {
+          columnChartData = variables.lineChartData;
+        } else if (component.type === 'donut-chart' && variables.donutChartData) {
+          columnChartData = variables.donutChartData;
+        } else if (component.type === 'area-chart' && variables.areaChartData) {
+          columnChartData = variables.areaChartData;
+        } else if (component.type === 'scatter-chart' && variables.scatterChartData) {
+          columnChartData = variables.scatterChartData;
+        } else if (component.type === 'bubble-chart' && variables.bubbleChartData) {
+          columnChartData = variables.bubbleChartData;
+        } else if (component.type === 'histogram-chart' && variables.histogramChartData) {
+          columnChartData = variables.histogramChartData;
+        }
       }
 
       const columnGoogleData = convertToGoogleChartData(columnChartData, 'column');

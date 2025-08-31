@@ -68,6 +68,29 @@ export function GoogleChartComponent({
           chartData = content.chartData;
         }
 
+        // Auto-detect chart data from standard JSON keys if no data is configured
+        if (!chartData && templateData) {
+          if (chartType === 'bar' && templateData.stackedBarData) {
+            chartData = templateData.stackedBarData;
+          } else if (chartType === 'column' && templateData.columnChartData) {
+            chartData = templateData.columnChartData;
+          } else if (chartType === 'pie' && templateData.pieChartData) {
+            chartData = templateData.pieChartData;
+          } else if (chartType === 'line' && templateData.lineChartData) {
+            chartData = templateData.lineChartData;
+          } else if (chartType === 'donut' && templateData.donutChartData) {
+            chartData = templateData.donutChartData;
+          } else if (chartType === 'area' && templateData.areaChartData) {
+            chartData = templateData.areaChartData;
+          } else if (chartType === 'scatter' && templateData.scatterChartData) {
+            chartData = templateData.scatterChartData;
+          } else if (chartType === 'bubble' && templateData.bubbleChartData) {
+            chartData = templateData.bubbleChartData;
+          } else if (chartType === 'histogram' && templateData.histogramChartData) {
+            chartData = templateData.histogramChartData;
+          }
+        }
+
         const googleData = convertToGoogleChartData(chartData, chartType);
         
         // Extract colors from stacked bar chart segments

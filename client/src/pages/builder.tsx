@@ -282,26 +282,8 @@ export default function Builder() {
   };
 
   const handlePreview = () => {
-    const defaultData = {
-      studentName: 'John Doe',
-      studentId: 'STU001',
-      className: '10th Grade',
-      teacherName: 'Ms. Smith',
-      academicYear: '2024-2025',
-      grade: '10',
-      mathScore: 85,
-      mathGrade: 'B+',
-      scienceScore: 92,
-      scienceGrade: 'A-',
-      englishScore: 78,
-      englishGrade: 'B',
-      overallGrade: 'B+',
-      gpa: 3.5,
-      rank: 15,
-    };
-
-    // Use imported data if available, otherwise use defaults
-    const previewData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+    // Only use imported JSON data, no defaults
+    const previewData = templateData;
     
     const html = generateHTML(components, previewData, templateName, reportBackground, reportBackgroundImage);
 
@@ -326,34 +308,16 @@ export default function Builder() {
   };
 
   const handleExportHTML = () => {
-    const defaultData = {
-      studentName: 'John Doe',
-      studentId: 'STU001',
-      className: '10th Grade',
-      teacherName: 'Ms. Smith',
-      academicYear: '2024-2025',
-      grade: '10',
-      mathScore: 85,
-      mathGrade: 'B+',
-      scienceScore: 92,
-      scienceGrade: 'A-',
-      englishScore: 78,
-      englishGrade: 'B',
-      overallGrade: 'B+',
-      gpa: 3.5,
-      rank: 15,
-    };
-
-    // Use imported data if available, otherwise use defaults
-    const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+    // Only use imported JSON data, no defaults
+    const exportData = templateData;
     
     const html = generateHTML(components, exportData, templateName, reportBackground, reportBackgroundImage);
     downloadHTML(html, `${templateName.replace(/\s+/g, '-').toLowerCase()}.html`);
     
-    const dataSource = Object.keys(templateData).length > 0 ? 'with imported JSON data' : 'with sample data';
+    const hasData = Object.keys(templateData).length > 0;
     toast({ 
       title: 'HTML exported successfully', 
-      description: `Template exported ${dataSource}` 
+      description: hasData ? 'Template exported with imported JSON data' : 'Template exported with no data (use Import Data to add content)'
     });
   };
 
@@ -364,25 +328,8 @@ export default function Builder() {
     }
 
     try {
-      const defaultData = {
-        studentName: 'John Doe',
-        studentId: 'STU001',
-        className: '10th Grade',
-        teacherName: 'Ms. Smith',
-        academicYear: '2024-2025',
-        grade: '10',
-        mathScore: 85,
-        mathGrade: 'B+',
-        scienceScore: 92,
-        scienceGrade: 'A-',
-        englishScore: 78,
-        englishGrade: 'B',
-        overallGrade: 'B+',
-        gpa: 3.5,
-        rank: 15,
-      };
-
-      const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+      // Only use imported JSON data, no defaults
+      const exportData = templateData;
 
       const response = await fetch(`/api/templates/${currentTemplateId}/generate-pdf`, {
         method: 'POST',
@@ -427,25 +374,8 @@ export default function Builder() {
     }
 
     try {
-      const defaultData = {
-        studentName: 'John Doe',
-        studentId: 'STU001',
-        className: '10th Grade',
-        teacherName: 'Ms. Smith',
-        academicYear: '2024-2025',
-        grade: '10',
-        mathScore: 85,
-        mathGrade: 'B+',
-        scienceScore: 92,
-        scienceGrade: 'A-',
-        englishScore: 78,
-        englishGrade: 'B',
-        overallGrade: 'B+',
-        gpa: 3.5,
-        rank: 15,
-      };
-
-      const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
+      // Only use imported JSON data, no defaults
+      const exportData = templateData;
 
       const response = await fetch(`/api/templates/${currentTemplateId}/generate-image`, {
         method: 'POST',

@@ -146,7 +146,7 @@ export function generateHTML(
     // Fix NaN positioning for components with missing position data
     if (isNaN(scaledY) || scaledY === null || scaledY === undefined) {
       console.warn(`Component ${component.type} has invalid position Y:`, position.y);
-      scaledY = currentPageHeight + 20; // Position after existing content with margin
+      scaledY = Math.max(currentPageHeight + 20, 20); // Position after existing content with margin, minimum 20px
     }
     
     // Improved page splitting logic for auto-splitter  

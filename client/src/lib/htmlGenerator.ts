@@ -143,6 +143,12 @@ export function generateHTML(
       return;
     }
     
+    // Fix NaN positioning for components with missing position data
+    if (isNaN(scaledY) || scaledY === null || scaledY === undefined) {
+      console.warn(`Component ${component.type} has invalid position Y:`, position.y);
+      scaledY = currentPageHeight + 20; // Position after existing content with margin
+    }
+    
     // Improved page splitting logic for auto-splitter  
     const componentAbsoluteY = scaledY;
     const componentBottomY = componentAbsoluteY + scaledHeight;
@@ -339,11 +345,7 @@ export function generateHTML(
 }
 
 // Import the same conversion function used by the builder
-import { convertToGoogleChartData as convertChartData } from '@/lib/googleCharts';
-
-function convertToGoogleChartData(chartData: any, chartType?: string) {
-  return convertChartData(chartData, chartType || 'column');
-}
+import { convertToGoogleChartData } from '@/lib/googleCharts';
 
 // Generate Google Charts HTML for server-side rendering
 function generateGoogleChartHTML(
@@ -638,7 +640,7 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         }
       }
 
-      const lineGoogleData = convertToGoogleChartData(lineChartData || variables, content);
+      const lineGoogleData = convertToGoogleChartData(lineChartData || variables, 'line');
       const lineChartId = `line-chart-${Math.random().toString(36).substr(2, 9)}`;
       const lineChartWidth = parseInt((style.width || '400px').replace('px', '')) || 400;
       const lineChartHeight = parseInt((style.height || '300px').replace('px', '')) - 100 || 300;
@@ -687,13 +689,15 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             pieChartId, 
             pieGoogleData, 
-            'pie',
-            replaceVariables(content.title || 'Pie Chart', variables),
-            pieChartWidth,
-            pieChartHeight,
-            style.backgroundColor || '#F8FAFC',
-            undefined,
-            content
+            {
+              type: 'pie',
+              title: replaceVariables(content.title || 'Pie Chart', variables),
+              width: pieChartWidth,
+              height: pieChartHeight,
+              backgroundColor: style.backgroundColor || '#F8FAFC',
+              colors: undefined,
+              hideLegend: content.hideLegend === true
+            }
           )}
         </div>`;
 
@@ -723,13 +727,15 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             donutChartId, 
             donutGoogleData, 
-            'donut',
-            replaceVariables(content.title || 'Donut Chart', variables),
-            donutChartWidth,
-            donutChartHeight,
-            style.backgroundColor || '#F8FAFC',
-            undefined,
-            content
+            {
+              type: 'donut',
+              title: replaceVariables(content.title || 'Donut Chart', variables),
+              width: donutChartWidth,
+              height: donutChartHeight,
+              backgroundColor: style.backgroundColor || '#F8FAFC',
+              colors: undefined,
+              hideLegend: content.hideLegend === true
+            }
           )}
         </div>`;
 
@@ -767,11 +773,15 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           ${generateGoogleChartHTML(
             bubbleChartId, 
             bubbleGoogleData, 
-            'bubble',
-            replaceVariables(content.title || 'Bubble Chart', variables),
-            bubbleChartWidth,
-            bubbleChartHeight,
-            style.backgroundColor || '#F8FAFC'
+            {
+              type: 'bubble',
+              title: replaceVariables(content.title || 'Bubble Chart', variables),
+              width: bubbleChartWidth,
+              height: bubbleChartHeight,
+              backgroundColor: style.backgroundColor || '#F8FAFC',
+              colors: undefined,
+              hideLegend: content.hideLegend === true
+            }
           )}
         </div>`;
 

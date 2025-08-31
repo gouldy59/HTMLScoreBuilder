@@ -37,7 +37,7 @@ export default function Builder() {
 
   // Extract templateId from URL parameters using window.location
   const urlParams = new URLSearchParams(window.location.search);
-  const templateId = urlParams.get('templateId');
+  const templateId = urlParams.get('templateId') || urlParams.get('id');
 
   // Load template if templateId is provided in URL
   const { data: templateToLoad, isLoading: templateLoading, refetch } = useQuery<Template>({

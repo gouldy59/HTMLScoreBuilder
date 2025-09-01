@@ -10,7 +10,7 @@ interface GoogleChartComponentProps {
   onUpdate: (updates: Partial<TemplateComponent>) => void;
   onDelete: () => void;
   templateData?: any;
-  chartType: 'bar' | 'column' | 'pie' | 'line' | 'area' | 'scatter' | 'bubble' | 'donut' | 'histogram';
+  chartType: 'bar' | 'column';
   chartTitle?: string;
 }
 
@@ -74,20 +74,6 @@ export function GoogleChartComponent({
             chartData = templateData.stackedBarData;
           } else if (chartType === 'column' && templateData.columnChartData) {
             chartData = templateData.columnChartData;
-          } else if (chartType === 'pie' && templateData.pieChartData) {
-            chartData = templateData.pieChartData;
-          } else if (chartType === 'line' && templateData.lineChartData) {
-            chartData = templateData.lineChartData;
-          } else if (chartType === 'donut' && templateData.donutChartData) {
-            chartData = templateData.donutChartData;
-          } else if (chartType === 'area' && templateData.areaChartData) {
-            chartData = templateData.areaChartData;
-          } else if (chartType === 'scatter' && templateData.scatterChartData) {
-            chartData = templateData.scatterChartData;
-          } else if (chartType === 'bubble' && templateData.bubbleChartData) {
-            chartData = templateData.bubbleChartData;
-          } else if (chartType === 'histogram' && templateData.histogramChartData) {
-            chartData = templateData.histogramChartData;
           }
         }
 

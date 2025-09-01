@@ -93,17 +93,6 @@ export function generateHTML(
       switch(component.type) {
         case 'bar-chart':
         case 'column-chart':
-        case 'line-chart':
-        case 'pie-chart':
-        case 'lollipop-chart':
-        case 'nightingale-chart':
-        case 'icon-chart':
-        case 'word-cloud':
-        case 'table-chart':
-        case 'bubble-chart':
-        case 'stacked-column-chart':
-        case 'donut-chart':
-        case 'venn-diagram':
           actualHeight = 300; // Standard chart height
           break;
         case 'header':
@@ -596,20 +585,6 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
           columnChartData = variables.stackedBarData;
         } else if (component.type === 'column-chart' && variables.columnChartData) {
           columnChartData = variables.columnChartData;
-        } else if (component.type === 'pie-chart' && variables.pieChartData) {
-          columnChartData = variables.pieChartData;
-        } else if (component.type === 'line-chart' && variables.lineChartData) {
-          columnChartData = variables.lineChartData;
-        } else if (component.type === 'donut-chart' && variables.donutChartData) {
-          columnChartData = variables.donutChartData;
-        } else if (component.type === 'area-chart' && variables.areaChartData) {
-          columnChartData = variables.areaChartData;
-        } else if (component.type === 'scatter-chart' && variables.scatterChartData) {
-          columnChartData = variables.scatterChartData;
-        } else if (component.type === 'bubble-chart' && variables.bubbleChartData) {
-          columnChartData = variables.bubbleChartData;
-        } else if (component.type === 'histogram-chart' && variables.histogramChartData) {
-          columnChartData = variables.histogramChartData;
         }
       }
 

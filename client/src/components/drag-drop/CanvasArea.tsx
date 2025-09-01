@@ -11,17 +11,7 @@ import { DividerComponent } from '../template-components/DividerComponent';
 import { SpacerComponent } from '../template-components/SpacerComponent';
 import { HorizontalBarChartComponent } from '../template-components/HorizontalBarChartComponent';
 import { VerticalBarChartComponent } from '../template-components/VerticalBarChartComponent';
-import { LineChartComponent } from '../template-components/LineChartComponent';
-import { PieChartComponent } from '../template-components/PieChartComponent';
-import { LollipopChartComponent } from '../template-components/LollipopChartComponent';
-import { NightingaleChartComponent } from '../template-components/NightingaleChartComponent';
-import { IconChartComponent } from '../template-components/IconChartComponent';
-import { WordCloudComponent } from '../template-components/WordCloudComponent';
-import { TableChartComponent } from '../template-components/TableChartComponent';
-import { BubbleChartComponent } from '../template-components/BubbleChartComponent';
-import { StackedColumnChartComponent } from '../template-components/StackedColumnChartComponent';
-import { DonutChartComponent } from '../template-components/DonutChartComponent';
-import { VennDiagramComponent } from '../template-components/VennDiagramComponent';
+
 import { ImageComponent } from '../template-components/ImageComponent';
 import { QRCodeComponent } from '../template-components/QRCodeComponent';
 import { PageBreakComponent } from '../template-components/PageBreakComponent';
@@ -122,39 +112,7 @@ export function CanvasArea({
       case 'column-chart':
         componentElement = <VerticalBarChartComponent {...commonProps} />;
         break;
-      case 'line-chart':
-        componentElement = <LineChartComponent {...commonProps} />;
-        break;
-      case 'pie-chart':
-        componentElement = <PieChartComponent {...commonProps} />;
-        break;
-      case 'lollipop-chart':
-        componentElement = <LollipopChartComponent {...commonProps} />;
-        break;
-      case 'nightingale-chart':
-        componentElement = <NightingaleChartComponent {...commonProps} />;
-        break;
-      case 'icon-chart':
-        componentElement = <IconChartComponent {...commonProps} />;
-        break;
-      case 'word-cloud':
-        componentElement = <WordCloudComponent {...commonProps} />;
-        break;
-      case 'table-chart':
-        componentElement = <TableChartComponent {...commonProps} />;
-        break;
-      case 'bubble-chart':
-        componentElement = <BubbleChartComponent {...commonProps} />;
-        break;
-      case 'stacked-column-chart':
-        componentElement = <StackedColumnChartComponent {...commonProps} />;
-        break;
-      case 'donut-chart':
-        componentElement = <DonutChartComponent {...commonProps} />;
-        break;
-      case 'venn-diagram':
-        componentElement = <VennDiagramComponent {...commonProps} />;
-        break;
+
       case 'divider':
         componentElement = <DividerComponent {...commonProps} />;
         break;

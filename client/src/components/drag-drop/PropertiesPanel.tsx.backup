@@ -510,24 +510,85 @@ export function PropertiesPanel({
           </div>
         );
 
-      case 'page-break':
+
+
         return (
           <div className="space-y-3">
             <div>
-              <Label htmlFor="pageBreakLabel">Page Break Label</Label>
+              <Label htmlFor="chartTitle">Chart Title</Label>
               <Input
-                id="pageBreakLabel"
-                value={selectedComponent.content.label || 'Page Break'}
-                onChange={(e) => updateContent('label', e.target.value)}
-                placeholder="Enter page break label..."
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter chart title..."
               />
             </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-info-circle text-yellow-600 mt-0.5"></i>
-                <div className="text-sm text-yellow-800">
-                  <p className="font-medium">Page Break Behavior:</p>
-                  <p className="mt-1">This component forces content after it to start on a new page when exported to PDF or printed.</p>
+            <div>
+              <Label htmlFor="chartData">Data Source</Label>
+              <div className="space-y-2">
+                <Textarea
+                  id="chartData"
+                  value={selectedComponent.content.data || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    updateContent('data', value);
+                    
+                    // Validate JSON if it's not a template variable
+                    if (value && !value.startsWith('{{')) {
+                      const jsonValidation = validateJSON(value);
+                      if (jsonValidation.isValid && jsonValidation.data) {
+                        const chartValidation = validateChartData(jsonValidation.data);
+                        if (!chartValidation.isValid) {
+                          setJsonError(`Chart data: ${chartValidation.error}`);
+                        } else {
+                          setJsonError('');
+                        }
+                      } else {
+                        setJsonError(`JSON: ${jsonValidation.error}`);
+                      }
+                    } else {
+                      setJsonError('');
+                    }
+                  }}
+                  placeholder={`{{chartData}} or valid JSON chart data`}
+                  className="min-h-20 font-mono text-sm"
+                />
+                {jsonError && (
+                  <p className="text-sm text-red-600">{jsonError}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const example = getExampleJSON('chart');
+                      updateContent('data', example);
+                      setJsonError('');
+                    }}
+                  >
+                    <i className="fas fa-lightbulb mr-1 text-xs"></i>
+                    Example
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const value = selectedComponent.content.data;
+                      if (value && !value.startsWith('{{')) {
+                        const validation = validateJSON(value);
+                        if (validation.isValid) {
+                          toast({ title: 'Valid JSON format', description: 'Chart data is properly formatted' });
+                        } else {
+                          toast({ title: 'Invalid JSON', description: validation.error, variant: 'destructive' });
+                        }
+                      }
+                    }}
+                  >
+                    <i className="fas fa-check mr-1 text-xs"></i>
+                    Validate
+                  </Button>
                 </div>
               </div>
             </div>
@@ -869,6 +930,55 @@ export function PropertiesPanel({
                   <SelectItem value="large">Large (24px)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        );
+
+
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="chartTitle">Chart Title</Label>
+              <Input
+                id="chartTitle"
+                value={selectedComponent.content.title || ''}
+                onChange={(e) => updateContent('title', e.target.value)}
+                placeholder="Enter chart title..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="chartData">Chart Data</Label>
+              <Textarea
+                id="chartData"
+                value={selectedComponent.content.data || ''}
+                onChange={(e) => updateContent('data', e.target.value)}
+                placeholder={`{{chartData}} or custom data...`}
+                className="min-h-20"
+              />
+            </div>
+          </div>
+        );
+
+      case 'page-break':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="pageBreakLabel">Page Break Label</Label>
+              <Input
+                id="pageBreakLabel"
+                value={selectedComponent.content.label || 'Page Break'}
+                onChange={(e) => updateContent('label', e.target.value)}
+                placeholder="Enter page break label..."
+              />
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <i className="fas fa-info-circle text-yellow-600 mt-0.5"></i>
+                <div className="text-sm text-yellow-800">
+                  <p className="font-medium">Page Break Behavior:</p>
+                  <p className="mt-1">This component forces content after it to start on a new page when exported to PDF or printed.</p>
+                </div>
+              </div>
             </div>
           </div>
         );

@@ -3,6 +3,7 @@ using HTMLScoreBuilder.API.Data;
 using HTMLScoreBuilder.API.Models;
 using HTMLScoreBuilder.API.Models.DTOs;
 using System.Text.Json;
+using System.Text;
 
 namespace HTMLScoreBuilder.API.Services;
 
@@ -513,14 +514,97 @@ public class TemplateService : ITemplateService
 
                 case "bar-chart":
                     var chartTitle = ReplaceVariables(content.GetValueOrDefault("title", "Chart Title")?.ToString() ?? "Chart Title", variables);
+                    var chartSubtitle = ReplaceVariables(content.GetValueOrDefault("subtitle", "description")?.ToString() ?? "description", variables);
                     var chartBgColor = style.GetValueOrDefault("backgroundColor", "#ffffff")?.ToString() ?? "#ffffff";
-                    
-                    html += $@"<div style=""{positionStyle} background-color: {chartBgColor}; padding: 24px; border-radius: 8px;"">
-                      <h3 style=""font-size: 18px; font-weight: 600; margin-bottom: 16px;"">{chartTitle}</h3>
-                      <div style=""background-color: #f3f4f6; height: 200px; border-radius: 4px; display: flex; align-items: center; justify-content: center;"">
-                        <p style=""color: #6b7280;"">Chart rendering placeholder</p>
-                      </div>
-                    </div>";
+
+                    var chartDataRaw = JsonSerializer.Deserialize<List<JsonElement>>(JsonSerializer.Serialize(content["chartData"]));
+
+                    // Compute dynamic label width
+                    int longestLabel = chartDataRaw.Max(item =>
+                    {
+                        var label = item.TryGetProperty("label", out var lbl) ? lbl.GetString() ?? "" : "";
+                        return label.Length * 7;
+                    });
+                    int labelWidth = Math.Min(200, Math.Max(80, longestLabel));
+
+                    var chartHtml = $@"
+                        <div style=""{positionStyle} background-color:{chartBgColor}; padding:24px; border-radius:8px;"">
+                        <h3 style=""font-size:18px; font-weight:600; margin-bottom:4px;"">{chartTitle}</h3>
+                        {(string.IsNullOrEmpty(chartSubtitle) ? "" : $"<p style='font-size:14px; color:#6b7280; margin-bottom:16px;'>{chartSubtitle}</p>")}
+                    ";
+
+                    if (chartDataRaw == null || chartDataRaw.Count == 0)
+                    {
+                        chartHtml += @"
+                            <div style=""background-color:#f3f4f6; height:200px; border-radius:4px; display:flex; align-items:center; justify-content:center;"">
+                            <p style=""color:#6b7280;"">No chart data available</p>
+                            </div>";
+                    }
+                    else
+                    {
+                        foreach (var item in chartDataRaw)
+                        {
+                            var label = ReplaceVariables(item.GetProperty("label").GetString() ?? "Category A", variables);
+                            var scoreValue = ReplaceVariables(item.GetProperty("scoreValue").GetString() ?? "0", variables);
+                            var rawScore = int.TryParse(scoreValue, out var score) ? score : 0;
+
+                            var segments = item.GetProperty("segments").EnumerateArray();
+
+                            // Label + Bar container
+                            chartHtml += $@"
+                                <div style=""display:flex; align-items:center; margin-bottom:8px;"">
+                                <div style=""width:{labelWidth}px; font-size:12px; font-weight:500; margin-right:8px;"">{label}</div>
+                                <div style=""flex:1; position:relative; height:20px; background:#f3f4f6; border-radius:4px; overflow:visible; display:flex;"">
+                                ";
+
+                            // Segments
+                            foreach (var seg in segments)
+                            {
+                                var segValue = seg.GetProperty("value").GetInt32();
+                                var segColor = seg.GetProperty("color").GetString() ?? "#E5E7EB";
+                                var segLabel = seg.GetProperty("label").GetString() ?? "";
+
+                                chartHtml += $@"<div title=""{segLabel}: {segValue}%"" 
+                                  style=""width:{segValue}%; background-color:{segColor}; border-left:1px solid #fff;""></div>";
+                            }
+
+                            var clampedScore = Math.Max(0, Math.Min(100, rawScore));
+                            chartHtml += $@"
+                                <div style=""position:absolute; top:50%; left:calc({clampedScore}% - 6px); 
+                                transform:translateY(-50%); width:12px; height:12px;
+                                background-color:#dc2626; border:2px solid #fff; border-radius:50%; 
+                                box-shadow:0 0 2px rgba(0,0,0,0.2);""
+                                title=""Score: {clampedScore}%""></div>
+                                <div style=""position:absolute; right:-48px; top:50%; transform:translateY(-50%);
+                                    font-size:12px; font-weight:bold; color:#dc2626;
+                                    background-color:#ffffff; padding:2px 4px; border:1px solid #d1d5db;
+                                    border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"">
+                                    {clampedScore}%
+                                </div>";
+
+                            chartHtml += "</div></div>";
+                        }
+
+                        // Legend
+                        chartHtml += $@"
+                            <div style=""display:flex; gap:12px; justify-content:center; margin-top:12px; margin-left: {labelWidth + 12}px; font-size:12px; color:#6b7280;"">
+                                <div style=""display:flex; align-items:center; gap:4px;"">
+                                    <div style=""width:12px; height:12px; background-color:#FDE2E7; border-radius:2px;""></div>0%-25%
+                                </div>
+                            <div style=""display:flex; align-items:center; gap:4px;"">
+                                <div style=""width:12px; height:12px; background-color:#FB923C; border-radius:2px;""></div>26%-50%
+                            </div>
+                            <div style=""display:flex; align-items:center; gap:4px;"">
+                                <div style=""width:12px; height:12px; background-color:#86EFAC; border-radius:2px;""></div>51%-75%
+                            </div>
+                            <div style=""display:flex; align-items:center; gap:4px;"">
+                                <div style=""width:12px; height:12px; background-color:#D1FAE5; border-radius:2px;""></div>76%-100%
+                            </div>
+                        </div>";
+                    }
+
+                    chartHtml += "</div>";
+                    html += chartHtml;
                     break;
 
                 case "page-break":
@@ -531,7 +615,198 @@ public class TemplateService : ITemplateService
                       </span>
                     </div>";
                     break;
+                case "score-table":
+                    {
+                        var tableTitle = ReplaceVariables(content.GetValueOrDefault("title", "Subject Scores")?.ToString() ?? "Subject Scores", variables);
+                        var tableBgColor = style.GetValueOrDefault("backgroundColor", "#FFF7ED")?.ToString() ?? "#FFF7ED";
 
+                        // Headers
+                        List<string> headers;
+                        try
+                        {
+                            if (content.TryGetValue("headers", out var headersObj) && headersObj != null)
+                            {
+                                headers = JsonSerializer.Deserialize<List<string>>(JsonSerializer.Serialize(headersObj)) ?? new List<string>();
+                            }
+                            else
+                            {
+                                headers = new List<string>();
+                            }
+                        }
+                        catch
+                        {
+                            headers = new List<string>();
+                        }
+
+                        if (headers.Count == 0)
+                        {
+                            headers = new List<string> { "Subject", "Score", "Grade" };
+                        }
+
+                        headers = headers.Select(h => ReplaceVariables(h ?? string.Empty, variables)).ToList();
+
+                        // Rows
+                        List<JsonElement> rows;
+                        try
+                        {
+                            if (content.TryGetValue("rows", out var rowsObj) && rowsObj != null)
+                            {
+                                rows = JsonSerializer.Deserialize<List<JsonElement>>(JsonSerializer.Serialize(rowsObj)) ?? new List<JsonElement>();
+                            }
+                            else
+                            {
+                                rows = new List<JsonElement>();
+                            }
+                        }
+                        catch
+                        {
+                            rows = new List<JsonElement>();
+                        }
+
+                        html += $@"
+                            <div style=""{positionStyle} background-color: {tableBgColor}; padding: 24px; border-radius: 12px;"">
+                                <h3 style=""font-size: 18px; font-weight: 600; margin-bottom: 16px;"">{tableTitle}</h3>
+                            <div style=""overflow-x: auto;"">
+                                <table style=""width: 100%; border-collapse: collapse; border: 1px solid #D1D5DB; background-color: #ffffff; border-radius: 8px; overflow: hidden;"">
+                                <thead>
+                                    <tr style=""background-color: #F9FAFB;"">";
+
+                                    foreach (var header in headers)
+                                    {
+                                        html += $@"<th style=""border: 1px solid #D1D5DB; padding: 8px 16px; text-align: left; font-weight: 500;"">{header}</th>";
+                                    }
+
+                                    html += @"</tr>
+                                </thead>
+                                <tbody>";
+
+                                    if (rows.Count > 0)
+                                    {
+                                        foreach (var rowEl in rows)
+                                        {
+                                            html += "<tr>";
+
+                                            if (rowEl.ValueKind == JsonValueKind.Object)
+                                            {
+                                                // Track which property names we've output (case-insensitive)
+                                                var usedProps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                                                // 1) Emit cells in header order
+                                                foreach (var header in headers)
+                                                {
+                                                    JsonElement cellVal = default;
+                                                    bool found = false;
+                                                    string matchedPropName = null;
+
+                                                    // Try exact property name
+                                                    if (rowEl.TryGetProperty(header, out cellVal))
+                                                    {
+                                                        found = true;
+                                                        matchedPropName = header;
+                                                    }
+                                                    else
+                                                    {
+                                                        // Try case-insensitive match
+                                                        foreach (var prop in rowEl.EnumerateObject())
+                                                        {
+                                                            if (string.Equals(prop.Name, header, StringComparison.OrdinalIgnoreCase))
+                                                            {
+                                                                cellVal = prop.Value;
+                                                                found = true;
+                                                                matchedPropName = prop.Name;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (!found)
+                                                    {
+                                                        // Try normalized match: remove non-alphanumeric and compare lowercase
+                                                        var normHeader = new string(header.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+                                                        foreach (var prop in rowEl.EnumerateObject())
+                                                        {
+                                                            var normProp = new string(prop.Name.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+                                                            if (!string.IsNullOrEmpty(normHeader) && normProp == normHeader)
+                                                            {
+                                                                cellVal = prop.Value;
+                                                                found = true;
+                                                                matchedPropName = prop.Name;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // Prepare cell text
+                                                    string cellText = "";
+                                                    if (found)
+                                                    {
+                                                        usedProps.Add(matchedPropName ?? header);
+
+                                                        if (cellVal.ValueKind == JsonValueKind.String)
+                                                            cellText = ReplaceVariables(cellVal.GetString() ?? string.Empty, variables);
+                                                        else
+                                                            cellText = cellVal.ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        // No matching property for this header -> empty cell
+                                                        cellText = "";
+                                                    }
+
+                                                    html += $@"<td style=""border: 1px solid #D1D5DB; padding: 8px 16px;"">{cellText}</td>";
+                                                }
+
+                                                // 2) Append any remaining properties not matched to headers (to avoid losing data)
+                                                foreach (var prop in rowEl.EnumerateObject())
+                                                {
+                                                    if (!usedProps.Contains(prop.Name))
+                                                    {
+                                                        string cellText = prop.Value.ValueKind == JsonValueKind.String
+                                                            ? ReplaceVariables(prop.Value.GetString() ?? string.Empty, variables)
+                                                            : prop.Value.ToString();
+
+                                                        html += $@"<td style=""border: 1px solid #D1D5DB; padding: 8px 16px;"">{cellText}</td>";
+                                                    }
+                                                }
+                                            }
+                                            else if (rowEl.ValueKind == JsonValueKind.Array)
+                                            {
+                                                // If row is an array, emit array values in order
+                                                foreach (var cell in rowEl.EnumerateArray())
+                                                {
+                                                    string cellText = cell.ValueKind == JsonValueKind.String
+                                                        ? ReplaceVariables(cell.GetString() ?? string.Empty, variables)
+                                                        : cell.ToString();
+
+                                                    html += $@"<td style=""border: 1px solid #D1D5DB; padding: 8px 16px;"">{cellText}</td>";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Fallback: single-cell row
+                                                string cellText = ReplaceVariables(rowEl.ToString() ?? string.Empty, variables);
+                                                html += $@"<td style=""border: 1px solid #D1D5DB; padding: 8px 16px;"">{cellText}</td>";
+                                            }
+
+                                            html += "</tr>";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var colSpan = Math.Max(headers.Count, 1);
+                                        html += $@"<tr>
+                                            <td colspan=""{colSpan}"" style=""border: 1px solid #D1D5DB; padding: 8px 16px; text-align: center; color: #6B7280;"">
+                                                No data available
+                                            </td>
+                                        </tr>";
+                                    }
+
+                                    html += @"  </tbody>
+                                </table>
+                            </div>
+                        </div>";
+                        break;
+                    }
                 default:
                     html += $@"<div style=""{positionStyle} padding: 16px; border: 2px dashed #d1d5db; border-radius: 8px;"">
                       <p style=""color: #9ca3af;"">Component: {type}</p>

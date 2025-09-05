@@ -23,28 +23,27 @@ public class PdfGenerationService : IPdfGenerationService
         try
         {
             // Download Chromium if not available
-            await new BrowserFetcher().DownloadAsync();
+            var fetcherOptions = new BrowserFetcherOptions { Path = Path.Combine(Path.GetTempPath(), "puppeteer") };
+            var browserFetcher = new BrowserFetcher(fetcherOptions);
+            var installed = await browserFetcher.DownloadAsync();
+            var executable = installed.GetExecutablePath();
 
             var launchOptions = new LaunchOptions
             {
                 Headless = true,
+                ExecutablePath = executable,
                 Args = new[]
                 {
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-accelerated-2d-canvas",
-                    "--no-first-run",
-                    "--no-zygote",
-                    "--single-process",
-                    "--disable-gpu"
+                    "--disable-dev-shm-usage"
                 }
             };
 
             using var browser = await Puppeteer.LaunchAsync(launchOptions);
             using var page = await browser.NewPageAsync();
 
-            await page.SetContentAsync(html, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle0 } });
+            await page.SetContentAsync(html);
             await page.SetViewportAsync(new ViewPortOptions { Width = 794, Height = 1123 });
 
             // Wait for charts to render

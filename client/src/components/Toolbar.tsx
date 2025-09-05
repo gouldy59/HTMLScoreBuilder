@@ -115,9 +115,9 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
           <GitBranch className="w-4 h-4 mr-2" />
           Versions
         </Button>
-        <Button onClick={onPreview} variant="outline">
-          <i className="fas fa-eye mr-2"></i>Preview
-        </Button>
+        {/*<Button onClick={onPreview} variant="outline">*/}
+        {/*  <i className="fas fa-eye mr-2"></i>Preview*/}
+        {/*</Button>*/}
         
         {/* Publish/Unpublish Buttons */}
         {currentTemplateId && (
@@ -144,29 +144,29 @@ export function Toolbar({ templateName, onTemplateNameChange, onPreview, onExpor
           </>
         )}
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-              <ChevronDown className="w-4 h-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={onExportHTML} className="flex items-center">
-              <FileText className="w-4 h-4 mr-2" />
-              Export HTML
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onGeneratePDF} className="flex items-center">
-              <FileText className="w-4 h-4 mr-2 text-red-600" />
-              Generate PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onGenerateImage} className="flex items-center">
-              <ImageIcon className="w-4 h-4 mr-2 text-purple-600" />
-              Generate Image
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/*<DropdownMenu>*/}
+        {/*  <DropdownMenuTrigger asChild>*/}
+        {/*    <Button className="bg-green-600 hover:bg-green-700">*/}
+        {/*      <Download className="w-4 h-4 mr-2" />*/}
+        {/*      Export*/}
+        {/*      <ChevronDown className="w-4 h-4 ml-2" />*/}
+        {/*    </Button>*/}
+        {/*  </DropdownMenuTrigger>*/}
+        {/*  <DropdownMenuContent align="end" className="w-48">*/}
+        {/*    <DropdownMenuItem onClick={onExportHTML} className="flex items-center">*/}
+        {/*      <FileText className="w-4 h-4 mr-2" />*/}
+        {/*      Export HTML*/}
+        {/*    </DropdownMenuItem>*/}
+        {/*    <DropdownMenuItem onClick={onGeneratePDF} className="flex items-center">*/}
+        {/*      <FileText className="w-4 h-4 mr-2 text-red-600" />*/}
+        {/*      Generate PDF*/}
+        {/*    </DropdownMenuItem>*/}
+        {/*    <DropdownMenuItem onClick={onGenerateImage} className="flex items-center">*/}
+        {/*      <ImageIcon className="w-4 h-4 mr-2 text-purple-600" />*/}
+        {/*      Generate Image*/}
+        {/*    </DropdownMenuItem>*/}
+        {/*  </DropdownMenuContent>*/}
+        {/*</DropdownMenu>*/}
       </div>
     </div>
   );

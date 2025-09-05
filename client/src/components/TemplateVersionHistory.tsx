@@ -52,7 +52,7 @@ export function TemplateVersionHistory({ template, onBack }: TemplateVersionHist
   ];
 
   const { data: versions = mockVersions, isLoading } = useQuery<TemplateVersion[]>({
-    queryKey: ['/api/templates', template?.id, 'versions'],
+      queryKey: ['http://localhost:5001/api/templates', template?.id, 'versions'],
     enabled: false // Disable for now since we don't have the API endpoint
   });
 

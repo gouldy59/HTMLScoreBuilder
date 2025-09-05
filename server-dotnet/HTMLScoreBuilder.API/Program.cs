@@ -10,8 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure Entity Framework
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-                      Environment.GetEnvironmentVariable("DATABASE_URL");
+var connectionString = "Host=localhost;Port=5432;Database=score_reports_dev;Username=postgres;Password=K3pl3r123!!!";
 
 if (!string.IsNullOrEmpty(connectionString))
 {
@@ -32,11 +31,12 @@ builder.Services.AddScoped<IPdfGenerationService, PdfGenerationService>();
 // Add CORS for frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowLocalhostFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:5000")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -56,7 +56,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Enable CORS
-app.UseCors("AllowAll");
+app.UseCors("AllowLocalhostFrontend");
 
 // Custom middleware for request logging
 app.Use(async (context, next) =>
@@ -115,8 +115,8 @@ using (var scope = app.Services.CreateScope())
 app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNow });
 
 // Default port should be 5000 to match the original server
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5001";
+app.Urls.Add($"http://0.0.0.0:5001");
 
 Console.WriteLine($"HTMLScoreBuilder API serving on port {port}");
 

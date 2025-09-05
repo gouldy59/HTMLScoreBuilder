@@ -145,7 +145,7 @@ export function PropertiesPanel({
 
     setIsGeneratingImage(true);
     try {
-      const response = await apiRequest('/api/generate-image', {
+      const response = await apiRequest('http://localhost:5001/api/generate-image', {
         method: 'POST',
         body: JSON.stringify({ prompt: imagePrompt }),
         headers: {

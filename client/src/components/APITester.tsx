@@ -27,7 +27,7 @@ export function APITester() {
   const { toast } = useToast();
 
   const { data: templates = [] } = useQuery<Template[]>({
-    queryKey: ['/api/templates'],
+    queryKey: ['http://localhost:5001/api/templates'],
   });
 
   const validateJSON = (jsonString: string): any => {
@@ -48,7 +48,7 @@ export function APITester() {
       setIsLoading(true);
       const data = validateJSON(jsonData);
 
-      const response = await fetch(`/api/templates/${selectedTemplateId}/export-html`, {
+        const response = await fetch(`http://localhost:5001/api/templates/${selectedTemplateId}/export-html`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data })
@@ -91,7 +91,7 @@ export function APITester() {
       setIsLoading(true);
       const data = validateJSON(jsonData);
 
-      const response = await fetch(`/api/templates/${selectedTemplateId}/generate-image`, {
+        const response = await fetch(`http://localhost:5001/api/templates/${selectedTemplateId}/generate-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data })
@@ -137,7 +137,7 @@ export function APITester() {
       setIsLoading(true);
       const data = validateJSON(jsonData);
 
-      const response = await fetch(`/api/templates/${selectedTemplateId}/generate-pdf`, {
+        const response = await fetch(`http://localhost:5001/api/templates/${selectedTemplateId}/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data })
@@ -174,7 +174,7 @@ export function APITester() {
   };
 
   const sampleRequests = {
-    html: `POST /api/templates/{templateId}/export-html
+      html: `POST http://localhost:5001/api/templates/{templateId}/export-html
 Content-Type: application/json
 
 {
@@ -187,7 +187,7 @@ Content-Type: application/json
     "englishScore": 78
   }
 }`,
-    image: `POST /api/templates/{templateId}/generate-image
+      image: `POST http://localhost:5001/api/templates/{templateId}/generate-image
 Content-Type: application/json
 
 {
@@ -200,7 +200,7 @@ Content-Type: application/json
     "englishScore": 78
   }
 }`,
-    pdf: `POST /api/templates/{templateId}/generate-pdf
+      pdf: `POST http://localhost:5001/api/templates/{templateId}/generate-pdf
 Content-Type: application/json
 
 {

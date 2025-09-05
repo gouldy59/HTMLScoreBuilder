@@ -59,7 +59,7 @@ export function TemplateManager() {
   const itemsPerPage = 10;
 
   const { data: rawTemplates = [], isLoading, error, refetch } = useQuery<Template[]>({
-    queryKey: ['/api/template-families'],
+      queryKey: ['http://localhost:5001/api/templates/families'],
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
   });
@@ -136,13 +136,13 @@ export function TemplateManager() {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (templateId: number) => apiRequest('DELETE', `/api/templates/${templateId}`),
+      mutationFn: (templateId: number) => apiRequest('DELETE', `http://localhost:5001/api/templates/${templateId}`),
     onSuccess: () => {
       toast({
         title: "Template deleted",
         description: "The template has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/template-families'] });
+        queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates/families'] });
     },
     onError: (error: any) => {
       toast({

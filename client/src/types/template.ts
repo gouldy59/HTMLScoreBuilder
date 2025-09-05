@@ -53,13 +53,13 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'charts',
     description: 'Segmented horizontal bar chart with multiple data series',
     defaultContent: {
-      title: 'Chart Title',
-      subtitle: 'Add your chart description here',
+      title: '{{chartTitle}}',
+      subtitle: '{{chartDescription}}',
       showPercentages: true,
       chartData: [
         {
-          label: "Category A",
-          scoreValue: 65,
+          label: "{{catA}}",
+          scoreValue: "{{x}}",
           segments: [
             { value: 25, color: "#FDE2E7", label: "0%-25%" },
             { value: 25, color: "#FB923C", label: "26%-50%" },
@@ -68,8 +68,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
           ]
         },
         {
-          label: "Category B",
-          scoreValue: 78,
+          label: "{{catB}}",
+          scoreValue: "{{y}}",
           segments: [
             { value: 25, color: "#FDE2E7", label: "0%-25%" },
             { value: 25, color: "#FB923C", label: "26%-50%" },
@@ -78,12 +78,12 @@ export const COMPONENT_TYPES: ComponentType[] = [
           ]
         },
         {
-          label: "Category C",
-          scoreValue: 42,
+          label: "{{catC}}",
+          scoreValue: "{{z}}",
           segments: [
             { value: 25, color: "#FDE2E7", label: "0%-25%" },
             { value: 25, color: "#FB923C", label: "26%-50%" },
-            { value: 25, color: "#86EFAC", label: "51%-75%" },
+            { value: 25, color: "#FEF3C7", label: "51%-75%" },
             { value: 25, color: "#D1FAE5", label: "76%-100%" }
           ]
         }
@@ -125,15 +125,16 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Structured score display',
     defaultContent: {
+      title: "{{tableTitle}}",
       headers: ['Subject', 'Score', 'Grade', 'Max Score'],
       rows: [
-        { subject: 'Mathematics', score: '{{mathScore}}', grade: '{{mathGrade}}', maxScore: '100' },
-        { subject: 'Science', score: '{{scienceScore}}', grade: '{{scienceGrade}}', maxScore: '100' },
-        { subject: 'English', score: '{{englishScore}}', grade: '{{englishGrade}}', maxScore: '100' }
+        { subject: '{{subject01}}', score: '{{score01}}', grade: '{{grade01}}', maxScore: '100' },
+          { subject: '{{subject02}}', score: '{{score02}}', grade: '{{grade02}}', maxScore: '100' },
+          { subject: '{{subject03}}', score: '{{score03}}', grade: '{{grade03}}', maxScore: '100' }
       ]
     },
     defaultStyle: {
-      backgroundColor: '#FFF7ED',
+      backgroundColor: '#ffffff',
       borderColor: '#D97706',
       width: '400px',
       height: '250px'

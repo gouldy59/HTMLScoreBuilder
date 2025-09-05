@@ -11,11 +11,12 @@ interface JSONDataDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onApplyData: (data: any) => void;
+  currentTemplateId: number;
   title?: string;
   description?: string;
 }
 
-export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import JSON Data", description = "Import and validate JSON data for your template" }: JSONDataDialogProps) {
+export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId, title = "Import JSON Data", description = "Import and validate JSON data for your template" }: JSONDataDialogProps) {
   const [jsonInput, setJsonInput] = useState('');
   const [validationType, setValidationType] = useState<'template' | 'chart' | 'student' | 'score'>('template');
   const [validationError, setValidationError] = useState('');
@@ -95,7 +96,116 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
       title: 'Auto-fix Applied',
       description: 'Common JSON formatting issues have been automatically corrected'
     });
-  };
+    };
+
+    const handlePreview = async () => {
+        const previewData = JSON.parse(jsonInput);
+
+        try {
+            const previewWindow = window.open('', '_blank');
+
+            const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/export-html`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ data: previewData }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                console.error("Failed to generate HTML:", error.message);
+                return;
+            }
+
+            const html = await response.text();
+
+            if (previewWindow) {
+                previewWindow.document.open();
+                previewWindow.document.write(html);
+                previewWindow.document.close();
+            }
+        } catch (err) {
+            console.error("Error generating HTML:", err);
+        }
+    };
+
+    const handleExportHTML = async () => {
+        try {
+            const previewData = JSON.parse(jsonInput);
+
+            const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/export-html`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: previewData })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to export HTML');
+            }
+
+            const htmlContent = await response.text();
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template-${currentTemplateId}.html`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+
+            toast({ title: 'Success', description: 'HTML exported successfully' });
+        } catch (error) {
+            console.error('HTML export error:', error);
+            toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to export HTML', variant: 'destructive' });
+        } finally {
+            //setIsLoading(false);
+        }
+    };
+
+    const handleGeneratePDF = async () => {
+        try {
+            const previewData = JSON.parse(jsonInput);
+
+            const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/generate-pdf`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: previewData })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate PDF');
+            }
+
+            const blob = await response.blob();
+            if (blob.size === 0) {
+                throw new Error('Received empty PDF file');
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template-${currentTemplateId}.pdf`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+
+            toast({ title: 'Success', description: 'PDF generated successfully' });
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to generate PDF', variant: 'destructive' });
+        } finally {
+            //setIsLoading(false);
+        }
+    };
 
   const handleApply = () => {
     if (!isValid) {
@@ -143,20 +253,20 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
         </DialogHeader>
 
         <div className="flex-1 space-y-4 overflow-y-auto">
-          <div>
-            <Label htmlFor="validationType">Data Type</Label>
-            <Select value={validationType} onValueChange={handleValidationTypeChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select data type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="template">Template Data (Student Info + Scores)</SelectItem>
-                <SelectItem value="chart">Chart Data</SelectItem>
-                <SelectItem value="student">Student Information</SelectItem>
-                <SelectItem value="score">Score Data</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/*<div>*/}
+          {/*  <Label htmlFor="validationType">Data Type</Label>*/}
+          {/*  <Select value={validationType} onValueChange={handleValidationTypeChange}>*/}
+          {/*    <SelectTrigger>*/}
+          {/*      <SelectValue placeholder="Select data type" />*/}
+          {/*    </SelectTrigger>*/}
+          {/*    <SelectContent>*/}
+          {/*      <SelectItem value="template">Template Data (Student Info + Scores)</SelectItem>*/}
+          {/*      <SelectItem value="chart">Chart Data</SelectItem>*/}
+          {/*      <SelectItem value="student">Student Information</SelectItem>*/}
+          {/*      <SelectItem value="score">Score Data</SelectItem>*/}
+          {/*    </SelectContent>*/}
+          {/*  </Select>*/}
+          {/*</div>*/}
 
           <div>
             <div className="flex justify-between items-center mb-2">
@@ -249,17 +359,41 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, title = "Import J
           </div>
         </div>
 
-        <DialogFooter>
+          <DialogFooter>
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleApply} 
+          {/*<Button */}
+          {/*  onClick={handleApply} */}
+          {/*  disabled={!isValid}*/}
+          {/*  className={isValid ? 'bg-green-600 hover:bg-green-700' : ''}*/}
+          {/*>*/}
+          {/*<i className="fas fa-upload mr-2"></i>*/}
+          {/*  Apply Data*/}
+          {/*</Button>*/}
+          <Button
+            onClick={handlePreview}
             disabled={!isValid}
             className={isValid ? 'bg-green-600 hover:bg-green-700' : ''}
           >
-            <i className="fas fa-upload mr-2"></i>
-            Apply Data
+          <i className="fas fa-eye mr-2"></i>
+            Preview
+          </Button>
+          <Button
+            onClick={handleExportHTML}
+            disabled={!isValid}
+            className={isValid ? 'bg-green-600 hover:bg-green-700' : ''}
+          >
+          <i className="fas fa-file mr-2"></i>
+            Export HTML
+          </Button>
+          <Button
+            onClick={handleGeneratePDF}
+            disabled={!isValid}
+            className={isValid ? 'bg-green-600 hover:bg-green-700' : ''}
+          >
+            <i className="fa-regular fa-file-pdf mr-2"></i>
+            Export PDF
           </Button>
         </DialogFooter>
       </DialogContent>

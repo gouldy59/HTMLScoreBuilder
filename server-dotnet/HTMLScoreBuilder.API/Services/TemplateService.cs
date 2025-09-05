@@ -458,8 +458,8 @@ public class TemplateService : ITemplateService
 
             if (position == null || style == null || content == null) continue;
 
-            var x = GetDoubleValue(position.GetValueOrDefault("x", 0)) * 0.69;
-            var y = GetDoubleValue(position.GetValueOrDefault("y", 0)) * 0.69;
+            var x = GetDoubleValue(position.GetValueOrDefault("x", 0));
+            var y = GetDoubleValue(position.GetValueOrDefault("y", 0));
             var width = style.GetValueOrDefault("width", "auto")?.ToString() ?? "auto";
             var height = style.GetValueOrDefault("height", "auto")?.ToString() ?? "auto";
 
@@ -472,11 +472,12 @@ public class TemplateService : ITemplateService
                     var headerSubtitle = content.ContainsKey("subtitle") ? ReplaceVariables(content["subtitle"]?.ToString() ?? "", variables) : "";
                     var backgroundColor = style.GetValueOrDefault("backgroundColor", "#DBEAFE")?.ToString() ?? "#DBEAFE";
                     var textColor = style.GetValueOrDefault("textColor", "#1F2937")?.ToString() ?? "#1F2937";
-                    
-                    html += $@"<div style=""{positionStyle} background-color: {backgroundColor}; color: {textColor}; padding: 24px; border-radius: 8px;"">
-                      <h1 style=""font-size: 24px; font-weight: bold; margin-bottom: 8px;"">{headerTitle}</h1>
-                      {(string.IsNullOrEmpty(headerSubtitle) ? "" : $"<p style=\"font-size: 16px; opacity: 0.8;\">{headerSubtitle}</p>")}
-                    </div>";
+
+                    var headerPositionStyle = $"position: absolute; left: {x}px; top: {y}px; width: {width};";
+                    html += $@"<div style=""{headerPositionStyle} background-color: {backgroundColor}; color: {textColor}; padding: 24px; border-radius: 8px;"">
+              <h1 style=""font-size: 24px; font-weight: bold; margin-bottom: 8px;"">{headerTitle}</h1>
+              {(string.IsNullOrEmpty(headerSubtitle) ? "" : $"<p style=\"font-size: 16px; opacity: 0.8;\">{headerSubtitle}</p>")}
+          </div>";
                     break;
 
                 case "text-block":

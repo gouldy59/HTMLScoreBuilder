@@ -616,6 +616,19 @@ public class TemplateService : ITemplateService
                       </span>
                     </div>";
                     break;
+                case "image":
+                    var imageSrc = content.GetValueOrDefault("src", "")?.ToString() ?? "";
+                    var imageAlt = content.GetValueOrDefault("alt", "")?.ToString() ?? "Report image";
+                    var imageCaption = content.GetValueOrDefault("caption", "")?.ToString() ?? "";
+                    var borderRadius = style.GetValueOrDefault("borderRadius", "8px")?.ToString() ?? "8px";
+                    var imgBackgroundColor = style.GetValueOrDefault("backgroundColor", "transparent")?.ToString() ?? "transparent";
+
+                    html += $@"
+    <div style=""{positionStyle} text-align: center; background-color: {imgBackgroundColor}; border-radius: {borderRadius}; padding: 8px;"">
+        <img src=""{imageSrc}"" alt=""{imageAlt}"" style=""width: 100%; height: 100%; object-fit: cover; border-radius: {borderRadius}; display: block;"" />
+        {(string.IsNullOrEmpty(imageCaption) ? "" : $"<p style=\"margin-top: 8px; font-size: 14px; color: #6B7280; font-style: italic;\">{imageCaption}</p>")}
+    </div>";
+                    break;
                 case "score-table":
                     {
                         var tableTitle = ReplaceVariables(content.GetValueOrDefault("title", "Subject Scores")?.ToString() ?? "Subject Scores", variables);

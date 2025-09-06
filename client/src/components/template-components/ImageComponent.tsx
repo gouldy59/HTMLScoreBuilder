@@ -44,19 +44,21 @@ export function ImageComponent({
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const localUrl = URL.createObjectURL(file);
+        if (!file) return;
 
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string; // "data:image/png;base64,..."
             onUpdate?.({
                 content: {
                     ...component.content,
-                    src: localUrl
+                    src: base64
                 }
             });
-
             setIsLoading(false);
             setImageError(false);
-        }
+        };
+        reader.readAsDataURL(file);
     };
 
     return (

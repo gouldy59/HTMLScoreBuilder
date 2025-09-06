@@ -51,12 +51,11 @@ export function ImageComponent({
     borderRadius: componentStyle.borderRadius || '8px',
     padding: '8px',
     backgroundColor: componentStyle.backgroundColor || 'transparent',
-    ...style
   };
 
   const imageStyle: React.CSSProperties = {
     width: '100%',
-    height: componentStyle.height || 'auto',
+    height: '100%',
     borderRadius: componentStyle.borderRadius || '8px',
     objectFit: 'cover' as const,
     display: 'block'

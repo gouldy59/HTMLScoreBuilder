@@ -61,11 +61,14 @@ export function DraggableResizableWrapper({
         // Get canvas bounds - find the actual canvas container  
         const canvas = document.querySelector('[data-canvas="true"]') || document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
         
-        const componentWidth = parseInt(component.style?.width?.toString() || '300');
-        const componentHeight = parseInt(component.style?.height?.toString() || '200');
+          const componentWidth = Number.parseFloat(component.style?.width)
+              || (wrapperRef.current ? wrapperRef.current.clientWidth : 300);
+
+          const componentHeight = Number.parseFloat(component.style?.height)
+              || (wrapperRef.current ? wrapperRef.current.clientHeight : 200);
         
-        const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
-        const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;
+          const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
+          const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;
         
         onUpdateComponent({
           position: {

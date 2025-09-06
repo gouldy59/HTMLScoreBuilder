@@ -207,6 +207,46 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
         }
     };
 
+    const handleGenerateImage = async () => {
+        try {
+            const previewData = JSON.parse(jsonInput);
+
+            const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/generate-image`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: previewData })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate image');
+            }
+
+            const blob = await response.blob();
+            console.log('Image blob size:', blob.size, 'type:', blob.type);
+
+            if (blob.size === 0) {
+                throw new Error('Received empty image file');
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template-${currentTemplateId}.png`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+
+            toast({ title: 'Success', description: 'Image generated successfully' });
+        } catch (error) {
+            console.error('Image generation error:', error);
+            toast({ title: 'Error', description: 'Failed to generate image', variant: 'destructive' });
+        }
+    };
+
   const handleApply = () => {
     if (!isValid) {
       toast({ 
@@ -360,9 +400,9 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
         </div>
 
           <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
+          {/*<Button variant="outline" onClick={handleClose}>*/}
+          {/*  Cancel*/}
+          {/*</Button>*/}
           {/*<Button */}
           {/*  onClick={handleApply} */}
           {/*  disabled={!isValid}*/}
@@ -394,6 +434,14 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
           >
             <i className="fa-regular fa-file-pdf mr-2"></i>
             Export PDF
+          </Button>
+          <Button
+            onClick={handleGenerateImage}
+            disabled={!isValid}
+            className={isValid ? 'bg-green-600 hover:bg-green-700' : ''}
+          >
+         <i className="fa-regular fa-image mr-2"></i>
+            Export Image
           </Button>
         </DialogFooter>
       </DialogContent>

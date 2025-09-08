@@ -24,17 +24,27 @@ export function DraggableResizableWrapper({
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, mouseX: 0, mouseY: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === wrapperRef.current || (e.target as HTMLElement).closest('.component-content')) {
-      e.preventDefault();
-      setIsDragging(true);
-      setDragStart({
-        x: e.clientX - component.position.x,
-        y: e.clientY - component.position.y
-      });
-      onSelect();
-    }
-  };
+    const handleMouseDown = (e: React.MouseEvent) => {
+        // For page breaks, ensure they can be selected and dragged
+        if (component.type === 'page-break' || e.target === wrapperRef.current || (e.target as HTMLElement).closest('.component-content')) {
+            e.preventDefault();
+            setIsDragging(true);
+            setDragStart({
+                x: e.clientX - component.position.x,
+                y: e.clientY - component.position.y
+            });
+            onSelect();
+        }
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        // Ensure all components can be selected on click
+        e.preventDefault();
+        e.stopPropagation();
+        onSelect();
+
+
+    };
 
   const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
     e.preventDefault();
@@ -61,11 +71,20 @@ export function DraggableResizableWrapper({
         // Get canvas bounds - find the actual canvas container  
         const canvas = document.querySelector('[data-canvas="true"]') || document.querySelector('.rounded-lg.shadow-sm.border.border-gray-200') as HTMLElement;
         
-        const componentWidth = parseInt(component.style?.width?.toString() || '300');
-        const componentHeight = parseInt(component.style?.height?.toString() || '200');
+          const componentWidth =
+              component.type === 'page-break'
+                  ? canvas?.clientWidth || 794
+                  : Number.parseFloat(component.style?.width?.toString() || '') ||
+                  (wrapperRef.current ? wrapperRef.current.clientWidth : 300);
+
+          const componentHeight =
+              component.type === 'page-break'
+                  ? 40
+                  : Number.parseFloat(component.style?.height?.toString() || '') ||
+                  (wrapperRef.current ? wrapperRef.current.clientHeight : 200);
         
-        const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
-        const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;
+          const maxX = canvas ? Math.max(0, canvas.clientWidth - componentWidth - 20) : 800;
+          const maxY = canvas ? Math.max(0, canvas.clientHeight - componentHeight - 20) : 600;
         
         onUpdateComponent({
           position: {
@@ -85,21 +104,21 @@ export function DraggableResizableWrapper({
         // Calculate maximum allowed dimensions based on current position
         const maxAllowedWidth = canvasWidth - component.position.x - 40; // 40px buffer
         const maxAllowedHeight = canvasHeight - component.position.y - 40; // 40px buffer
-        
+
         // Set minimum width based on component type - charts need 50% of canvas width
         const isChartComponent = component.type === 'bar-chart' || component.type === 'chart' || component.type === 'horizontal-bar-chart';
         const minWidth = isChartComponent ? Math.max(canvasWidth * 0.5, 100) : 100; // 50% canvas width for charts, 100px for others
         
         const newWidth = Math.max(minWidth, Math.min(resizeStart.width + deltaX, maxAllowedWidth));
-        const newHeight = Math.max(50, Math.min(resizeStart.height + deltaY, maxAllowedHeight));
-        
-        onUpdateComponent({
-          style: {
-            ...component.style,
-            width: `${newWidth}px`,
-            height: component.type === 'divider' || component.type === 'spacer' ? component.style?.height : `${newHeight}px`
-          }
-        });
+          const newHeight = Math.max(50, Math.min(resizeStart.height + deltaY, maxAllowedHeight));
+
+          onUpdateComponent({
+              style: {
+                  ...component.style,
+                  width: `${newWidth}px`,
+                  height: component.type === 'divider' || component.type === 'spacer' ? component.style?.height : `${newHeight}px`
+              }
+          });
       }
     };
 
@@ -133,18 +152,21 @@ export function DraggableResizableWrapper({
     }
   }, [isSelected, onDelete]);
 
-  const wrapperStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: component.position.x,
-    top: component.position.y,
-    width: component.style?.width || 'auto',
-    height: component.style?.height || 'auto',
-    cursor: isDragging ? 'grabbing' : 'grab',
-    zIndex: isSelected ? 1000 : 1,
-    border: isSelected ? '2px solid #3B82F6' : '2px solid transparent',
-    borderRadius: '4px',
-    outline: 'none'
-  };
+    const wrapperStyle: React.CSSProperties = {
+        position: 'absolute',
+        left: component.type === 'page-break' ? 0 : component.position.x,
+        top: component.position.y,
+        width: component.type === 'page-break' ? '100%' : (component.style?.width || 'auto'),
+        height: component.type === 'page-break' ? '40px' : (component.style?.height || 'auto'),
+        cursor: isDragging ? 'grabbing' : 'grab',
+        zIndex: isSelected ? 1000 : 1,
+        border: component.type === 'page-break' ? 'none' : (isSelected ? '2px solid #3B82F6' : '2px solid transparent'),
+        borderRadius: '4px',
+        outline: 'none',
+    };
+
+    const deleteButtonTop = component.type === 'page-break' ? '-8px' : '-32px';
+    const deleteButtonRight = component.type === 'page-break' ? '8px' : '-8px';
 
   return (
     <div
@@ -162,22 +184,27 @@ export function DraggableResizableWrapper({
         {children}
       </div>
 
-      {/* Selection and resize handles */}
+          {/* Selection and resize handles */}
       {isSelected && (
         <>
-          {/* Delete button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="absolute -top-8 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-            style={{ zIndex: 1001 }}
-          >
-            ×
-          </button>
+                  {/* Delete button */}
+                  <button
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete();
+                      }}
+                      className="absolute bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                      style={{
+                          zIndex: 1001,
+                          top: deleteButtonTop,
+                          right: deleteButtonRight,
+                      }}
+                  >
+                      ×
+                  </button>
 
-          {/* Resize handles */}
+                  {/* Resize handles */}
+          {!['page-break'].includes(component.type) && (
           <div className="absolute inset-0 pointer-events-none">
             {/* Corner resize handles */}
             <div
@@ -215,7 +242,8 @@ export function DraggableResizableWrapper({
               onMouseDown={(e) => handleResizeMouseDown(e, 'e')}
             />
           </div>
-        </>
+                  )}
+          </>
       )}
     </div>
   );

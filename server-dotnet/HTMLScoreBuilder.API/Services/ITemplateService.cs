@@ -34,5 +34,5 @@ public interface ITemplateService
     Task<IEnumerable<TemplateAuditLog>> GetTemplateAuditHistoryAsync(int templateId);
 
     // HTML/PDF generation operations
-    Task<string> GenerateHtmlAsync(int templateId, Dictionary<string, object>? data = null);
+    Task<string> GenerateHtmlAsync(int templateId, Dictionary<string, object>? data = null, string exportType = "html");
 }

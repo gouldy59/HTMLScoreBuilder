@@ -48,6 +48,7 @@ public class CreateVersionDto
 public class GenerateHtmlRequest
 {
     public Dictionary<string, object>? Data { get; set; }
+    public string? ExportType { get; set; }
 }
 
 public class GeneratePdfRequest

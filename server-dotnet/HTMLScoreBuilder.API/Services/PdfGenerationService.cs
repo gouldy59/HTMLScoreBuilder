@@ -76,21 +76,20 @@ public class PdfGenerationService : IPdfGenerationService
         try
         {
             // Download Chromium if not available
-            await new BrowserFetcher().DownloadAsync();
+            var fetcherOptions = new BrowserFetcherOptions { Path = Path.Combine(Path.GetTempPath(), "puppeteer") };
+            var browserFetcher = new BrowserFetcher(fetcherOptions);
+            var installed = await browserFetcher.DownloadAsync();
+            var executable = installed.GetExecutablePath();
 
             var launchOptions = new LaunchOptions
             {
                 Headless = true,
+                ExecutablePath = executable,
                 Args = new[]
                 {
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-accelerated-2d-canvas",
-                    "--no-first-run",
-                    "--no-zygote",
-                    "--single-process",
-                    "--disable-gpu"
+                    "--disable-dev-shm-usage"
                 }
             };
 
@@ -106,14 +105,7 @@ public class PdfGenerationService : IPdfGenerationService
             var screenshotOptions = new ScreenshotOptions
             {
                 Type = ScreenshotType.Png,
-                FullPage = false,
-                Clip = new PuppeteerSharp.Media.Clip
-                {
-                    X = 0,
-                    Y = 0,
-                    Width = 794,
-                    Height = 1123
-                }
+                FullPage = true
             };
 
             var imageBytes = await page.ScreenshotDataAsync(screenshotOptions);

@@ -286,7 +286,7 @@ public class TemplatesController : ControllerBase
 
     // HTML generation endpoint
     [HttpPost("{id}/generate")]
-    public async Task<ActionResult> GenerateHtml(int id, [FromBody] GenerateHtmlRequest? request = null)
+    public async Task<ActionResult> GenerateHtml(int id, [FromBody] GenerateHtmlRequest? request = null, string exportType = "html")
     {
         try
         {
@@ -310,7 +310,7 @@ public class TemplatesController : ControllerBase
     {
         try
         {
-            var html = await _templateService.GenerateHtmlAsync(id, request?.Data);
+            var html = await _templateService.GenerateHtmlAsync(id, request?.Data, "pdf");
             var pdfBytes = await _pdfGenerationService.GeneratePdfAsync(html);
 
             return File(pdfBytes, "application/pdf", $"template_{id}.pdf");
@@ -328,7 +328,7 @@ public class TemplatesController : ControllerBase
 
     // Template-specific image generation endpoint
     [HttpPost("{id}/generate-image")]
-    public async Task<ActionResult> GenerateImage(int id, [FromBody] GenerateImageRequest? request = null)
+    public async Task<ActionResult> GenerateImage(int id, [FromBody] GenerateImageRequest? request = null, string exportType = "html")
     {
         try
         {
@@ -354,7 +354,8 @@ public class TemplatesController : ControllerBase
     {
         try
         {
-            var html = await _templateService.GenerateHtmlAsync(id, request?.Data);
+            var exportType = request?.ExportType ?? "html"; // default to HTML
+            var html = await _templateService.GenerateHtmlAsync(id, request?.Data, exportType);
 
             var fileName = $"template_{id}.html";
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);

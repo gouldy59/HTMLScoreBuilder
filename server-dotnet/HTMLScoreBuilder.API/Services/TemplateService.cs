@@ -1,9 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using HTMLScoreBuilder.API.Data;
 using HTMLScoreBuilder.API.Models;
 using HTMLScoreBuilder.API.Models.DTOs;
-using System.Text.Json;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace HTMLScoreBuilder.API.Services;
 
@@ -372,7 +371,7 @@ public class TemplateService : ITemplateService
     }
 
     // HTML generation
-    public async Task<string> GenerateHtmlAsync(int templateId, Dictionary<string, object>? data = null)
+    public async Task<string> GenerateHtmlAsync(int templateId, Dictionary<string, object>? data = null, string exportType = "html")
     {
         var template = await _context.Templates.FindAsync(templateId);
         if (template == null)
@@ -391,13 +390,14 @@ public class TemplateService : ITemplateService
             templateData,
             template.Name,
             styles.GetValueOrDefault("reportBackground", "#ffffff")?.ToString() ?? "#ffffff",
-            styles.GetValueOrDefault("reportBackgroundImage", "")?.ToString() ?? ""
+            styles.GetValueOrDefault("reportBackgroundImage", "")?.ToString() ?? "",
+            exportType
         );
 
         return html;
     }
 
-    private string GenerateTemplateHtml(object[] components, Dictionary<string, object> variables, string templateName, string reportBackground, string reportBackgroundImage)
+    private string GenerateTemplateHtml(object[] components, Dictionary<string, object> variables, string templateName, string reportBackground, string reportBackgroundImage, string exportType)
     {
         var html = $@"<!DOCTYPE html>
 <html lang=""en"">
@@ -427,23 +427,53 @@ public class TemplateService : ITemplateService
           background-color: #f5f5f5;
         }}
         
-        .report-page {{
-          width: 794px;
-          min-height: 1123px;
-          margin: 0 auto 20px auto;
-          background-color: {reportBackground};
-          {(string.IsNullOrEmpty(reportBackgroundImage) ? "" : $"background-image: url('{reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;")}
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          position: relative;
-          padding: 20px;
-        }}
+.report-page {{
+  width: 794px;
+  min-height: 1123px;
+  margin: 0 auto 20px auto;
+  background-color: {reportBackground};
+  {(string.IsNullOrEmpty(reportBackgroundImage) ? "" : $"background-image: url('{reportBackgroundImage}'); background-size: cover; background-repeat: no-repeat; background-position: center;")}
+  {(exportType == "html" ? "box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" : "")}
+  position: relative;
+  padding: 20px;
+}}
+
+.page-break-indicator {{width: 100%;
+    height: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+}}
+
     </style>
 </head>
 <body>
   <div class=""report-page"">";
 
+        //double pageYOffset = 0;
+        double currentPageStartY = 0;
+        var firstPage = true;
         // Render components
-        foreach (var component in components)
+        // Deserialize all components into dictionaries
+        var componentDicts = components
+            .Select(c => JsonSerializer.Deserialize<Dictionary<string, object>>(JsonSerializer.Serialize(c)))
+            .Where(c => c != null)
+            .ToList();
+
+        // Sort by Y position
+        componentDicts.Sort((a, b) =>
+        {
+            var posA = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                JsonSerializer.Serialize(a.GetValueOrDefault("position", new { y = 0 })));
+            var posB = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                JsonSerializer.Serialize(b.GetValueOrDefault("position", new { y = 0 })));
+
+            double yA = GetDoubleValue(posA.GetValueOrDefault("y", 0));
+            double yB = GetDoubleValue(posB.GetValueOrDefault("y", 0));
+            return yA.CompareTo(yB);
+        });
+
+        foreach (var component in componentDicts)
         {
             var componentDict = JsonSerializer.Deserialize<Dictionary<string, object>>(JsonSerializer.Serialize(component));
             if (componentDict == null) continue;
@@ -462,8 +492,19 @@ public class TemplateService : ITemplateService
             var y = GetDoubleValue(position.GetValueOrDefault("y", 0));
             var width = style.GetValueOrDefault("width", "auto")?.ToString() ?? "auto";
             var height = style.GetValueOrDefault("height", "auto")?.ToString() ?? "auto";
+            double pagePadding = 20; // match .report-page padding
+            double effectiveX = x + pagePadding;
+            double effectiveY = y + pagePadding;
+            if (!firstPage)
+            {
+                effectiveY = (y - currentPageStartY) + pagePadding;
+            }
 
-            var positionStyle = $"position: absolute; left: {x}px; top: {y}px; width: {width}; height: {height};";
+            var zIndex = style.GetValueOrDefault("zIndex", "0")?.ToString() ?? "0";
+
+            var positionStyle =
+                $"position:absolute; left:{effectiveX}px; top:{effectiveY}px; " +
+                $"width:{width}; height:{height}; z-index:{zIndex}; overflow:visible;";
 
             switch (type)
             {
@@ -473,7 +514,7 @@ public class TemplateService : ITemplateService
                     var backgroundColor = style.GetValueOrDefault("backgroundColor", "#DBEAFE")?.ToString() ?? "#DBEAFE";
                     var textColor = style.GetValueOrDefault("textColor", "#1F2937")?.ToString() ?? "#1F2937";
 
-                    var headerPositionStyle = $"position: absolute; left: {x}px; top: {y}px; width: {width};";
+                    var headerPositionStyle = $"position: absolute; left: {effectiveX}px; top: {effectiveY}px; width: {width};";
                     html += $@"<div style=""{headerPositionStyle} background-color: {backgroundColor}; color: {textColor}; padding: 24px; border-radius: 8px;"">
               <h1 style=""font-size: 24px; font-weight: bold; margin-bottom: 8px;"">{headerTitle}</h1>
               {(string.IsNullOrEmpty(headerSubtitle) ? "" : $"<p style=\"font-size: 16px; opacity: 0.8;\">{headerSubtitle}</p>")}
@@ -529,10 +570,11 @@ public class TemplateService : ITemplateService
                     int labelWidth = Math.Min(200, Math.Max(80, longestLabel));
 
                     var chartHtml = $@"
-                        <div style=""{positionStyle} background-color:{chartBgColor}; padding:24px; border-radius:8px;"">
-                        <h3 style=""font-size:18px; font-weight:600; margin-bottom:4px;"">{chartTitle}</h3>
-                        {(string.IsNullOrEmpty(chartSubtitle) ? "" : $"<p style='font-size:14px; color:#6b7280; margin-bottom:16px;'>{chartSubtitle}</p>")}
-                    ";
+    <div style=""{positionStyle} background-color:{chartBgColor}; padding:24px; border-radius:8px; overflow:visible;"">
+        <h3 style=""font-size:18px; font-weight:600; margin-bottom:4px;"">{chartTitle}</h3>
+        {(string.IsNullOrEmpty(chartSubtitle) ? "" : $"<p style='font-size:14px; color:#6b7280; margin-bottom:16px;'>{chartSubtitle}</p>")}
+";
+
 
                     if (chartDataRaw == null || chartDataRaw.Count == 0)
                     {
@@ -607,14 +649,14 @@ public class TemplateService : ITemplateService
                     chartHtml += "</div>";
                     html += chartHtml;
                     break;
-
                 case "page-break":
-                    var pageBreakLabel = ReplaceVariables(content.GetValueOrDefault("label", "Page Break")?.ToString() ?? "Page Break", variables);
-                    html += $@"<div style=""{positionStyle} page-break-before: always; height: 12px; background-color: #EF4444; border: 2px dashed #EF4444; margin: 8px 0; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;"">
-                      <span style=""background-color: white; padding: 4px 8px; font-size: 10px; color: #EF4444; font-weight: bold; position: absolute; border-radius: 4px;"">
-                        {pageBreakLabel}
-                      </span>
-                    </div>";
+                    currentPageStartY = y; // ensure next components start at "0" for new page
+                    firstPage = false;
+
+                    var boxShadowCss = exportType == "html" ? "box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" : "";
+
+                    html += $@"</div>
+<div class=""report-page"" style=""{boxShadowCss}"">";
                     break;
                 case "image":
                     var imageSrc = content.GetValueOrDefault("src", "")?.ToString() ?? "";

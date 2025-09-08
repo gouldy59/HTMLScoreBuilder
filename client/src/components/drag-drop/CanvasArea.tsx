@@ -58,12 +58,19 @@ export function CanvasArea({
 
             if (clientOffset && canvasElement) {
                 const canvasRect = canvasElement.getBoundingClientRect();
-                const relativeX = Math.max(20, Math.min(clientOffset.x - canvasRect.left, canvasRect.width - 320));
-                const relativeY = Math.max(20, Math.min(clientOffset.y - canvasRect.top, canvasRect.height - 200));
+                let newX = clientOffset.x - canvasRect.left;
+                let newY = clientOffset.y - canvasRect.top;
+
+                newX = Math.max(0, Math.min(newX, canvasRect.width));
+                newY = Math.max(0, Math.min(newY, canvasRect.height));
+
+                if (item.componentType.id === 'page-break') {
+                    newX = 0;
+                }
 
                 onAddComponent(item.componentType, {
-                    x: relativeX,
-                    y: relativeY,
+                    x: newX,
+                    y: newY,
                 });
             }
         },
@@ -134,6 +141,7 @@ export function CanvasArea({
                 onSelect={() => onSelectComponent(component.id)}
                 onUpdateComponent={(updates) => onUpdateComponent(component.id, updates)}
                 onDelete={() => onDeleteComponent(component.id)}
+                overrideWidth={component.type === 'page-break' ? '100%' : undefined}
             >
                 {componentElement}
             </DraggableResizableWrapper>
@@ -169,76 +177,22 @@ export function CanvasArea({
                         position: 'relative'
                     }}
                 >
-                    {/* Page grid boundaries for multiple pages */}
-                    {totalPages > 1 && Array.from({ length: totalPages - 1 }, (_, index) => (
-                        <div
-                            key={`page-separator-${index}`}
-                            className="absolute left-0 right-0 border-t-4 border-dashed border-blue-500 bg-blue-50 pointer-events-none z-5"
-                            style={{
-                                top: `${(index + 1) * pageHeight}px`,
-                                height: '32px',
-                                opacity: 0.9
-                            }}
-                        >
-                            <div className="absolute left-4 top-2 text-sm font-bold text-blue-700 bg-white px-3 py-1 rounded-md shadow-sm">
-                                📄 Page {index + 2}
-                            </div>
-                            <div className="absolute right-4 top-2 text-xs text-blue-600 bg-white px-2 py-1 rounded border border-blue-200">
-                                A4 Canvas Area
-                            </div>
-                        </div>
-                    ))}
-
-                    {/* Page numbers in corners */}
-                    {Array.from({ length: totalPages }, (_, index) => (
-                        <div
-                            key={`page-number-${index}`}
-                            className="absolute top-2 right-2 text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded border border-gray-200 pointer-events-none z-10"
-                            style={{
-                                top: `${index * pageHeight + 8}px`
-                            }}
-                        >
-                            Page {index + 1}
-                        </div>
-                    ))}
-
-                    {/* Page break position indicators with greyed sections */}
-                    {pageBreaks.map((pageBreak, index) => {
+                    {/* Page boundary indicators when page breaks exist */}
+                    {pageBreaks.length > 0 && pageBreaks.map((pageBreak, index) => {
                         const pageBreakY = pageBreak.position?.y || 0;
-                        const nextPageStart = Math.ceil((pageBreakY + 40) / pageHeight) * pageHeight;
-                        const greyedHeight = nextPageStart - (pageBreakY + 40);
-
                         return (
-                            <div key={`page-break-area-${index}`}>
-                                {/* Page break indicator */}
-                                <div
-                                    className="absolute left-0 right-0 border-t-2 border-dashed border-red-400 bg-red-100 pointer-events-none z-15"
-                                    style={{
-                                        top: `${pageBreakY + 20}px`,
-                                        height: '20px',
-                                        opacity: 0.8
-                                    }}
-                                >
-                                    <div className="absolute left-4 top-0 text-xs font-semibold text-red-700 bg-white px-2 rounded">
-                                        ✂️ Page Break Here
-                                    </div>
+                            <div
+                                key={`page-boundary-${index}`}
+                                className="absolute left-0 right-0 border-t-2 border-dashed border-blue-400 bg-blue-100 pointer-events-none z-10"
+                                style={{
+                                    top: `${pageBreakY + 20}px`,
+                                    height: '24px',
+                                    opacity: 0.8
+                                }}
+                            >
+                                <div className="absolute left-4 top-1 text-xs font-semibold text-blue-700 bg-white px-2 rounded">
+                                    Page {index + 2} starts here
                                 </div>
-
-                                {/* Greyed out section from page break to next page */}
-                                {greyedHeight > 0 && (
-                                    <div
-                                        className="absolute left-0 right-0 bg-gray-300 bg-opacity-40 pointer-events-none z-5"
-                                        style={{
-                                            top: `${pageBreakY + 40}px`,
-                                            height: `${greyedHeight}px`,
-                                            opacity: 0.6
-                                        }}
-                                    >
-                                        <div className="absolute left-4 top-2 text-xs text-gray-600 bg-white bg-opacity-80 px-2 py-1 rounded">
-                                            Content will move to next page
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         );
                     })}

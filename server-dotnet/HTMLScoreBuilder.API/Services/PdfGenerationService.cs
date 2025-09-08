@@ -105,14 +105,7 @@ public class PdfGenerationService : IPdfGenerationService
             var screenshotOptions = new ScreenshotOptions
             {
                 Type = ScreenshotType.Png,
-                FullPage = false,
-                Clip = new PuppeteerSharp.Media.Clip
-                {
-                    X = 0,
-                    Y = 0,
-                    Width = 794,
-                    Height = 1123
-                }
+                FullPage = true
             };
 
             var imageBytes = await page.ScreenshotDataAsync(screenshotOptions);

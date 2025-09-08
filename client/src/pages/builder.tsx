@@ -423,7 +423,7 @@ export default function Builder() {
         const response = await fetch(`${baseUrl}/api/templates/${currentTemplateId}/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: exportData })
+        body: JSON.stringify({ data: exportData, exportType: 'pdf' })
       });
 
       if (!response.ok) {

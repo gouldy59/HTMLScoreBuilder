@@ -109,7 +109,7 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ data: previewData }),
+                body: JSON.stringify({ data: previewData, exportType: 'html' }),
             });
 
             if (!response.ok) {
@@ -133,11 +133,10 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
     const handleExportHTML = async () => {
         try {
             const previewData = JSON.parse(jsonInput);
-
             const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/export-html`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: previewData })
+                body: JSON.stringify({ data: previewData, exportType: 'html' })
             });
 
             if (!response.ok) {
@@ -174,7 +173,7 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
             const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/generate-pdf`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: previewData })
+                body: JSON.stringify({ data: previewData, exportType: 'pdf' })
             });
 
             if (!response.ok) {

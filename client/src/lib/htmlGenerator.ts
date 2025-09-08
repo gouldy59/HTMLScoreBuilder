@@ -92,6 +92,8 @@ export function generateHTML(
         case 'container':
           actualHeight = 200;
           break;
+        case 'range-slider':
+          actualHeight = 100;
         default:
           actualHeight = 100;
       }
@@ -825,6 +827,14 @@ function generatePagedComponentHTML(pagedComponent: PagedComponent, variables: R
         <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: ${style.backgroundColor || '#EF4444'}; font-weight: bold; position: absolute; border-radius: 4px;">
           ${replaceVariables(content.label || 'Page Break', variables)}
         </span>
+      </div>`;
+
+    case 'range-slider':
+      return `<div style="${positionStyle} background-color: ${style.backgroundColor || '#ffffff'}; padding: 24px; border-radius: 8px;">
+        <h3 class="text-lg font-semibold mb-4">${replaceVariables(content.title || 'Range Slider', variables)}</h3>
+        <div class="flex items-center justify-center">
+          <input type="range" min="0" max="100" value="50" class="slider" />
+        </div>
       </div>`;
 
     default:

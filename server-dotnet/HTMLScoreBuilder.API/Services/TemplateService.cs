@@ -616,6 +616,14 @@ public class TemplateService : ITemplateService
                       </span>
                     </div>";
                     break;
+                    case "range-slider":
+                    var rangeSliderLabel = ReplaceVariables(content.GetValueOrDefault("label", "Range Slider")?.ToString() ?? "Range Slider", variables);
+                    html += $@"<div style=""{positionStyle} range-slider-before: always; height: 12px; background-color: #EF4444; border: 2px dashed #EF4444; margin: 8px 0; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;"">
+                      <span style=""background-color: white; padding: 4px 8px; font-size: 10px; color: #EF4444; font-weight: bold; position: absolute; border-radius: 4px;"">
+                        {rangeSliderLabel}
+                      </span>
+                    </div>";
+                    break;
                 case "score-table":
                     {
                         var tableTitle = ReplaceVariables(content.GetValueOrDefault("title", "Subject Scores")?.ToString() ?? "Subject Scores", variables);

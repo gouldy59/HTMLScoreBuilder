@@ -905,6 +905,30 @@ export function PropertiesPanel({
           </div>
         );
 
+        case 'range-slider':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="RangeSliderLabel">Range Slider Label</Label>
+              <Input
+                id="RangeSliderLabel"
+                value={selectedComponent.content.label || 'Range Slider'}
+                onChange={(e) => updateContent('label', e.target.value)}
+                placeholder="Enter range slider label..."
+              />
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <i className="fas fa-info-circle text-yellow-600 mt-0.5"></i>
+                <div className="text-sm text-yellow-800">
+                  <p className="font-medium">Range Slider Behavior:</p>
+                  <p className="mt-1">This component conveys the candidate's score.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         return (
           <p className="text-sm text-gray-500">

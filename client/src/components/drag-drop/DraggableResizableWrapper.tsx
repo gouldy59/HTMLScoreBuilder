@@ -159,7 +159,7 @@ export function DraggableResizableWrapper({
         width: component.type === 'page-break' ? '100%' : (component.style?.width || 'auto'),
         height: component.type === 'page-break' ? '40px' : (component.style?.height || 'auto'),
         cursor: isDragging ? 'grabbing' : 'grab',
-        zIndex: isSelected ? 1000 : 1,
+        zIndex: isSelected ? 49 : 1,
         border: component.type === 'page-break' ? 'none' : (isSelected ? '2px solid #3B82F6' : '2px solid transparent'),
         borderRadius: '4px',
         outline: 'none',

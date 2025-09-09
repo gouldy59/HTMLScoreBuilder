@@ -20,18 +20,11 @@ export function RangeSliderComponent({
   templateData = {}
 }: RangeSliderComponentProps) {
   const { style, content } = component;
+const title = content.title || 'Range Slider Chart';
+const sliders = content.sliders;
 
-  const sliders = [
-    { category: 'Maths', color: '#3B82F6' },
-    { category: 'English', color: '#10B981' },
-    { category: 'Science', color: '#F59E0B' },
-    { category: 'History', color: '#EF4444' }
-  ];
+  const [sliderValues, setSliderValues] = useState(Array(sliders.length));
 
-  // State for all slider values
-  const [sliderValues, setSliderValues] = useState(Array(sliders.length).fill(10));
-
-  // Handler for slider change
   const handleSliderChange = (index: number, value: number) => {
     const newValues = [...sliderValues];
     newValues[index] = value;
@@ -47,7 +40,7 @@ export function RangeSliderComponent({
       <Card>
         <h3 className="text-lg font-semibold mb-4">{content.title || 'Range Slider Chart'}</h3>
         <div className="h-48 flex flex-col justify-center gap-4 bg-gray-50 rounded-lg p-4">
-          {sliders.map((slider, idx) => (
+          {sliders.map((slider: any, index: number) => (
             <div key={slider.category} className="flex flex-row items-center gap-4 mb-2">
               <div className="text-xs text-gray-600 font-medium w-20 text-right">
                 {slider.category}
@@ -57,11 +50,11 @@ export function RangeSliderComponent({
                   type="range"
                   min="1"
                   max="100"
-                  value={sliderValues[idx]}
-                  onChange={e => handleSliderChange(idx, Number(e.target.value))}
-                  style={{ width: '100%' }}
+                  value={slider.grade.toString()}
+                  onChange={e => handleSliderChange(index, slider)}
+                  style={{ width: '100%', accentColor: slider.colour }}
                 />
-                <div className="text-center text-xs mt-1">{sliderValues[idx]}</div>
+                <div className="text-center text-xs mt-1">{sliderValues[index]}</div>
               </div>
             </div>
           ))}

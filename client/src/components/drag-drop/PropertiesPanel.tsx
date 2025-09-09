@@ -906,24 +906,99 @@ export function PropertiesPanel({
         );
 
         case 'range-slider':
+  const sliders = selectedComponent.content.sliders;
+
+  const updateSliderCategory = (index: number, value: string) => {
+    const newSliders = sliders.map((s: any, i: number) =>
+      i === index ? { ...s, category: value } : s
+    );
+    updateContent('sliders', newSliders);
+  };
+
+  const updateSliderGrade = (index: number, value: number) => {
+    const newSliders = sliders.map((s: any, i: number) =>
+      i === index ? { ...s, grade: value } : s
+    );
+    updateContent('sliders', newSliders);
+  };
+
+  const updateSliderColour = (index: number, value: string) => {
+    const newSliders = sliders.map((s: any, i: number) =>
+      i === index ? { ...s, colour: value } : s
+    );
+    updateContent('sliders', newSliders);
+  };
+
+  const addSlider = () => {
+    updateContent('sliders', [
+      ...sliders,
+      { category: `Category ${sliders.length + 1}`, grade: 10, color: '#3B82F6' }
+    ]);
+  };
+
+  const removeSlider = (index: number) => {
+    updateContent('sliders', sliders.filter((_: any, i: number) => i !== index));
+  };
+
         return (
           <div className="space-y-3">
             <div>
-              <Label htmlFor="RangeSliderLabel">Range Slider Label</Label>
+        <Label htmlFor="title">Title Text</Label>
               <Input
-                id="RangeSliderLabel"
-                value={selectedComponent.content.label || 'Range Slider'}
-                onChange={(e) => updateContent('label', e.target.value)}
-                placeholder="Enter range slider label..."
+          id="title"
+          value={selectedComponent.content.title || ''}
+          onChange={(e) => updateContent('title', e.target.value)}
+          placeholder="Enter title..."
               />
             </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-info-circle text-yellow-600 mt-0.5"></i>
-                <div className="text-sm text-yellow-800">
-                  <p className="font-medium">Range Slider Behavior:</p>
-                  <p className="mt-1">This component conveys the candidate's score.</p>
+      <div>
+        <Label>Sliders</Label>
+        <div className="space-y-2">
+          {sliders.map((slider: any, index: number) => (
+            <div key={index} className="flex items-center gap-2">
+              <Input
+                value={slider.category}
+                onChange={e => updateSliderCategory(index, e.target.value)}
+                placeholder="Category"
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={slider.grade}
+                onChange={e => updateSliderGrade(index, Number(e.target.value))}
+                placeholder="Grade"
+                className="w-20"
+              />
+              <input
+                type="color"
+                value={slider.colour || '#3B82F6'}
+                onChange={e => updateSliderColour(index, e.target.value)}
+                className="w-10 h-8 border rounded"
+                title="Slider Color"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeSlider(index)}
+                className="text-red-600"
+                title="Remove"
+              >
+                <i className="fas fa-trash"></i>
+              </Button>
                 </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addSlider}
+            className="w-full"
+          >
+            <i className="fas fa-plus mr-1"></i>Add Slider
+          </Button>
               </div>
             </div>
           </div>

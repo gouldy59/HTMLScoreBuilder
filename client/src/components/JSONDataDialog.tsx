@@ -255,11 +255,19 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
         setApiInput(userInput);
 
         try {
+            var url;
             const username = 'superuser';
             const password = '456789';
             const basicAuth = 'Basic ' + btoa(`${username}:${password}`);
 
-            const response = await fetch(`https://kerrieeditions.prometric.com/api/v2/Result/${userInput}`, {
+            if (true) {
+                url = `http://localhost:5001/api/templates/${currentTemplateId}/466CWDD3/export-result`;
+            }
+            else {
+                url = `https://shaneeditions.prometric.com/api/v2/Result/${userInput}`;
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

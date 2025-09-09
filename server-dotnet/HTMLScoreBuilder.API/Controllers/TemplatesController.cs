@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using HTMLScoreBuilder.API.Services;
 using HTMLScoreBuilder.API.Models;
 using HTMLScoreBuilder.API.Models.DTOs;
+using System.Text.Json;
 
 namespace HTMLScoreBuilder.API.Controllers;
 
@@ -359,6 +360,28 @@ public class TemplatesController : ControllerBase
 
             var fileName = $"template_{id}.html";
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);
+
+            return File(bytes, "text/html", fileName);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting HTML for template {TemplateId}", id);
+            return StatusCode(500, new { message = "Failed to export HTML" });
+        }
+    }
+
+    [HttpGet("{id}/{keycode}/export-result")]
+    public async Task<ActionResult> GetProbuilderResult(int id, string keycode, [FromBody] GenerateHtmlRequest? request = null)
+    {
+        try
+        {
+            var fileName = $"{keycode}.json";
+            var resultJson = System.IO.File.ReadAllText(fileName);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(resultJson);
 
             return File(bytes, "text/html", fileName);
         }

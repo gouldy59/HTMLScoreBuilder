@@ -213,7 +213,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Formatted text content',
     defaultContent: {
-      text: 'Add your text content here. You can use variables like {{studentName}} to make it dynamic.'
+      text: 'Add your text content here. You can use variables like {{candidateReference}} to make it dynamic.'
     },
     defaultStyle: {
       backgroundColor: '#FFFFFF',

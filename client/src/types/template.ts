@@ -442,9 +442,10 @@ export const COMPONENT_TYPES: ComponentType[] = [
     description: 'Display Grade on a Line - From Left (0) to Right (100)',
     defaultContent: {
       title: "{{rangeSliderTitle}}",
-      grade: 23,
+      data: '{{RangeSliderData}}',
+      grade: 0,
       sliders: [
-        { category: '{{category01}}', grade: 20, colour: '#EF4444'}
+        { category: '{{Category}}', grade: 10, colour: '#3B82F6'}
       ]
     },
     defaultStyle: {

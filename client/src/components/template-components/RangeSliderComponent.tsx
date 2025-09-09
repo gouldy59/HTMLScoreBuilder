@@ -1,6 +1,5 @@
 import { TemplateComponent } from '@/types/template';
-import { Card } from '@/components/ui/card';
-import React, { useState } from 'react';
+import { Card } from "../ui/card";
 
 interface RangeSliderComponentProps {
   component: TemplateComponent;
@@ -19,16 +18,15 @@ export function RangeSliderComponent({
   onDelete,
   templateData = {}
 }: RangeSliderComponentProps) {
-  const { style, content } = component;
+  const { content } = component;
 const title = content.title || 'Range Slider Chart';
-const sliders = content.sliders;
+  const sliders = content.sliders || [];
 
-  const [sliderValues, setSliderValues] = useState(Array(sliders.length));
-
-  const handleSliderChange = (index: number, value: number) => {
-    const newValues = [...sliderValues];
-    newValues[index] = value;
-    setSliderValues(newValues);
+  const handleSliderChange = (idx: number, value: number) => {
+    const newSliders = sliders.map((slider: any, i: number) =>
+      i === idx ? { ...slider, grade: value } : slider
+    );
+    onUpdate({ content: { ...content, sliders: newSliders } });
   };
 
   return (
@@ -38,23 +36,23 @@ const sliders = content.sliders;
       style={{ position: 'relative', width: '100%', height: '100%' }}
     >
       <Card>
-        <h3 className="text-lg font-semibold mb-4">{content.title || 'Range Slider Chart'}</h3>
-        <div className="h-48 flex flex-col justify-center gap-4 bg-gray-50 rounded-lg p-4">
-          {sliders.map((slider: any, index: number) => (
-            <div key={slider.category} className="flex flex-row items-center gap-4 mb-2">
-              <div className="text-xs text-gray-600 font-medium w-20 text-right">
+        <h3 className="text-lg font-semibold mb-4">{title}</h3>
+        <div className="flex flex-col gap-4 bg-gray-50 rounded-lg p-4">
+          {sliders.map((slider: any, idx: number) => (
+            <div key={`${slider.category}-${idx}`} className="flex items-center gap-4 mb-2">
+              <div className="text-xs text-gray-500 w-24 text-right">
                 {slider.category}
               </div>
-              <div className="flex flex-col items-center flex-1">
                 <input
                   type="range"
                   min="1"
                   max="100"
-                  value={slider.grade.toString()}
-                  onChange={e => handleSliderChange(index, slider)}
-                  style={{ width: '100%', accentColor: slider.colour }}
+                value={slider.grade ?? 0}
+                onChange={e => handleSliderChange(idx, Number(e.target.value))}
+                style={{ width: '100%', accentColor: slider.colour ?? '#3B82F6' }}
                 />
-                <div className="text-center text-xs mt-1">{sliderValues[index]}</div>
+              <div className="text-center text-xs w-8">
+                {slider.grade ?? 0}
               </div>
             </div>
           ))}
@@ -62,7 +60,7 @@ const sliders = content.sliders;
       </Card>
       {isSelected && (
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onDelete();
           }}

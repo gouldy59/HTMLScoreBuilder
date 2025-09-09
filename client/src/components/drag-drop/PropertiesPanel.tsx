@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { validateJSON, validateChartData, getExampleJSON } from '@/lib/jsonValidator';
+import { validateJSON, validateChartData, getExampleJSON, validateRangeSlider } from '@/lib/jsonValidator';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Loader2, Wand2 } from 'lucide-react';
@@ -932,7 +932,7 @@ export function PropertiesPanel({
   const addSlider = () => {
     updateContent('sliders', [
       ...sliders,
-      { category: `Category ${sliders.length + 1}`, grade: 10, color: '#3B82F6' }
+      { category: `{{Category}}`, grade: 10, color: '#3B82F6' }
     ]);
   };
 
@@ -1000,8 +1000,128 @@ export function PropertiesPanel({
             <i className="fas fa-plus mr-1"></i>Add Slider
           </Button>
               </div>
+        <div className="pt-2 border-t">
+              <Label>Quick Actions</Label>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  onClick={() => {
+                    const jsonData = JSON.stringify(selectedComponent.content.sliders || [], null, 2);
+                    navigator.clipboard.writeText(jsonData);
+                    toast({ title: 'Range Slider data copied to clipboard' });
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-copy mr-1 text-xs"></i>Copy JSON
+                </Button>
+                <Button
+                  onClick={() => {
+                    updateContent('sliders', 
+                      [
+                      {
+                        segments: 
+                        [
+                          { category: '{{category}}', grade: 0, colour: '#3B82F6'}
+                        ]
+                      }
+                    ]);
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <i className="fas fa-refresh mr-1 text-xs"></i>Reset
+                </Button>
             </div>
           </div>
+      </div>
+          <div>
+              <Label htmlFor="sliders">Data Source</Label>
+              <div className="space-y-2">
+                <Textarea
+                  id="sliders"
+                  value={selectedComponent.content.data || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    updateContent('data', value);
+                    
+                    if (value && !value.startsWith('{')) {
+                      const jsonValidation = validateJSON(value);
+
+                      
+                      if (jsonValidation.isValid && jsonValidation.data) {
+                        const rangeSliderValidation = validateRangeSlider(jsonValidation.data);
+                        if (!rangeSliderValidation.isValid) {
+                          setJsonError(`Range Slider data: ${rangeSliderValidation.error}`);
+                        } else {
+                          setJsonError('');
+                        }
+                      } else {
+                        setJsonError(`JSON: ${jsonValidation.error}`);
+                      }
+                    } else {
+                      setJsonError('');
+                    }
+                  }}
+                  placeholder={`{{sliders}} or valid JSON Range Slider`}
+                  className="min-h-20 font-mono text-sm"
+                />
+                {jsonError && (
+                  <p className="text-sm text-red-600">{jsonError}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const example = getExampleJSON('slider');
+                      updateContent('data', example);
+                      setJsonError('');
+                    }}
+                  >
+                    <i className="fas fa-lightbulb mr-1 text-xs"></i>
+                    Example
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+  const value = selectedComponent.content.data;
+
+  if (Array.isArray(value)) {
+    let allValid = true;
+    let errorMsg = '';
+    value.forEach((slider, idx) => {
+      const validation = validateRangeSlider(slider);
+      if (!validation.isValid) {
+        allValid = false;
+        errorMsg += `Slider ${idx + 1}: ${validation.error}\n`;
+      }
+    });
+    if (allValid) {
+      toast({ title: 'All sliders valid', description: 'All sliders are properly formatted.' });
+    } else {
+      toast({ title: 'Invalid slider(s)', description: errorMsg, variant: 'destructive' });
+    }
+  } else {
+    const validation = validateRangeSlider(value);
+    if (validation.isValid) {
+      toast({ title: 'Valid JSON format', description: 'Range Slider is properly formatted' });
+    } else {
+      toast({ title: 'Invalid JSON', description: validation.error, variant: 'destructive' });
+    }
+  }
+}}
+>
+                    <i className="fas fa-check mr-1 text-xs"></i>
+                    Validate
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+    </div>
         );
 
       default:

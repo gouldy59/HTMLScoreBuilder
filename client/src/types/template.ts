@@ -35,9 +35,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Title and subtitle sections',
     defaultContent: {
-      //title: '{{studentName}} - Academic Score Report',
       title: '{{candidateReference}} - Academic Score Report',
-      subtitle: 'Academic Year {{startedDate}} • Grade: {{grade}}'
+      subtitle: 'Academic Year {{academicYear}} • Grade: {{grade}}'
     },
     defaultStyle: {
       backgroundColor: '#DBEAFE',

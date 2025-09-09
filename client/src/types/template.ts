@@ -35,8 +35,9 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Title and subtitle sections',
     defaultContent: {
-      title: '{{studentName}} - Academic Score Report',
-      subtitle: 'Academic Year {{academicYear}} • Grade {{grade}}'
+      //title: '{{studentName}} - Academic Score Report',
+      title: '{{candidateReference}} - Academic Score Report',
+      subtitle: 'Academic Year {{startedDate}} • Grade: {{grade}}'
     },
     defaultStyle: {
       backgroundColor: '#DBEAFE',
@@ -53,8 +54,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'charts',
     description: 'Segmented horizontal bar chart with multiple data series',
     defaultContent: {
-      title: '{{chartTitle}}',
-      subtitle: '{{chartDescription}}',
+      title: 'Learning Outcomes',
+      subtitle: 'Breakdown of learning outcome scores',
       showPercentages: true,
       chartData: [
         {

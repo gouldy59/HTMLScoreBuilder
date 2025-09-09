@@ -180,7 +180,14 @@ export function DraggableResizableWrapper({
       tabIndex={0}
     >
       {/* Component content */}
-      <div className="component-content w-full h-full">
+          <div className="component-content w-full h-full"
+          style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start'
+          }}          >
         {children}
       </div>
 

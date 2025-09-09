@@ -21,7 +21,8 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
   const [validationType, setValidationType] = useState<'template' | 'chart' | 'student' | 'score'>('template');
   const [validationError, setValidationError] = useState('');
   const [validationDetails, setValidationDetails] = useState<string[]>([]);
-  const [isValid, setIsValid] = useState(false);
+    const [isValid, setIsValid] = useState(false);
+    const [apiInput, setApiInput] = useState('');
   const { toast } = useToast();
 
   const validateInput = (input: string, type: string) => {
@@ -246,6 +247,45 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
         }
     };
 
+    const handleProbuilderImport = async () => {
+        const userInput = prompt("Enter keycode:");
+        console.log(userInput);
+        if (!userInput) return;
+
+        setApiInput(userInput);
+
+        try {
+            const username = 'superuser';
+            const password = '456789';
+            const basicAuth = 'Basic ' + btoa(`${username}:${password}`);
+
+            const response = await fetch(`https://kerrieeditions.prometric.com/api/v2/Result/${userInput}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': basicAuth
+                },
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                toast({ title: 'API Error', description: err, variant: 'destructive' });
+                return;
+            }
+
+            const data = await response.json();
+            const responseContent = data.response || [];
+
+            const prettyJson = JSON.stringify(responseContent[0], null, 2);
+            setJsonInput(prettyJson);
+            validateInput(prettyJson, "template"); 
+
+        } catch (error) {
+            console.error('API request failed:', error);
+            toast({ title: 'Error', description: 'API request failed', variant: 'destructive' });
+        }
+    };
+
   const handleApply = () => {
     if (!isValid) {
       toast({ 
@@ -328,7 +368,16 @@ export function JSONDataDialog({ isOpen, onClose, onApplyData, currentTemplateId
                 >
                   <i className="fas fa-check mr-1 text-xs"></i>
                   Validate
-                </Button>
+                              </Button>
+                              <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleProbuilderImport()}
+                              >
+                                  <i className="fas fa-download mr-1 text-xs"></i>
+                                  Get Result from ProBuilder
+                              </Button>
               </div>
             </div>
             <Textarea

@@ -40,7 +40,7 @@ export function HorizontalBarChartComponent({ component, isSelected, onSelect, o
       segments: [
         { value: 25, color: "#FDE2E7", label: "0%-25%" },
         { value: 25, color: "#FB923C", label: "26%-50%" },
-        { value: 25, color: "#86EFAC", label: "51%-75%" },
+        { value: 25, color: "#FEF3C7", label: "51%-75%" },
         { value: 25, color: "#D1FAE5", label: "76%-100%" }
       ]
     }

@@ -559,6 +559,9 @@ public class TemplateService : ITemplateService
                     var chartSubtitle = ReplaceVariables(content.GetValueOrDefault("subtitle", "description")?.ToString() ?? "description", variables);
                     var chartBgColor = style.GetValueOrDefault("backgroundColor", "#ffffff")?.ToString() ?? "#ffffff";
 
+                    // Compute learning outcome scores
+                    var loScores = GetLearningOutcomeScores(variables);
+
                     var chartDataRaw = JsonSerializer.Deserialize<List<JsonElement>>(JsonSerializer.Serialize(content["chartData"]));
 
                     // Compute dynamic label width
@@ -570,80 +573,125 @@ public class TemplateService : ITemplateService
                     int labelWidth = Math.Min(200, Math.Max(80, longestLabel));
 
                     var chartHtml = $@"
-    <div style=""{positionStyle} background-color:{chartBgColor}; padding:24px; border-radius:8px; overflow:visible;"">
-        <h3 style=""font-size:18px; font-weight:600; margin-bottom:4px;"">{chartTitle}</h3>
-        {(string.IsNullOrEmpty(chartSubtitle) ? "" : $"<p style='font-size:14px; color:#6b7280; margin-bottom:16px;'>{chartSubtitle}</p>")}
+<div style=""{positionStyle} background-color:{chartBgColor}; padding:24px; border-radius:8px; overflow:visible;"">
+    <h3 style=""font-size:18px; font-weight:600; margin-bottom:4px;"">{chartTitle}</h3>
+    {(string.IsNullOrEmpty(chartSubtitle) ? "" : $"<p style='font-size:14px; color:#6b7280; margin-bottom:16px;'>{chartSubtitle}</p>")}
 ";
-
 
                     if (chartDataRaw == null || chartDataRaw.Count == 0)
                     {
                         chartHtml += @"
-                            <div style=""background-color:#f3f4f6; height:200px; border-radius:4px; display:flex; align-items:center; justify-content:center;"">
-                            <p style=""color:#6b7280;"">No chart data available</p>
-                            </div>";
+            <div style=""background-color:#f3f4f6; height:200px; border-radius:4px; display:flex; align-items:center; justify-content:center;"">
+            <p style=""color:#6b7280;"">No chart data available</p>
+            </div>";
                     }
                     else
                     {
-                        foreach (var item in chartDataRaw)
+                        bool hasLoScores = loScores.Any(kv => kv.Value > 0);
+                        if (hasLoScores)
                         {
-                            var label = ReplaceVariables(item.GetProperty("label").GetString() ?? "Category A", variables);
-                            var scoreValue = ReplaceVariables(item.GetProperty("scoreValue").GetString() ?? "0", variables);
-                            var rawScore = int.TryParse(scoreValue, out var score) ? score : 0;
-
-                            var segments = item.GetProperty("segments").EnumerateArray();
-
-                            // Label + Bar container
-                            chartHtml += $@"
-                                <div style=""display:flex; align-items:center; margin-bottom:8px;"">
-                                <div style=""width:{labelWidth}px; font-size:12px; font-weight:500; margin-right:8px;"">{label}</div>
-                                <div style=""flex:1; position:relative; height:20px; background:#f3f4f6; border-radius:4px; overflow:visible; display:flex;"">
-                                ";
-
-                            // Segments
-                            foreach (var seg in segments)
+                            // Use LO names as labels
+                            foreach (var loEntry in loScores)
                             {
-                                var segValue = seg.GetProperty("value").GetInt32();
-                                var segColor = seg.GetProperty("color").GetString() ?? "#E5E7EB";
-                                var segLabel = seg.GetProperty("label").GetString() ?? "";
+                                var label = loEntry.Key;           // The learning outcome name/ID
+                                var rawScore = loEntry.Value;      // Percentage achieved
+                                var roundedScore = Math.Ceiling(rawScore);
+                                var clampedScore = Math.Max(0, Math.Min(100, roundedScore));
 
-                                chartHtml += $@"<div title=""{segLabel}: {segValue}%"" 
-                                  style=""width:{segValue}%; background-color:{segColor}; border-left:1px solid #fff;""></div>";
+                                // Optional: reuse segments from first chartDataRaw item
+                                var segments = chartDataRaw.FirstOrDefault().GetProperty("segments").EnumerateArray();
+
+                                chartHtml += $@"
+            <div style=""display:flex; align-items:center; margin-bottom:8px;"">
+            <div style=""width:{labelWidth}px; font-size:12px; font-weight:500; margin-right:8px;"">{label}</div>
+            <div style=""flex:1; position:relative; height:20px; background:#f3f4f6; border-radius:4px; overflow:visible; display:flex;"">
+            ";
+
+                                foreach (var seg in segments)
+                                {
+                                    var segValue = seg.GetProperty("value").GetInt32();
+                                    var segColor = seg.GetProperty("color").GetString() ?? "#E5E7EB";
+                                    var segLabel = seg.GetProperty("label").GetString() ?? "";
+
+                                    chartHtml += $@"<div title=""{segLabel}: {segValue}%"" 
+              style=""width:{segValue}%; background-color:{segColor}; border-left:1px solid #fff;""></div>";
+                                }
+
+                                chartHtml += $@"
+            <div style=""position:absolute; top:50%; left:calc({clampedScore}% - 6px); 
+            transform:translateY(-50%); width:12px; height:12px;
+            background-color:#dc2626; border:2px solid #fff; border-radius:50%; 
+            box-shadow:0 0 2px rgba(0,0,0,0.2);"" title=""Score: {clampedScore}%""></div>
+            <div style=""position:absolute; right:-48px; top:50%; transform:translateY(-50%);
+                font-size:12px; font-weight:bold; color:#dc2626;
+                background-color:#ffffff; padding:2px 4px; border:1px solid #d1d5db;
+                border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"">
+                {clampedScore}%
+            </div>";
+
+                                chartHtml += "</div></div>";
                             }
+                        }
+                        else
+                        {
+                            // Fallback: use original chartDataRaw
+                            foreach (var item in chartDataRaw)
+                            {
+                                var label = ReplaceVariables(item.GetProperty("label").GetString() ?? "Category A", variables);
+                                var scoreValue = ReplaceVariables(item.GetProperty("scoreValue").GetString() ?? "0", variables);
+                                var rawScore = int.TryParse(scoreValue, out var score) ? score : 0;
+                                var clampedScore = Math.Max(0, Math.Min(100, rawScore));
 
-                            var clampedScore = Math.Max(0, Math.Min(100, rawScore));
-                            chartHtml += $@"
-                                <div style=""position:absolute; top:50%; left:calc({clampedScore}% - 6px); 
-                                transform:translateY(-50%); width:12px; height:12px;
-                                background-color:#dc2626; border:2px solid #fff; border-radius:50%; 
-                                box-shadow:0 0 2px rgba(0,0,0,0.2);""
-                                title=""Score: {clampedScore}%""></div>
-                                <div style=""position:absolute; right:-48px; top:50%; transform:translateY(-50%);
-                                    font-size:12px; font-weight:bold; color:#dc2626;
-                                    background-color:#ffffff; padding:2px 4px; border:1px solid #d1d5db;
-                                    border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"">
-                                    {clampedScore}%
-                                </div>";
+                                var segments = item.GetProperty("segments").EnumerateArray();
 
-                            chartHtml += "</div></div>";
+                                chartHtml += $@"
+            <div style=""display:flex; align-items:center; margin-bottom:8px;"">
+            <div style=""width:{labelWidth}px; font-size:12px; font-weight:500; margin-right:8px;"">{label}</div>
+            <div style=""flex:1; position:relative; height:20px; background:#f3f4f6; border-radius:4px; overflow:visible; display:flex;"">
+            ";
+
+                                foreach (var seg in segments)
+                                {
+                                    var segValue = seg.GetProperty("value").GetInt32();
+                                    var segColor = seg.GetProperty("color").GetString() ?? "#E5E7EB";
+                                    var segLabel = seg.GetProperty("label").GetString() ?? "";
+
+                                    chartHtml += $@"<div title=""{segLabel}: {segValue}%"" 
+              style=""width:{segValue}%; background-color:{segColor}; border-left:1px solid #fff;""></div>";
+                                }
+
+                                chartHtml += $@"
+            <div style=""position:absolute; top:50%; left:calc({clampedScore}% - 6px); 
+            transform:translateY(-50%); width:12px; height:12px;
+            background-color:#dc2626; border:2px solid #fff; border-radius:50%; 
+            box-shadow:0 0 2px rgba(0,0,0,0.2);"" title=""Score: {clampedScore}%""></div>
+            <div style=""position:absolute; right:-48px; top:50%; transform:translateY(-50%);
+                font-size:12px; font-weight:bold; color:#dc2626;
+                background-color:#ffffff; padding:2px 4px; border:1px solid #d1d5db;
+                border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"">
+                {clampedScore}%
+            </div>";
+
+                                chartHtml += "</div></div>";
+                            }
                         }
 
                         // Legend
                         chartHtml += $@"
-                            <div style=""display:flex; gap:12px; justify-content:center; margin-top:12px; margin-left: {labelWidth + 12}px; font-size:12px; color:#6b7280;"">
-                                <div style=""display:flex; align-items:center; gap:4px;"">
-                                    <div style=""width:12px; height:12px; background-color:#FDE2E7; border-radius:2px;""></div>0%-25%
-                                </div>
-                            <div style=""display:flex; align-items:center; gap:4px;"">
-                                <div style=""width:12px; height:12px; background-color:#FB923C; border-radius:2px;""></div>26%-50%
-                            </div>
-                            <div style=""display:flex; align-items:center; gap:4px;"">
-                                <div style=""width:12px; height:12px; background-color:#86EFAC; border-radius:2px;""></div>51%-75%
-                            </div>
-                            <div style=""display:flex; align-items:center; gap:4px;"">
-                                <div style=""width:12px; height:12px; background-color:#D1FAE5; border-radius:2px;""></div>76%-100%
-                            </div>
-                        </div>";
+            <div style=""display:flex; gap:12px; justify-content:center; margin-top:12px; margin-left: {labelWidth + 12}px; font-size:12px; color:#6b7280;"">
+                <div style=""display:flex; align-items:center; gap:4px;"">
+                    <div style=""width:12px; height:12px; background-color:#FDE2E7; border-radius:2px;""></div>0%-25%
+                </div>
+            <div style=""display:flex; align-items:center; gap:4px;"">
+                <div style=""width:12px; height:12px; background-color:#FB923C; border-radius:2px;""></div>26%-50%
+            </div>
+            <div style=""display:flex; align-items:center; gap:4px;"">
+                <div style=""width:12px; height:12px; background-color:#FEF3C7; border-radius:2px;""></div>51%-75%
+            </div>
+            <div style=""display:flex; align-items:center; gap:4px;"">
+                <div style=""width:12px; height:12px; background-color:#D1FAE5; border-radius:2px;""></div>76%-100%
+            </div>
+        </div>";
                     }
 
                     chartHtml += "</div>";
@@ -883,16 +931,56 @@ public class TemplateService : ITemplateService
     {
         if (string.IsNullOrEmpty(text)) return text;
 
-        foreach (var variable in variables)
+        var flatVars = new Dictionary<string, string>();
+        foreach (var kvp in variables)
         {
-            var placeholder = $"{{{{{variable.Key}}}}}";
+            FlattenVariable(kvp.Key, kvp.Value, flatVars);
+        }
+
+        foreach (var kvp in flatVars)
+        {
+            var placeholder = $"{{{{{kvp.Key}}}}}";
             if (text.Contains(placeholder))
             {
-                text = text.Replace(placeholder, variable.Value?.ToString() ?? "");
+                text = text.Replace(placeholder, kvp.Value ?? "");
             }
         }
 
         return text;
+    }
+
+    private void FlattenVariable(string prefix, object value, Dictionary<string, string> flatVars)
+    {
+        if (value is JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        FlattenVariable($"{prefix}{Capitalize(prop.Name)}", prop.Value, flatVars);
+                    }
+                    break;
+
+                case JsonValueKind.Array:
+                    flatVars[prefix] = element.GetRawText();
+                    break;
+
+                default:
+                    flatVars[prefix] = element.ToString();
+                    break;
+            }
+        }
+        else
+        {
+            flatVars[prefix] = value?.ToString() ?? "";
+        }
+    }
+
+    private string Capitalize(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return name;
+        return char.ToUpperInvariant(name[0]) + name.Substring(1);
     }
 
     private double GetDoubleValue(object? value)
@@ -915,5 +1003,54 @@ public class TemplateService : ITemplateService
             string s when double.TryParse(s, out var d) => d,
             _ => 0.0
         };
+    }
+
+    private Dictionary<string, double> GetLearningOutcomeScores(Dictionary<string, object> variables)
+    {
+        var loScores = new Dictionary<string, double>();
+        var loTotals = new Dictionary<string, double>(); // total available marks per LO
+
+        if (!variables.TryGetValue("sections", out var sectionsObj))
+            return loScores;
+
+        string json = JsonSerializer.Serialize(sectionsObj);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        if (root.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var section in root.EnumerateArray())
+            {
+                if (!section.TryGetProperty("items", out var items)) continue;
+
+                foreach (var item in items.EnumerateArray())
+                {
+                    double awarded = item.GetProperty("awardedMark").GetDouble();
+                    double available = item.GetProperty("availableMarks").GetDouble();
+
+                    if (!item.TryGetProperty("learningOutcome", out var loProp)) continue;
+                    var los = loProp.GetString()?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+
+                    foreach (var lo in los)
+                    {
+                        if (!loScores.ContainsKey(lo))
+                        {
+                            loScores[lo] = 0.0;
+                            loTotals[lo] = 0.0;
+                        }
+
+                        loScores[lo] += awarded;
+                        loTotals[lo] += available;
+                    }
+                }
+            }
+        }
+
+        foreach (var lo in loScores.Keys.ToList())
+        {
+            loScores[lo] = loTotals[lo] > 0 ? (loScores[lo] / loTotals[lo]) * 100.0 : 0.0;
+        }
+
+        return loScores;
     }
 }

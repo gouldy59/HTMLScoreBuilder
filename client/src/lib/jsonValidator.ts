@@ -33,8 +33,8 @@ export const scoreDataSchema = z.object({
 });
 
 export const templateDataSchema = z.object({
-  studentName: z.string(),
-  studentId: z.string(),
+  studentName: z.string().optional(),
+  studentId: z.string().optional(),
   className: z.string().optional(),
   teacherName: z.string().optional(),
   academicYear: z.string().optional(),
@@ -151,8 +151,8 @@ export function validateTemplateData(data: any): { isValid: boolean; data?: any;
     
     // Additional validation warnings
     const details = [];
-    if (!data.studentName) details.push('Student name is required');
-    if (!data.studentId) details.push('Student ID is required');
+    //if (!data.studentName) details.push('Student name is required');
+    //if (!data.studentId) details.push('Student ID is required');
     
     const scoreFields = ['mathScore', 'scienceScore', 'englishScore'];
     const hasAnyScore = scoreFields.some(field => typeof data[field] === 'number');

@@ -138,8 +138,8 @@ export function DraggableResizableWrapper({
     };
   }, [isDragging, isResizing, dragStart, resizeStart, component, onUpdateComponent]);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (isSelected && (e.key === 'Delete' || e.key === 'Backspace')) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+    if (isSelected && component.type != "text-block" && (e.key === 'Delete' || e.key === 'Backspace')) {
       e.preventDefault();
       onDelete();
     }
@@ -159,7 +159,7 @@ export function DraggableResizableWrapper({
         width: component.type === 'page-break' ? '100%' : (component.style?.width || 'auto'),
         height: component.type === 'page-break' ? '40px' : (component.style?.height || 'auto'),
         cursor: isDragging ? 'grabbing' : 'grab',
-        zIndex: isSelected ? 1000 : 1,
+        zIndex: isSelected ? 49 : 1,
         border: component.type === 'page-break' ? 'none' : (isSelected ? '2px solid #3B82F6' : '2px solid transparent'),
         borderRadius: '4px',
         outline: 'none',
@@ -180,7 +180,14 @@ export function DraggableResizableWrapper({
       tabIndex={0}
     >
       {/* Component content */}
-      <div className="component-content w-full h-full">
+          <div className="component-content w-full h-full"
+          style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start'
+          }}          >
         {children}
       </div>
 

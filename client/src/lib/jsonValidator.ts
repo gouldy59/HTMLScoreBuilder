@@ -41,8 +41,8 @@ export const scoreDataSchema = z.object({
 });
 
 export const templateDataSchema = z.object({
-  studentName: z.string(),
-  studentId: z.string(),
+  studentName: z.string().optional(),
+  studentId: z.string().optional(),
   className: z.string().optional(),
   teacherName: z.string().optional(),
   academicYear: z.string().optional(),
@@ -189,8 +189,8 @@ export function validateTemplateData(data: any): { isValid: boolean; data?: any;
     
     // Additional validation warnings
     const details = [];
-    if (!data.studentName) details.push('Student name is required');
-    if (!data.studentId) details.push('Student ID is required');
+    //if (!data.studentName) details.push('Student name is required');
+    //if (!data.studentId) details.push('Student ID is required');
     
     const scoreFields = ['mathScore', 'scienceScore', 'englishScore'];
     const hasAnyScore = scoreFields.some(field => typeof data[field] === 'number');
@@ -266,12 +266,28 @@ export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template' 
     
     case 'template':
       return JSON.stringify({
-        studentName: "John Doe",
+        candidateReference: "John Doe",
         studentId: "STU001",
         className: "10th Grade",
         teacherName: "Ms. Smith",
         academicYear: "2024-2025",
-        grade: "10",
+        grade: "51%",
+        score01: "21",
+        score02: "85",
+        score03: "47",
+        grade01: "F",
+        grade02: "A+",
+        grade03: "C",
+        catA: "Science",
+        catB: "History",
+        catC: "English",
+        x: "21",
+        y: "85",
+        z: "47",
+        subject01: "Science",
+        subject02: "History",
+        subject03: "English",
+        tableTitle: "Category Breakdown",
         mathScore: 85,
         mathGrade: "B+",
         scienceScore: 92,

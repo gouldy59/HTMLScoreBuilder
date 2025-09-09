@@ -35,8 +35,8 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Title and subtitle sections',
     defaultContent: {
-      title: '{{studentName}} - Academic Score Report',
-      subtitle: 'Academic Year {{academicYear}} • Grade {{grade}}'
+      title: '{{candidateReference}} - Academic Score Report',
+      subtitle: 'Academic Year {{academicYear}} • Grade: {{grade}}'
     },
     defaultStyle: {
       backgroundColor: '#DBEAFE',
@@ -48,13 +48,13 @@ export const COMPONENT_TYPES: ComponentType[] = [
   },
   {
     id: 'bar-chart',
-    name: 'Stacked Bar Chart',
+    name: 'Horizontal Bar Chart',
     icon: 'fas fa-chart-bar',
     category: 'charts',
     description: 'Segmented horizontal bar chart with multiple data series',
     defaultContent: {
-      title: '{{chartTitle}}',
-      subtitle: '{{chartDescription}}',
+      title: 'Learning Outcomes',
+      subtitle: 'Breakdown of learning outcome scores',
       showPercentages: true,
       chartData: [
         {
@@ -157,22 +157,6 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
   {
-    id: 'line-chart',
-    name: 'Line Chart',
-    icon: 'fas fa-chart-line',
-    category: 'charts',
-    description: 'Line chart visualization',
-    defaultContent: {
-      title: 'Performance Trend',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
     id: 'pie-chart',
     name: 'Pie Chart',
     icon: 'fas fa-chart-pie',
@@ -180,150 +164,6 @@ export const COMPONENT_TYPES: ComponentType[] = [
     description: 'Pie chart visualization',
     defaultContent: {
       title: 'Performance Distribution',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'lollipop-chart',
-    name: 'Lollipop Chart',
-    icon: 'fas fa-circle-dot',
-    category: 'charts',
-    description: 'Lollipop chart with dots and stems',
-    defaultContent: {
-      title: 'Performance Metrics',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'nightingale-chart',
-    name: 'Nightingale Chart',
-    icon: 'fas fa-dharmachakra',
-    category: 'charts',
-    description: 'Radial area chart (Rose diagram)',
-    defaultContent: {
-      title: 'Radial Analysis',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'icon-chart',
-    name: 'Icon Chart',
-    icon: 'fas fa-icons',
-    category: 'charts',
-    description: 'Data visualization using icons',
-    defaultContent: {
-      title: 'Icon-based Metrics',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'word-cloud',
-    name: 'Word Cloud',
-    icon: 'fas fa-cloud',
-    category: 'charts',
-    description: 'Word frequency visualization',
-    defaultContent: {
-      title: 'Key Terms',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'table-chart',
-    name: 'Table Chart',
-    icon: 'fas fa-table',
-    category: 'charts',
-    description: 'Enhanced data table with sorting',
-    defaultContent: {
-      title: 'Data Summary',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'bubble-chart',
-    name: 'Bubble Chart',
-    icon: 'fas fa-circle',
-    category: 'charts',
-    description: 'Multi-dimensional bubble visualization',
-    defaultContent: {
-      title: 'Bubble Analysis',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'stacked-column-chart',
-    name: 'Stacked Column Chart',
-    icon: 'fas fa-chart-column',
-    category: 'charts',
-    description: 'Vertical stacked bar chart',
-    defaultContent: {
-      title: 'Stacked Performance',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'donut-chart',
-    name: 'Donut Chart',
-    icon: 'far fa-circle',
-    category: 'charts',
-    description: 'Donut chart with center space',
-    defaultContent: {
-      title: 'Distribution Overview',
-      data: '{{chartData}}'
-    },
-    defaultStyle: {
-      backgroundColor: '#F8FAFC',
-      width: '400px',
-      height: '300px'
-    }
-  },
-  {
-    id: 'venn-diagram',
-    name: 'Venn Diagram',
-    icon: 'fas fa-circle-notch',
-    category: 'charts',
-    description: 'Set relationships visualization',
-    defaultContent: {
-      title: 'Set Analysis',
       data: '{{chartData}}'
     },
     defaultStyle: {
@@ -373,7 +213,7 @@ export const COMPONENT_TYPES: ComponentType[] = [
     category: 'report',
     description: 'Formatted text content',
     defaultContent: {
-      text: 'Add your text content here. You can use variables like {{studentName}} to make it dynamic.'
+      text: 'Add your text content here. You can use variables like {{candidateReference}} to make it dynamic.'
     },
     defaultStyle: {
       backgroundColor: '#FFFFFF',
@@ -381,19 +221,6 @@ export const COMPONENT_TYPES: ComponentType[] = [
     }
   },
 
-  {
-    id: 'container',
-    name: 'Container',
-    icon: 'fas fa-square',
-    category: 'layout',
-    description: 'Content wrapper',
-    defaultContent: {},
-    defaultStyle: {
-      backgroundColor: '#F9FAFB',
-      padding: '16px',
-      borderRadius: '8px'
-    }
-  },
   {
     id: 'divider',
     name: 'Divider',

@@ -139,7 +139,7 @@ export function DraggableResizableWrapper({
   }, [isDragging, isResizing, dragStart, resizeStart, component, onUpdateComponent]);
 
     const handleKeyDown = (e: KeyboardEvent) => {
-    if (isSelected && component.type != "text-block" && (e.key === 'Delete' || e.key === 'Backspace')) {
+    if (isSelected && component.type != "text-block" && component.type != "bar-chart" && (e.key === 'Delete' || e.key === 'Backspace')) {
       e.preventDefault();
       onDelete();
     }

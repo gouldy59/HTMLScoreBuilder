@@ -11,6 +11,7 @@ import { DividerComponent } from '../template-components/DividerComponent';
 import { SpacerComponent } from '../template-components/SpacerComponent';
 import { HorizontalBarChartComponent } from '../template-components/HorizontalBarChartComponent';
 import { VerticalBarChartComponent } from '../template-components/VerticalBarChartComponent';
+import { RangeSliderComponent } from '../template-components/RangeSliderComponent';
 
 import { ImageComponent } from '../template-components/ImageComponent';
 import { QRCodeComponent } from '../template-components/QRCodeComponent';
@@ -128,6 +129,9 @@ export function CanvasArea({
                 break;
             case 'page-break':
                 componentElement = <PageBreakComponent {...commonProps} mode="builder" />;
+                break;
+            case 'range-slider':
+                componentElement = <RangeSliderComponent {...commonProps} />;
                 break;
             default:
                 return null;

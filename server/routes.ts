@@ -126,6 +126,14 @@ function generateTemplateHTML(components: any[], variables: Record<string, any> 
           </span>
         </div>`;
         break;
+        case 'range-slider':
+        const rangeSliderLabel = replaceVariables(content.label || 'Range Slider', variables);
+        html += `<div style="${positionStyle} page-break-before: always; height: 12px; background-color: #EF4444; border: 2px dashed #EF4444; margin: 8px 0; display: flex; align-items: center; justify-content: center; position: relative; opacity: 0.8;">
+          <span style="background-color: white; padding: 4px 8px; font-size: 10px; color: #EF4444; font-weight: bold; position: absolute; border-radius: 4px;">
+            ${rangeSliderLabel}
+          </span>
+        </div>`;
+        break;
       default:
         html += `<div style="${positionStyle} padding: 16px; border: 2px dashed #d1d5db; border-radius: 8px;">
           <p style="color: #9ca3af;">Component: ${component.type}</p>

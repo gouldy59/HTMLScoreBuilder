@@ -11,6 +11,14 @@ export const chartDataSchema = z.object({
   }))
 });
 
+export const RangeSliderSchema = z.object({
+  sliders: z.array(z.object({
+    category: z.string(),
+    grade: z.number(),
+    colour: z.string().optional(),
+  }))
+});
+
 export const studentInfoSchema = z.object({
   studentName: z.string(),
   studentId: z.string(),
@@ -113,6 +121,36 @@ export function validateChartData(data: any): { isValid: boolean; data?: any; er
   }
 }
 
+export function validateRangeSlider(data: any): { isValid: boolean; data?: any; error?: string; details?: string[] } {
+    
+  try {
+      const validatedData = RangeSliderSchema.parse(data.value);
+      const details = [];
+
+      if (validatedData.sliders[0]?.category === null) {
+          details.push('Category is required');
+      }
+      if (validatedData.sliders[0]?.grade === null) {
+          details.push('Grade is required');
+      }
+      if (validatedData.sliders[0]?.colour === null) {
+          details.push('Colour is required');
+      }
+
+      return { isValid: true, data: validatedData, details };
+  } catch (error) {
+      if (error instanceof z.ZodError) {
+          const details = error.errors.map(err => `${err.message} at ${err.path.join('.')}`);
+
+          return {
+              isValid: false,
+              error: `Range Slider validation failed`,
+              details
+          };
+      }
+      return { isValid: false, error: 'Invalid Range Slider format' };
+    }
+}
 export function validateStudentInfo(data: any): { isValid: boolean; data?: any; error?: string } {
   try {
     const validatedData = studentInfoSchema.parse(data);
@@ -191,7 +229,7 @@ export function autoFixJSON(jsonString: string): string {
 }
 
 // Helper function to provide example JSON structures
-export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template'): string {
+export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template' | 'slider'): string {
   switch (type) {
     case 'chart':
       return JSON.stringify({
@@ -261,6 +299,13 @@ export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template')
         rank: 15
       }, null, 2);
     
+      case 'slider':
+      return JSON.stringify({
+        sliders: [
+          { category: '{{category}}', grade: 0, colour: '#EF4444'}
+        ]
+      }, null, 2);
+
     default:
       return '{}';
   }

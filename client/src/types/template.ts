@@ -260,6 +260,27 @@ export const COMPONENT_TYPES: ComponentType[] = [
       margin: '8px 0',
       borderStyle: 'dashed'
     }
+  },
+  {
+    id: 'range-slider',
+    name: 'Range Slider',
+    icon: 'fas fa-file-contract',
+    category: 'report',
+    description: 'Display Grade on a Line - From Left (0) to Right (100)',
+    defaultContent: {
+      title: "{{rangeSliderTitle}}",
+      data: '{{RangeSliderData}}',
+      grade: 0,
+      sliders: [
+        { category: '{{Category}}', grade: 10, colour: '#3B82F6'}
+      ]
+    },
+    defaultStyle: {
+      height: '2px',
+      backgroundColor: '#EF4444',
+      margin: '8px 0',
+      borderStyle: 'dashed'
+    }
   }
 ];
 

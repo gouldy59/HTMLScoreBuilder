@@ -13,6 +13,7 @@ export function ScoreTableComponent({ component, isSelected, onSelect, onDelete 
   const { content, style } = component;
   const headers = content.headers || ['Subject', 'Score', 'Grade'];
   const rows = content.rows || [];
+  const title = content.title;
 
   return (
     <div
@@ -52,7 +53,7 @@ export function ScoreTableComponent({ component, isSelected, onSelect, onDelete 
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold mb-4">Subject Scores</h3>
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden">
           <thead>

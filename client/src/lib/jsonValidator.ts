@@ -11,6 +11,14 @@ export const chartDataSchema = z.object({
   }))
 });
 
+export const RangeSliderSchema = z.object({
+  sliders: z.array(z.object({
+    category: z.string(),
+    grade: z.number(),
+    colour: z.string().optional(),
+  }))
+});
+
 export const studentInfoSchema = z.object({
   studentName: z.string(),
   studentId: z.string(),
@@ -33,8 +41,8 @@ export const scoreDataSchema = z.object({
 });
 
 export const templateDataSchema = z.object({
-  studentName: z.string(),
-  studentId: z.string(),
+  studentName: z.string().optional(),
+  studentId: z.string().optional(),
   className: z.string().optional(),
   teacherName: z.string().optional(),
   academicYear: z.string().optional(),
@@ -113,6 +121,36 @@ export function validateChartData(data: any): { isValid: boolean; data?: any; er
   }
 }
 
+export function validateRangeSlider(data: any): { isValid: boolean; data?: any; error?: string; details?: string[] } {
+    
+  try {
+      const validatedData = RangeSliderSchema.parse(data.value);
+      const details = [];
+
+      if (validatedData.sliders[0]?.category === null) {
+          details.push('Category is required');
+      }
+      if (validatedData.sliders[0]?.grade === null) {
+          details.push('Grade is required');
+      }
+      if (validatedData.sliders[0]?.colour === null) {
+          details.push('Colour is required');
+      }
+
+      return { isValid: true, data: validatedData, details };
+  } catch (error) {
+      if (error instanceof z.ZodError) {
+          const details = error.errors.map(err => `${err.message} at ${err.path.join('.')}`);
+
+          return {
+              isValid: false,
+              error: `Range Slider validation failed`,
+              details
+          };
+      }
+      return { isValid: false, error: 'Invalid Range Slider format' };
+    }
+}
 export function validateStudentInfo(data: any): { isValid: boolean; data?: any; error?: string } {
   try {
     const validatedData = studentInfoSchema.parse(data);
@@ -151,8 +189,8 @@ export function validateTemplateData(data: any): { isValid: boolean; data?: any;
     
     // Additional validation warnings
     const details = [];
-    if (!data.studentName) details.push('Student name is required');
-    if (!data.studentId) details.push('Student ID is required');
+    //if (!data.studentName) details.push('Student name is required');
+    //if (!data.studentId) details.push('Student ID is required');
     
     const scoreFields = ['mathScore', 'scienceScore', 'englishScore'];
     const hasAnyScore = scoreFields.some(field => typeof data[field] === 'number');
@@ -191,7 +229,7 @@ export function autoFixJSON(jsonString: string): string {
 }
 
 // Helper function to provide example JSON structures
-export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template'): string {
+export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template' | 'slider'): string {
   switch (type) {
     case 'chart':
       return JSON.stringify({
@@ -228,12 +266,28 @@ export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template')
     
     case 'template':
       return JSON.stringify({
-        studentName: "John Doe",
+        candidateReference: "John Doe",
         studentId: "STU001",
         className: "10th Grade",
         teacherName: "Ms. Smith",
         academicYear: "2024-2025",
-        grade: "10",
+        grade: "51%",
+        score01: "21",
+        score02: "85",
+        score03: "47",
+        grade01: "F",
+        grade02: "A+",
+        grade03: "C",
+        catA: "Science",
+        catB: "History",
+        catC: "English",
+        x: "21",
+        y: "85",
+        z: "47",
+        subject01: "Science",
+        subject02: "History",
+        subject03: "English",
+        tableTitle: "Category Breakdown",
         mathScore: 85,
         mathGrade: "B+",
         scienceScore: 92,
@@ -245,6 +299,13 @@ export function getExampleJSON(type: 'chart' | 'student' | 'score' | 'template')
         rank: 15
       }, null, 2);
     
+      case 'slider':
+      return JSON.stringify({
+        sliders: [
+          { category: '{{category}}', grade: 0, colour: '#EF4444'}
+        ]
+      }, null, 2);
+
     default:
       return '{}';
   }

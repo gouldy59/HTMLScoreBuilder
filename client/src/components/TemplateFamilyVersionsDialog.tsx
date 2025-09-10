@@ -36,7 +36,7 @@ export function TemplateFamilyVersionsDialog({
 
   // Get all templates and filter by family
   const { data: allTemplates = [], isLoading } = useQuery<Template[]>({
-    queryKey: ['/api/templates'],
+      queryKey: ['http://localhost:5001/api/templates'],
     enabled: !!familyId && open,
   });
 

@@ -27,7 +27,7 @@ export function VersionHistoryDialog({ isOpen, onClose, templateId, onVersionRev
 
   // Fetch version history
   const { data: versions = [], isLoading } = useQuery({
-    queryKey: ['/api/templates', templateId, 'history'],
+      queryKey: ['http://localhost:5001/api/templates', templateId, 'history'],
     enabled: !!templateId && isOpen,
   });
 
@@ -35,14 +35,14 @@ export function VersionHistoryDialog({ isOpen, onClose, templateId, onVersionRev
   const createVersionMutation = useMutation({
     mutationFn: async (data: { name: string; changeDescription?: string }) => {
       if (!templateId) throw new Error('No template ID');
-      return apiRequest(`/api/templates/${templateId}/versions`, {
+          return apiRequest(`http://localhost:5001/api/templates/${templateId}/versions`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
     },
     onSuccess: (newVersion) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates', templateId] });
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+      queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates', templateId] });
+        queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates'] });
       setIsCreatingVersion(false);
       setVersionName('');
       setChangeDescription('');
@@ -58,13 +58,13 @@ export function VersionHistoryDialog({ isOpen, onClose, templateId, onVersionRev
   const revertMutation = useMutation({
     mutationFn: async (versionId: number) => {
       if (!templateId) throw new Error('No template ID');
-      return apiRequest(`/api/templates/${templateId}/revert/${versionId}`, {
+          return apiRequest(`http://localhost:5001/api/templates/${templateId}/revert/${versionId}`, {
         method: 'POST',
       });
     },
     onSuccess: (revertedTemplate) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/templates', templateId] });
-      queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
+        queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates', templateId] });
+        queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates'] });
       toast({ title: 'Successfully reverted to previous version' });
       onVersionRevert(revertedTemplate);
       onClose();

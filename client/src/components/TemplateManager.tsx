@@ -59,21 +59,24 @@ export function TemplateManager() {
   const itemsPerPage = 10;
 
   const { data: rawTemplates = [], isLoading, error, refetch } = useQuery<Template[]>({
-    queryKey: ['/api/template-families'],
+      queryKey: ['http://localhost:5001/api/templates/families'],
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
   });
 
   // Transform raw templates into template families
-  const templateFamilies: TemplateFamily[] = rawTemplates.map(template => ({
-    familyId: template.id,
-    name: template.name,
-    description: template.description,
-    totalVersions: 1, // Since we're only getting latest versions
-    latestVersion: template,
+  const templateFamilies: TemplateFamily[] = rawTemplates.map((template, index) => ({
+    familyId: template.familyId || template.id || index + 1, // Ensure familyId is always available
+    name: template.name || 'Unnamed Template',
+    description: template.description || '',
+    totalVersions: template.totalVersions || 1, // Since we're only getting latest versions
+    latestVersion: {
+      ...template.latestVersion || template,
+      id: template.latestVersion?.id || template.id || index + 1 // Ensure ID is always available
+    },
     createdAt: template.createdAt,
     updatedAt: template.updatedAt,
-    isPublished: template.isPublished,
+    isPublished: template.isPublished || false,
     publishedAt: template.publishedAt || undefined
   }));
 
@@ -103,7 +106,17 @@ export function TemplateManager() {
   const paginatedFamilies = filteredFamilies.slice(startIndex, startIndex + itemsPerPage);
 
   const handleEdit = (family: TemplateFamily) => {
-    setLocation(`/builder?templateId=${family.latestVersion.id}`);
+    const templateId = family.latestVersion?.id || family.familyId;
+    console.log('Editing template:', templateId, 'from family:', family);
+    if (templateId) {
+      setLocation(`/builder?templateId=${templateId}`);
+    } else {
+      toast({
+        title: "Cannot edit template",
+        description: "Template ID is missing",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewVersions = (family: TemplateFamily) => {
@@ -123,13 +136,13 @@ export function TemplateManager() {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (templateId: number) => apiRequest('DELETE', `/api/templates/${templateId}`),
+      mutationFn: (templateId: number) => apiRequest('DELETE', `http://localhost:5001/api/templates/${templateId}`),
     onSuccess: () => {
       toast({
         title: "Template deleted",
         description: "The template has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/template-families'] });
+        queryClient.invalidateQueries({ queryKey: ['http://localhost:5001/api/templates/families'] });
     },
     onError: (error: any) => {
       toast({
@@ -248,9 +261,9 @@ export function TemplateManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedFamilies.map((family) => (
+                {paginatedFamilies.map((family, index) => (
                   <TableRow 
-                    key={`family-${family.familyId}`} 
+                    key={`family-${family.familyId || index}`} 
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleViewVersions(family)}
                   >

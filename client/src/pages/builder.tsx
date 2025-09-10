@@ -35,40 +35,48 @@ export default function Builder() {
   const [reportBackgroundImage, setReportBackgroundImage] = useState<string>('');
   const { toast } = useToast();
 
-  // Extract templateId from URL parameters using window.location
-  const urlParams = new URLSearchParams(window.location.search);
-  const templateId = urlParams.get('templateId');
+  // Extract templateId from URL parameters - works with both window.location and wouter
+    const [templateId, setTemplateId] = useState<string | null>(null);
+    const baseUrl = "http://localhost:5001";
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('templateId');
+    console.log('URL search params:', window.location.search, 'extracted templateId:', id);
+    setTemplateId(id);
+  }, [location]);
 
   // Load template if templateId is provided in URL
-  const { data: templateToLoad, isLoading: templateLoading, refetch } = useQuery<Template>({
+  const { data: templateToLoad, isLoading: templateLoading, refetch, error: templateError } = useQuery<Template>({
     queryKey: ['template-single', templateId], // More specific query key to avoid cache conflicts
     queryFn: async () => {
-      const response = await fetch(`/api/templates/${templateId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch template ${templateId}`);
+      if (!templateId) {
+        throw new Error('Template ID is required');
       }
-      return response.json();
+      console.log('Fetching template with ID:', templateId);
+      const response = await fetch(`${baseUrl}/api/templates/${templateId}`);
+      if (!response.ok) {
+        if (response.status === 400) {
+          throw new Error(`Invalid template ID: ${templateId}`);
+        }
+        throw new Error(`Failed to fetch template ${templateId}: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('Successfully fetched template:', data);
+      return data;
     },
-    enabled: !!templateId, // Load whenever templateId is present
+    enabled: !!templateId && templateId !== 'undefined', // Load whenever templateId is present and valid
     staleTime: 0, // Always fetch fresh data
     gcTime: 0, // Don't cache the data (v5 uses gcTime instead of cacheTime)
     refetchOnMount: 'always', // Always refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch on window focus
+    retry: false, // Don't retry failed requests
   });
 
   // Effect to handle template loading (only when template data is available)
   useEffect(() => {
     if (templateToLoad && templateId && !templateLoading) {
       const requestedTemplateId = parseInt(templateId);
-      
-      // Force invalidate cache and refetch when templateId changes
-      if (requestedTemplateId !== currentTemplateId) {
-        queryClient.invalidateQueries({ queryKey: ['template-single'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-        if (refetch) {
-          refetch();
-        }
-      }
       
       // Always reload if the templateId changed, even if it's different from currentTemplateId
       if (requestedTemplateId !== currentTemplateId || currentTemplateId === null) {
@@ -80,11 +88,11 @@ export default function Builder() {
           componentCount: templateToLoad.components?.length || 0,
           isLatest: templateToLoad.isLatest,
           parentId: templateToLoad.parentId,
-          queryUrl: `/api/templates/${templateId}`,
+            queryUrl: `${baseUrl}/api/templates/${templateId}`,
           templateToLoad: templateToLoad
         });
         
-        const componentsToLoad = Array.isArray(templateToLoad.components) ? templateToLoad.components : [];
+        const componentsToLoad = JSON.parse(templateToLoad.components as string);
         setComponents([...componentsToLoad]); // Force new array to trigger re-render
         setTemplateName(templateToLoad.name);
         setCurrentTemplateId(templateToLoad.id);
@@ -99,7 +107,18 @@ export default function Builder() {
         });
       }
     }
-  }, [templateToLoad, templateId, templateLoading, currentTemplateId, toast, refetch]);
+    
+    // Handle template loading errors
+    if (templateError && templateId) {
+      console.error('Template loading error:', templateError);
+      toast({
+        title: 'Failed to load template',
+        description: `Could not load template ${templateId}: ${templateError.message}`,
+        variant: 'destructive',
+        duration: 5000
+      });
+    }
+  }, [templateToLoad, templateId, templateLoading, currentTemplateId, templateError, toast]);
 
   // Handle URL changes - show wizard for new builder or skip for existing templates
   useEffect(() => {
@@ -132,16 +151,16 @@ export default function Builder() {
       if (currentTemplateId) {
         if (isPublished) {
           // If published, create a new version
-          const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/versions`, templateData);
+            const response = await apiRequest('POST', `${baseUrl}/api/templates/${currentTemplateId}/versions`, templateData);
           return await response.json();
         } else {
           // If unpublished, update existing template
-          const response = await apiRequest('PUT', `/api/templates/${currentTemplateId}`, templateData);
+            const response = await apiRequest('PUT', `${baseUrl}/api/templates/${currentTemplateId}`, templateData);
           return await response.json();
         }
       } else {
-        // Create new template for first save
-        const response = await apiRequest('POST', '/api/templates', templateData);
+          // Create new template for first save
+        const response = await apiRequest('POST', `${baseUrl}/api/templates`, templateData);
         const newTemplate = await response.json();
         setCurrentTemplateId(newTemplate.id);
         setTemplateName(newTemplate.name); // Update the name in state
@@ -182,7 +201,7 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to publish');
 
-      const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/publish`);
+          const response = await apiRequest('POST', `${baseUrl}/api/templates/${currentTemplateId}/publish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
@@ -203,7 +222,7 @@ export default function Builder() {
     mutationFn: async () => {
       if (!currentTemplateId) throw new Error('No template to unpublish');
 
-      const response = await apiRequest('POST', `/api/templates/${currentTemplateId}/unpublish`);
+          const response = await apiRequest('POST', `${baseUrl}/api/templates/${currentTemplateId}/unpublish`);
       return await response.json();
     },
     onSuccess: (updatedTemplate) => {
@@ -281,7 +300,7 @@ export default function Builder() {
     setIsVersionHistoryOpen(false);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const defaultData = {
       studentName: 'John Doe',
       studentId: 'STU001',
@@ -299,17 +318,35 @@ export default function Builder() {
       gpa: 3.5,
       rank: 15,
     };
+      const previewData = templateData;
 
-    // Use imported data if available, otherwise use defaults
-    const previewData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
-    
-    const html = generateHTML(components, previewData, templateName, reportBackground, reportBackgroundImage);
+      try {
+          const previewWindow = window.open('', '_blank');
 
-    const previewWindow = window.open('', '_blank');
-    if (previewWindow) {
-      previewWindow.document.write(html);
-      previewWindow.document.close();
-    }
+          const response = await fetch(`http://localhost:5001/api/templates/${currentTemplateId}/export-html`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ data: previewData }),
+          });
+
+          if (!response.ok) {
+              const error = await response.json();
+              console.error("Failed to generate HTML:", error.message);
+              return;
+          }
+
+          const html = await response.text();
+
+          if (previewWindow) {
+              previewWindow.document.open();
+              previewWindow.document.write(html);
+              previewWindow.document.close();
+          }
+      } catch (err) {
+          console.error("Error generating HTML:", err);
+      }
   };
 
   const handleImportData = () => {
@@ -325,7 +362,7 @@ export default function Builder() {
     });
   };
 
-  const handleExportHTML = () => {
+  const handleExportHTML = async () => {
     const defaultData = {
       studentName: 'John Doe',
       studentId: 'STU001',
@@ -343,10 +380,9 @@ export default function Builder() {
       gpa: 3.5,
       rank: 15,
     };
-
     // Use imported data if available, otherwise use defaults
     const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
-    
+
     const html = generateHTML(components, exportData, templateName, reportBackground, reportBackgroundImage);
     downloadHTML(html, `${templateName.replace(/\s+/g, '-').toLowerCase()}.html`);
     
@@ -384,10 +420,10 @@ export default function Builder() {
 
       const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
 
-      const response = await fetch(`/api/templates/${currentTemplateId}/generate-pdf`, {
+        const response = await fetch(`${baseUrl}/api/templates/${currentTemplateId}/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: exportData })
+        body: JSON.stringify({ data: exportData, exportType: 'pdf' })
       });
 
       if (!response.ok) {
@@ -447,7 +483,7 @@ export default function Builder() {
 
       const exportData = Object.keys(templateData).length > 0 ? { ...defaultData, ...templateData } : defaultData;
 
-      const response = await fetch(`/api/templates/${currentTemplateId}/generate-image`, {
+        const response = await fetch(`${baseUrl}/api/templates/${currentTemplateId}/generate-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: exportData })
@@ -556,11 +592,12 @@ export default function Builder() {
         </div>
 
         <JSONDataDialog
-          isOpen={isJSONDialogOpen}
-          onClose={() => setIsJSONDialogOpen(false)}
-          onApplyData={handleApplyJSONData}
-          title="Import Template Data"
-          description="Import and validate JSON data to populate your template with real values"
+                  isOpen={isJSONDialogOpen}
+                  onClose={() => setIsJSONDialogOpen(false)}
+                  onApplyData={handleApplyJSONData}
+                  title="Import Template Data"
+                  description="Import and validate JSON data to populate your template with real values"
+                  currentTemplateId={currentTemplateId}
         />
 
         <VersionHistoryDialog

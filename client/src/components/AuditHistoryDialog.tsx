@@ -15,7 +15,7 @@ interface AuditHistoryDialogProps {
 
 export function AuditHistoryDialog({ isOpen, onClose, templateId }: AuditHistoryDialogProps) {
   const { data: auditLogs = [], isLoading } = useQuery<AuditLog[]>({
-    queryKey: ['/api/templates', templateId, 'audit'],
+      queryKey: ['http://localhost:5001/api/templates', templateId, 'audit'],
     enabled: !!templateId && isOpen,
   });
 

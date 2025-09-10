@@ -1,0 +1,357 @@
+{
+  "count": null,
+  "top": null,
+  "skip": null,
+  "pageCount": null,
+  "nextPageLink": null,
+  "prevPageLink": null,
+  "response": [
+    {
+      "id": 21738,
+      "reference": "466CWDD3",
+      "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738",
+      "mark": 3.0,
+      "availableMarks": 7,
+      "grade": "Pass",
+      "pass": true,
+      "passMark": 2.8,
+      "passMarkType": "Percentage",
+      "percentageMark": 42.857,
+      "passPercentage": 40.0,
+      "IRTScore": null,
+      "passIRTScore": null,
+      "keycode": "466CWDD3",
+      "externalReference": "",
+      "startedDate": "2025-09-08T16:14:23.16",
+      "originalStartedDate": "2025-09-08T17:14:23.16+01:00",
+      "submittedDate": "2025-09-08T16:15:53.86",
+      "originalSubmittedDate": "2025-09-08T17:15:53.86+01:00",
+      "warehousedDate": "2025-09-08T16:16:02.23",
+      "originalWarehousedDate": "2025-09-08T17:16:02.23+01:00",
+      "examWindowStartTime": "2025-09-08T00:00:00",
+      "allowedDuration": 0,
+      "actualDuration": 0,
+      "durationMode": "Untimed",
+      "isManuallySubmittedInLocal": false,
+      "resultsReleased": false,
+      "resultsSampled": false,
+      "re-mark": "No",
+      "voidReason": null,
+      "voidReasonType": null,
+      "cutScoreAvailableMarks": 7,
+      "purchaseOrder": "",
+      "started": true,
+      "isReview": false,
+      "restartCount": 0,
+      "customDemographics": "",
+      "test": {
+        "reference": "KeH01UU170957",
+        "name": "KerrieSubjectHTML HTML Delivery 01 - LO4",
+        "id": 2426,
+        "href": "https://kerrieeditions.prometric.com/api/v2/Test/2426"
+      },
+      "testForm": {
+        "reference": "01 KeH01UU170957",
+        "name": "01 KerrieSubjectHTML HTML Delivery 01 - LO4",
+        "id": 2357,
+        "href": "https://kerrieeditions.prometric.com/api/v2/TestForm/2357"
+      },
+      "subject": {
+        "reference": "KerrieSubjectHTML",
+        "name": "KerrieSubjectHTML",
+        "id": 21652,
+        "href": "https://kerrieeditions.prometric.com/api/v2/Subject/21652"
+      },
+      "centre": {
+        "id": 241,
+        "reference": "KeplerCentre",
+        "href": "https://kerrieeditions.prometric.com/api/v2/Centre/241"
+      },
+      "candidate": {
+        "id": 1293,
+        "reference": "John Doe",
+        "href": "https://kerrieeditions.prometric.com/api/v2/Candidate/1293"
+      },
+      "introSection": [
+        {
+          "id": 0,
+          "name": "Introduction",
+          "mark": 0.0,
+          "itemGroupsCountToGrade": null,
+          "percentageMark": 0.0,
+          "availableMarks": 0,
+          "pass": false,
+          "passMark": 0.0,
+          "passPercentage": 0.0,
+          "passIRTScore": null,
+          "passMarkType": "Mark",
+          "IRTScore": null,
+          "viewingTime": 0,
+          "items": [],
+          "sectionSelectorId": null,
+          "selected": null,
+          "startTime": null,
+          "originalStartTime": null,
+          "endTime": null,
+          "originalEndTime": null,
+          "isPoolTimeSection": false,
+          "poolName": null,
+          "isSurveySection": false,
+          "decisionPoint": null
+        }
+      ],
+      "sections": [
+        {
+          "id": 1,
+          "name": "",
+          "mark": 3.0,
+          "itemGroupsCountToGrade": null,
+          "percentageMark": 42.857,
+          "availableMarks": 7,
+          "pass": true,
+          "passMark": 0.0,
+          "passPercentage": 0.0,
+          "passIRTScore": null,
+          "passMarkType": "Percentage",
+          "IRTScore": null,
+          "viewingTime": 85702,
+          "items": [
+            {
+              "name": "My item 4",
+              "version": 2,
+              "mark": 1.0,
+              "awardedMark": 1.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "40562",
+              "learningOutcome": "Outcome A",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102861",
+              "uid": "08053655-9a71-4059-bc89-2c53f55783c6",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102861\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:03.266Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"1\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"0\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102861"
+              },
+              "marker": "C",
+              "displayNumber": "1",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 5",
+              "version": 2,
+              "mark": 0.0,
+              "awardedMark": 0.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "7353",
+              "learningOutcome": "Outcome A",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102864",
+              "uid": "74b22130-0e57-43b4-9bb0-9049acdf36bd",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102864\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:10.419Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"0\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"1\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"0\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102864"
+              },
+              "marker": "C",
+              "displayNumber": "2",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 6",
+              "version": 2,
+              "mark": 1.0,
+              "awardedMark": 1.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "6059",
+              "learningOutcome": "Outcome B",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102866",
+              "uid": "99e43e9f-61d1-4604-8282-701cdcf21641",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102866\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:17.030Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"1\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"0\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102866"
+              },
+              "marker": "C",
+              "displayNumber": "3",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 7",
+              "version": 2,
+              "mark": 1.0,
+              "awardedMark": 1.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "2445",
+              "learningOutcome": "Outcome B",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102869",
+              "uid": "1c2db78d-cc19-44a7-99a5-114a2f8d4f1f",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102869\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:18.978Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"1\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"0\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102869"
+              },
+              "marker": "C",
+              "displayNumber": "4",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 8",
+              "version": 2,
+              "mark": 0.0,
+              "awardedMark": 0.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "21924",
+              "learningOutcome": "Outcome B",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102872",
+              "uid": "c19648dd-0f4d-4ea4-9a82-b5a1ab27a568",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102872\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:40.870Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"0\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"1\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102872"
+              },
+              "marker": "C",
+              "displayNumber": "5",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 9",
+              "version": 2,
+              "mark": 0.0,
+              "awardedMark": 0.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "5352",
+              "learningOutcome": "Outcome C",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102875",
+              "uid": "8dac3f3b-6c1c-4294-859a-d11b3bacdfe6",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102875\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:47.310Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"0\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"1\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102875"
+              },
+              "marker": "C",
+              "displayNumber": "6",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            },
+            {
+              "name": "My item 10",
+              "version": 2,
+              "mark": 0.0,
+              "awardedMark": 0.0,
+              "availableMarks": 1,
+              "isSelectedForGrading": null,
+              "viewingTime": "2007",
+              "learningOutcome": "Outcome C",
+              "markBreakdown": [],
+              "unit": "",
+              "surpassReference": "7253P102878",
+              "uid": "a913c49e-3713-4c39-8259-d12c8589c3da",
+              "nonScored": false,
+              "type": "Question",
+              "candidateResponse": {
+                "Value": "<p isHtml=\"true\" id=\"7253P102878\" cs=\"1\" ua=\"1\" uc=\"1\" timeStamp=\"2025-09-08T16:15:48.830Z\"><s id=\"1\" itl=\"0\" it=\"0\" irc=\"0\" ua=\"1\" uc=\"1\" crt=\"0\"><c id=\"1\" ua=\"1\" uc=\"1\" typ=\"10\" ie=\"1\"><i id=\"1\" sl=\"0\" struckOut=\"0\" ac=\"A\" autoNavigation=\"true\" /><i id=\"2\" sl=\"0\" struckOut=\"0\" ac=\"B\" autoNavigation=\"true\" /><i id=\"3\" sl=\"1\" struckOut=\"0\" ac=\"C\" autoNavigation=\"true\" /></c></s><itemComment /></p>"
+              },
+              "itemResponse": {
+                "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ItemResponse/7253P102878"
+              },
+              "marker": "C",
+              "displayNumber": "7",
+              "markingType": "0",
+              "itemSetId": null,
+              "itemSetName": null,
+              "itemSetUid": null
+            }
+          ],
+          "sectionSelectorId": null,
+          "selected": null,
+          "startTime": null,
+          "originalStartTime": null,
+          "endTime": null,
+          "originalEndTime": null,
+          "isPoolTimeSection": false,
+          "poolName": null,
+          "isSurveySection": false,
+          "decisionPoint": null
+        }
+      ],
+      "metadata": null,
+      "scaleScore": null,
+      "scaleScoreMapping": null,
+      "learningOutcomeThreshold": 50,
+      "learningOutcomeBoundariesApplied": false,
+      "learningOutcomes": [],
+      "learningOutcomeBoundaries": [],
+      "sectionSelectors": [],
+      "IRTDomain": [],
+      "reasonableAdjustments": {
+        "totalTimeAdded": 0,
+        "reasonForAdjustment": ""
+      },
+      "files": [],
+      "isTokenRequired": false,
+      "clientInformation": {
+        "id": 21738,
+        "reference": "466CWDD3",
+        "href": "https://kerrieeditions.prometric.com/api/v2/Result/21738/ClientInformation",
+        "value": "<clientInformation><systemConfiguration source=\"0\" web=\"1\"><hasAudio>true</hasAudio><hasEmbeddedVideo>true</hasEmbeddedVideo><hasMP3>true</hasMP3><hasStreamingAudio>true</hasStreamingAudio><hasVideoEncoder>true</hasVideoEncoder><pixelAspectRatio>1</pixelAspectRatio><screenColor>multicolor</screenColor><screenDPI>96</screenDPI><screenResolutionX>1680</screenResolutionX><screenResolutionY>1050</screenResolutionY><isMobile>false</isMobile><serverString>A=t&amp;amp;EV=t&amp;amp;MP3=t&amp;amp;SA=t&amp;amp;VE=true&amp;amp;OS=Windows 10&amp;amp;AR=1&amp;amp;COL=multicolor&amp;amp;DP=96&amp;amp;R=1680*1050&amp;amp;</serverString><os>Windows 10</os><browser>Chrome 139.0.0.0</browser><htmlDeliveryVersion>25.1.0.0</htmlDeliveryVersion><dotNet /><msOfficeBuilder /><flashPlayer /><flashVersion /><secureClient /><environment /><timeZone /><identification /><windowsservices /></systemConfiguration></clientInformation>"
+      },
+      "primaryCentre": {
+        "id": 241,
+        "reference": "KeplerCentre"
+      }
+    }
+  ],
+  "errors": null,
+  "serverTimeZone": "GMT Standard Time"
+}

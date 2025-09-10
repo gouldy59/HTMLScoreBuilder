@@ -1,5 +1,5 @@
 # Overview
-This project is a full-stack web application designed for creating dynamic score report templates. It features a drag-and-drop HTML page builder, allowing users to design professional academic reports with dynamic template variables and a component-based architecture. The system aims to provide an intuitive tool for generating customizable educational documents.
+This project is a full-stack web application designed for creating dynamic score report templates. It features a drag-and-drop HTML page builder, allowing users to design professional academic reports with dynamic template variables and a component-based architecture. The system includes persistent storage for templates that survive server restarts, ensuring work is never lost.
 
 # User Preferences
 Preferred communication style: Simple, everyday language.
@@ -22,10 +22,11 @@ Preferred communication style: Simple, everyday language.
 - **API**: RESTful endpoints for template CRUD, generation, and external integrations.
 
 ## Data Storage
-- **Primary Database**: PostgreSQL (Neon serverless)
-- **ORM**: Drizzle ORM
-- **Schema**: Stores templates, users, and audit logs. Templates include JSON fields for components, variables, and styles.
-- **Migrations**: Drizzle Kit
+- **Primary Database**: PostgreSQL (Neon serverless) with Drizzle ORM
+- **Fallback Storage**: File-based JSON storage in `data/` directory for local persistence
+- **Storage Strategy**: Automatic fallback from database → file storage → memory storage
+- **Schema**: Templates, users, and audit logs with JSON fields for components, variables, and styles
+- **Persistence**: Templates survive server restarts via file storage when database unavailable
 
 ## Key Features
 - **Template System**: Predefined and custom components, dynamic `{{variableName}}` support, JSON-based component storage.
@@ -42,11 +43,12 @@ Preferred communication style: Simple, everyday language.
 
 # External Dependencies
 
-- **@neondatabase/serverless**: Neon PostgreSQL connection.
-- **drizzle-orm**: Database ORM and query builder.
-- **@tanstack/react-query**: Server state management.
-- **@radix-ui/***: UI primitive components.
-- **tailwindcss**: Utility-first CSS framework.
-- **html-pdf-node**: Server-side PDF generation.
-- **puppeteer**: Server-side image generation.
-- **OpenAI DALL-E 3**: AI image generation for Image components.
+- **@neondatabase/serverless**: Neon PostgreSQL connection with WebSocket support.
+- **drizzle-orm**: Database ORM and query builder with fallback strategies.
+- **@tanstack/react-query**: Server state management and caching.
+- **@radix-ui/***: UI primitive components for consistent design.
+- **tailwindcss**: Utility-first CSS framework for responsive styling.
+- **html-pdf-node**: Server-side PDF generation via Puppeteer.
+- **puppeteer**: Browser automation for image and PDF generation.
+- **OpenAI DALL-E 3**: AI image generation for dynamic Image components.
+- **File System Storage**: JSON-based persistence layer for local template storage.
